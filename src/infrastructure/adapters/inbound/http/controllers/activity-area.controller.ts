@@ -10,7 +10,7 @@ import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 
-@ApiTags('Áreas de Actividad')
+@ApiTags('Activity Areas')
 @Controller('activity-areas')
 export class ActivityAreaController {
   constructor(

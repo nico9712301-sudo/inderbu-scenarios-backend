@@ -32,6 +32,8 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
 
   async listPaged(opts: PageOptionsDto): Promise<PageDto<ScenarioResponseDto>> {
     const { data: scenarios, total } = await this.scenarioRepository.findPaged(opts);
+
+    console.log({scenarios})
     
     // Extraer IDs de barrios para cargar
     const neighborhoodIds = scenarios

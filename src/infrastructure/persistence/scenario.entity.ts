@@ -13,6 +13,12 @@ export class ScenarioEntity {
 
   @Column({ length: 150 })
   address: string;
+  
+  @Column({
+    name: 'is_active',
+    default: true
+  })
+  isActive?: boolean;
 
   // Relación con NeighborhoodEntity (similar a tu ejemplo de usuario)
   @ManyToOne(() => NeighborhoodEntity, { nullable: true })

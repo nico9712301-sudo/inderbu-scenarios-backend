@@ -10,7 +10,7 @@ import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
 
-@ApiTags('Escenarios')
+@ApiTags('Scenarios')
 @Controller('scenarios')
 export class ScenarioController {
   constructor(
@@ -25,9 +25,10 @@ export class ScenarioController {
   @ApiQuery({ name: 'search', required: false, type: String, description: 'Texto libre sobre name' })
   @ApiQuery({ name: 'neighborhoodId', required: false, type: Number, description: 'Filtra por barrio' })
   @ApiResponse({ status: 200, type: PageDto })
-  async getScenarios(
+  async getAll(
     @Query() opts: PageOptionsDto,
   ): Promise<PageDto<ScenarioResponseDto>> {
+    console.log('Active filter from controller:', opts.active);
     return this.scenarioApplicationService.listPaged(opts);
   }
 
@@ -36,7 +37,7 @@ export class ScenarioController {
   @ApiParam({ name: 'id', type: Number, description: 'ID del escenario' })
   @ApiResponse({ status: 200, type: ScenarioResponseDto })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
-  async getScenarioById(@Param('id') id: number): Promise<ScenarioResponseDto> {
+  async getById(@Param('id') id: number): Promise<ScenarioResponseDto> {
     const scenario = await this.scenarioApplicationService.getById(id);
     if (!scenario) throw new NotFoundException(`Escenario ${id} no encontrado`);
     return ScenarioResponseMapper.toDto(scenario);
@@ -47,7 +48,7 @@ export class ScenarioController {
   @ApiResponse({ status: 201, type: ScenarioResponseDto, description: 'Escenario creado exitosamente' })
   @ApiResponse({ status: 400, description: 'Datos de entrada inválidos' })
   @ApiResponse({ status: 404, description: 'Barrio no encontrado' })
-  async createScenario(@Body() createDto: CreateScenarioDto): Promise<ScenarioResponseDto> {
+  async create(@Body() createDto: CreateScenarioDto): Promise<ScenarioResponseDto> {
     return this.scenarioApplicationService.create(createDto);
   }
 
@@ -57,12 +58,12 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: ScenarioResponseDto, description: 'Escenario actualizado exitosamente' })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   @ApiResponse({ status: 400, description: 'Datos de entrada inválidos' })
-  async updateScenario(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateScenarioDto,
   ): Promise<ScenarioResponseDto> {
-    console.log('🎯 Controller received updateDto:', updateDto);
-    console.log('🎯 updateDto.neighborhoodId:', updateDto.neighborhoodId, typeof updateDto.neighborhoodId);
+    console.log('Controller received updateDto:', updateDto);
+    console.log('updateDto.neighborhoodId:', updateDto.neighborhoodId, typeof updateDto.neighborhoodId);
     return this.scenarioApplicationService.update(id, updateDto);
   }
 
@@ -72,7 +73,7 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: Boolean, description: 'true si se eliminó correctamente' })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   @ApiResponse({ status: 400, description: 'No se puede eliminar el escenario porque tiene sub-escenarios asociados' })
-  async deleteScenario(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean; message: string }> {
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean; message: string }> {
     const success = await this.scenarioApplicationService.delete(id);
     return {
       success,

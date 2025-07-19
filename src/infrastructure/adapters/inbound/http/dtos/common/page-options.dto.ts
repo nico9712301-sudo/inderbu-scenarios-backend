@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
 
 export class PageOptionsDto {
@@ -25,4 +25,12 @@ export class PageOptionsDto {
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) activityAreaId?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) neighborhoodId?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) userId?: number;
+  @ApiPropertyOptional() 
+  @IsOptional() 
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  }) 
+  active?: boolean;
 }

@@ -9,7 +9,7 @@ import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { ICommuneApplicationPort } from 'src/core/application/ports/inbound/commune-application.port';
 
-@ApiTags('Comunas')
+@ApiTags('Communes')
 @Controller('communes')
 export class CommuneController {
   constructor(

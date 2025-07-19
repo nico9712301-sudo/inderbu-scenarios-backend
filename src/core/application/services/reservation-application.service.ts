@@ -83,7 +83,7 @@ export class ReservationApplicationService
     dto: CreateReservationRequestDto,
     userId: number,
   ): Promise<CreateReservationResponseDto> {
-    this.logger.log(`🎯 Creating reservation for user ${userId}`, {
+    this.logger.log(`Creating reservation for user ${userId}`, {
       subScenarioId: dto.subScenarioId,
       timeSlotIds: dto.timeSlotIds,
       hasRange: !!dto.reservationRange,

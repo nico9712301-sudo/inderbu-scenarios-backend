@@ -13,4 +13,7 @@ export class ScenarioResponseDto {
 
   @ApiProperty({ type: NeighborhoodResponseDto, description: 'Barrio donde se ubica' })
   neighborhood?: NeighborhoodResponseDto;
+
+  @ApiProperty({ example: true, description: 'Estado del escenario' })
+  active: boolean;
 }

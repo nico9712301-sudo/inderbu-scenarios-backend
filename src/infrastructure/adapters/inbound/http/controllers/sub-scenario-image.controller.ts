@@ -24,7 +24,7 @@ import { UpdateImagesOrderDto } from '../dtos/images/update-images-order.dto';
 import { CreateImageDto } from '../dtos/images/create-image.dto';
 import { UpdateImageDto } from '../dtos/images/update-image.dto';
 
-@ApiTags('Imágenes de Sub-escenarios')
+@ApiTags('Sub-escenarios Images')
 @Controller('sub-scenarios')
 export class SubScenarioImageController {
   constructor(

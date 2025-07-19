@@ -11,7 +11,7 @@ import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
 
-@ApiTags('Barrios')
+@ApiTags('Neighborhoods')
 @Controller('neighborhoods')
 export class NeighborhoodController {
   constructor(

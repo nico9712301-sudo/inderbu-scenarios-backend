@@ -2,16 +2,19 @@
     {
         "name": "Las Américas",
         "address": "CRA 38 Y 43  CALLE 33 Y 33A",
-        "neighborhoodName": "San Alonso"
+        "neighborhoodName": "San Alonso",
+        "isActive": true
     },
     {
         "name": "El Mutis",
         "address": "Dirección de El Mutis",
-        "neighborhoodName": "San Alonso"
+        "neighborhoodName": "San Alonso",
+        "isActive": true
     },
     {
         "name": "Cancha Multiple - Microfutbol Basquetbol",
         "neighborhoodName": "Bucaramanga",
-        "address": "Calle 68 Con Cra 10"
+        "address": "Calle 68 Con Cra 10",
+        "isActive": true
     }
 ]

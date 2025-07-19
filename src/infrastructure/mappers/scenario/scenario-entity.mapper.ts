@@ -7,7 +7,8 @@ export class ScenarioEntityMapper {
       .withId(e.id)
       .withName(e.name)
       .withAddress(e.address)
-      .withNeighborhoodId(e.neighborhood?.id ?? 0) // <–– mapea aquí
+      .withNeighborhoodId(e.neighborhood?.id ?? 0)
+      .withActive(e.isActive ?? true)
       .build();
   }
   static toEntity(domain: ScenarioDomainEntity): ScenarioEntity {

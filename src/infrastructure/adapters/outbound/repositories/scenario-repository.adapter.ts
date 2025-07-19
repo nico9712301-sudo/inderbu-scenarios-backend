@@ -6,8 +6,8 @@ import { IScenarioRepositoryPort } from 'src/core/domain/ports/outbound/scenario
 import { ScenarioEntityMapper } from 'src/infrastructure/mappers/scenario/scenario-entity.mapper';
 import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
 import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
-import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 
 @Injectable()
 export class ScenarioRepositoryAdapter
@@ -33,24 +33,29 @@ export class ScenarioRepositoryAdapter
       where: { id: In(ids) },
       relations: ['neighborhood'],
     });
-    return entities.map(e => this.toDomain(e));
+    return entities.map((e) => this.toDomain(e));
   }
 
   async findAll(): Promise<ScenarioDomainEntity[]> {
     const entities = await this.repository.find({
       relations: ['neighborhood'],
-      order: { name: 'ASC' }
+      order: { name: 'ASC' },
     });
-    return entities.map(e => this.toDomain(e));
+    return entities.map((e) => this.toDomain(e));
   }
 
-  async findPaged(opts: PageOptionsDto): Promise<{ data: ScenarioDomainEntity[]; total: number }> {
+  async findPaged(
+    opts: PageOptionsDto,
+  ): Promise<{ data: ScenarioDomainEntity[]; total: number }> {
     const {
       page = 1,
       limit = 20,
       search,
       activityAreaId,
       neighborhoodId,
+      userId,
+      scenarioId,
+      active,
     } = opts;
 
     const qb: SelectQueryBuilder<ScenarioEntity> = this.repository
@@ -61,7 +66,25 @@ export class ScenarioRepositoryAdapter
     if (neighborhoodId) {
       qb.andWhere('n.id = :neighborhoodId', { neighborhoodId });
     }
-    
+
+    if (activityAreaId) {
+      qb.andWhere('s.activityAreaId = :activityAreaId', { activityAreaId });
+    }
+
+    if (userId) {
+      qb.andWhere('s.userId = :userId', { userId });
+    }
+
+    if (scenarioId) {
+      qb.andWhere('s.id = :scenarioId', { scenarioId });
+    }
+
+    console.log('Active filter:', active);
+
+    if (active !== undefined) {
+      qb.andWhere('s.is_active = :active', { active });
+    }
+
     /* ───── BÚSQUEDA POR TEXTO EN NOMBRE DE ESCENARIO ───── */
     if (search?.trim()) {
       const term = search.trim();
@@ -78,10 +101,7 @@ export class ScenarioRepositoryAdapter
           (s.name LIKE :pref)*1 + (s.name LIKE :any)*0.5
         )`,
           'score',
-        ).andWhere(
-          `s.name LIKE :any`,
-          { pref: likePref, any: likeAny },
-        );
+        ).andWhere(`s.name LIKE :any`, { pref: likePref, any: likeAny });
 
         /* posición de la coincidencia en s.name */
         qb.addSelect('LOCATE(:loc, s.name)', 'pos')
@@ -95,14 +115,10 @@ export class ScenarioRepositoryAdapter
           .map((w) => `+${w}*`)
           .join(' ');
 
-        qb.addSelect(
-          `(MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))`,
-          'score',
-        )
-          .andWhere(
-            `MATCH(s.name) AGAINST (:q IN BOOLEAN MODE)`,
-            { q: boolean },
-          )
+        qb.addSelect(`(MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
+          .andWhere(`MATCH(s.name) AGAINST (:q IN BOOLEAN MODE)`, {
+            q: boolean,
+          })
           .orderBy('score', 'DESC');
       }
     }
@@ -113,6 +129,7 @@ export class ScenarioRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
+    console.log({ entities });
     return { data: entities.map(this.toDomain), total };
   }
 
