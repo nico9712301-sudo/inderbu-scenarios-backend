@@ -1,5 +1,7 @@
-import { Controller, Get, Post, Put, Delete, Inject, NotFoundException, Param, Query, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Inject, NotFoundException, Param, Query, Body, ParseIntPipe, Res, StreamableFile } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { createReadStream } from 'fs';
 
 import { IScenarioApplicationPort } from 'src/core/application/ports/inbound/scenario-application.port';
 import { ScenarioResponseDto } from '../dtos/scenario/scenario-response.dto';
@@ -9,6 +11,8 @@ import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
+import { ExportScenariosDto, ExportJobResponseDto, ExportDownloadResponseDto } from '../dtos/scenario/export-scenarios.dto';
+import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
 
 @ApiTags('Scenarios')
 @Controller('scenarios')
@@ -16,6 +20,7 @@ export class ScenarioController {
   constructor(
     @Inject(APPLICATION_PORTS.SCENARIO)
     private readonly scenarioApplicationService: IScenarioApplicationPort,
+    private readonly scenarioExportService: ScenarioExportApplicationService,
   ) {}
 
   @Get()
@@ -62,8 +67,6 @@ export class ScenarioController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateScenarioDto,
   ): Promise<ScenarioResponseDto> {
-    console.log('Controller received updateDto:', updateDto);
-    console.log('updateDto.neighborhoodId:', updateDto.neighborhoodId, typeof updateDto.neighborhoodId);
     return this.scenarioApplicationService.update(id, updateDto);
   }
 
@@ -73,11 +76,113 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: Boolean, description: 'true si se eliminó correctamente' })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   @ApiResponse({ status: 400, description: 'No se puede eliminar el escenario porque tiene sub-escenarios asociados' })
-  async delete(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean; message: string }> {
-    const success = await this.scenarioApplicationService.delete(id);
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
+    return this.scenarioApplicationService.delete(id);
+  }
+
+  // ===============================
+  // ENDPOINTS DE EXPORTACIÓN
+  // ===============================
+
+  @Post('export')
+  @ApiOperation({ summary: 'Inicia exportación asíncrona de escenarios' })
+  @ApiResponse({ status: 201, type: ExportJobResponseDto, description: 'Job de exportación creado' })
+  @ApiResponse({ status: 400, description: 'Parámetros de exportación inválidos' })
+  async startExport(@Body() exportDto: ExportScenariosDto): Promise<ExportJobResponseDto> {
+    const { jobId } = await this.scenarioExportService.startExport({
+      format: exportDto.format,
+      filters: exportDto.filters,
+      includeFields: exportDto.includeFields,
+    });
+
     return {
-      success,
-      message: success ? 'Escenario eliminado exitosamente' : 'No se pudo eliminar el escenario'
+      jobId,
+      status: 'pending',
+      message: 'Exportación iniciada correctamente',
     };
+  }
+
+  @Get('export/:jobId/status')
+  @ApiOperation({ summary: 'Consulta el estado de un job de exportación' })
+  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiResponse({ status: 200, type: ExportJobResponseDto })
+  @ApiResponse({ status: 404, description: 'Job no encontrado' })
+  async getExportStatus(@Param('jobId') jobId: string): Promise<ExportJobResponseDto> {
+    const job = await this.scenarioExportService.getExportStatus(jobId);
+    
+    if (!job) {
+      throw new NotFoundException(`Job de exportación ${jobId} no encontrado`);
+    }
+
+    return {
+      jobId: job.id,
+      status: job.status,
+      progress: job.progress,
+      message: job.error || this.getStatusMessage(job.status),
+    };
+  }
+
+  @Get('export/:jobId/download')
+  @ApiOperation({ summary: 'Obtiene información de descarga para un job completado' })
+  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiResponse({ status: 200, type: ExportDownloadResponseDto })
+  @ApiResponse({ status: 404, description: 'Job no encontrado o no completado' })
+  async getExportDownload(@Param('jobId') jobId: string): Promise<ExportDownloadResponseDto> {
+    const downloadInfo = await this.scenarioExportService.getDownloadInfo(jobId);
+    
+    if (!downloadInfo) {
+      throw new NotFoundException(`Archivo de exportación ${jobId} no disponible`);
+    }
+
+    return downloadInfo;
+  }
+
+  @Get('export/:jobId/file')
+  @ApiOperation({ summary: 'Descarga directa del archivo exportado' })
+  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiResponse({ status: 200, description: 'Archivo descargado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
+  async downloadExportFile(
+    @Param('jobId') jobId: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const filePath = await this.scenarioExportService.getJobFilePath(jobId);
+    
+    if (!filePath) {
+      throw new NotFoundException(`Archivo de exportación ${jobId} no encontrado`);
+    }
+
+    const job = await this.scenarioExportService.getExportStatus(jobId);
+    if (!job || job.status !== 'completed' || !job.fileName) {
+      throw new NotFoundException(`Exportación ${jobId} no completada o archivo no disponible`);
+    }
+
+    // Configurar headers para descarga
+    const mimeType = job.format === 'xlsx' 
+      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      : 'text/csv';
+    
+    res.set({
+      'Content-Type': mimeType,
+      'Content-Disposition': `attachment; filename="${job.fileName}"`,
+    });
+
+    const file = createReadStream(filePath);
+    return new StreamableFile(file);
+  }
+
+  private getStatusMessage(status: string): string {
+    switch (status) {
+      case 'pending':
+        return 'Exportación en cola';
+      case 'processing':
+        return 'Procesando exportación...';
+      case 'completed':
+        return 'Exportación completada';
+      case 'failed':
+        return 'Error en la exportación';
+      default:
+        return 'Estado desconocido';
+    }
   }
 }

@@ -3,14 +3,14 @@ export class ScenarioDomainEntity {
   public readonly name: string;
   public readonly address: string;
   public readonly neighborhoodId?: number;
-  public readonly active: boolean;
+  public readonly isActive: boolean;
 
   constructor(builder: ScenarioDomainBuilder) {
     this.id = builder.id;
     this.name = builder.name;
     this.address = builder.address;
     this.neighborhoodId = builder.neighborhoodId; // <–– y aquí
-    this.active = builder.active; // <–– y aquí
+    this.isActive = builder.isActive; // <–– y aquí
   }
 
   static builder(): ScenarioDomainBuilder {
@@ -20,7 +20,7 @@ export class ScenarioDomainEntity {
 
 export class ScenarioDomainBuilder {
   id: number | null = null;
-  active = true; // Por defecto, los escenarios son activos
+  isActive = true; // Por defecto, los escenarios son activos
   name = '';
   address = '';
   neighborhoodId?: number; // <–– y aquí
@@ -40,8 +40,8 @@ export class ScenarioDomainBuilder {
     return this;
   }
 
-  withActive(active: boolean) {
-    this.active = active;
+  withIsActive(isActive: boolean) {
+    this.isActive = isActive;
     return this;
   }
 

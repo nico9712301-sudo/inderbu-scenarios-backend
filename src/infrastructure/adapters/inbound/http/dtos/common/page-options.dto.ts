@@ -26,7 +26,7 @@ export class PageOptionsDto {
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) neighborhoodId?: number;
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) userId?: number;
   @ApiPropertyOptional() 
-  @IsOptional() 
+  @IsOptional()
   @Transform(({ value }) => {
     if (value === 'true') return true;
     if (value === 'false') return false;

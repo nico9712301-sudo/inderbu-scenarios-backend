@@ -30,4 +30,8 @@ export class UpdateScenarioDto {
   @IsInt({ message: 'El ID del barrio debe ser un número entero' })
   @IsPositive({ message: 'El ID del barrio debe ser un número positivo' })
   neighborhoodId?: number;
+
+  @ApiProperty({ description: 'Indica si el escenario está activo', example: true, required: false })
+  @IsOptional()
+  isActive?: boolean;
 }

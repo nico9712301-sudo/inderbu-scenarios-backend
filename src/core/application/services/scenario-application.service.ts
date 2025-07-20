@@ -95,10 +95,8 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
     console.log('dto.neighborhoodId:', dto.neighborhoodId, typeof dto.neighborhoodId);
     
     // Verificar que el escenario existe
-    const existingScenario = await this.scenarioRepository.findById(id);
-    if (!existingScenario) {
-      throw new NotFoundException(`Escenario con ID ${id} no encontrado`);
-    }
+    const existingScenario: ScenarioDomainEntity | null = await this.scenarioRepository.findById(id);
+    if (!existingScenario) throw new NotFoundException(`Escenario con ID ${id} no encontrado`);
 
     console.log('existingScenario.neighborhoodId:', existingScenario.neighborhoodId);
 
@@ -124,10 +122,13 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
       .withName(dto.name ?? existingScenario.name)
       .withAddress(dto.address ?? existingScenario.address)
       .withNeighborhoodId(targetNeighborhoodId)
+      .withIsActive(dto.isActive ?? existingScenario.isActive)
       .build();
 
+    console.log('Updated scenario before saving:', updatedScenario);
+
     // Guardar cambios
-    const savedScenario = await this.scenarioRepository.save(updatedScenario);
+    const savedScenario: ScenarioDomainEntity = await this.scenarioRepository.save(updatedScenario);
 
     // Crear mapa de barrios para el mapper
     const neighborhoodMap = new Map<number, NeighborhoodDomainEntity>();
