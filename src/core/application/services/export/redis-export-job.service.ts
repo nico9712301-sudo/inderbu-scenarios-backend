@@ -43,7 +43,7 @@ export class RedisExportJobService {
 
   async getJob(jobId: string): Promise<ExportJob | null> {
     try {
-      const data = await this.redis.get(this.getKey(jobId));
+      const data: string | null = await this.redis.get(this.getKey(jobId));
       if (!data) return null;
 
       const parsed = JSON.parse(data);

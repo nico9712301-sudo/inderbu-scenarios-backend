@@ -13,6 +13,7 @@ import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
 import { ExportScenariosDto, ExportJobResponseDto, ExportDownloadResponseDto } from '../dtos/scenario/export-scenarios.dto';
 import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
+import { ExportJob } from 'src/core/application/services/export/redis-export-job.service';
 
 @ApiTags('Scenarios')
 @Controller('scenarios')
@@ -108,7 +109,7 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: ExportJobResponseDto })
   @ApiResponse({ status: 404, description: 'Job no encontrado' })
   async getExportStatus(@Param('jobId') jobId: string): Promise<ExportJobResponseDto> {
-    const job = await this.scenarioExportService.getExportStatus(jobId);
+    const job: ExportJob | null = await this.scenarioExportService.getExportStatus(jobId);
     
     if (!job) {
       throw new NotFoundException(`Job de exportación ${jobId} no encontrado`);
@@ -147,6 +148,7 @@ export class ScenarioController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const filePath = await this.scenarioExportService.getJobFilePath(jobId);
+    console.log({filePath})
     
     if (!filePath) {
       throw new NotFoundException(`Archivo de exportación ${jobId} no encontrado`);
