@@ -53,6 +53,8 @@ export class SubScenarioController {
   async getSubScenarios(
     @Query() opts: SubScenarioPageOptionsDto,
   ): Promise<PageDto<SubScenarioWithRelationsDto>> {
+    console.log("hi");
+    
     return this.subScenarioApplicationService.listWithRelations(opts);
   }
 

@@ -8,12 +8,12 @@ import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.e
 import { SubScenarioPageOptionsDto } from '../../inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
+import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
 export class SubScenarioRepositoryAdapter
   extends BaseRepositoryAdapter<SubScenarioEntity, SubScenarioDomainEntity>
-  implements ISubScenarioRepositoryPort
-{
+  implements ISubScenarioRepositoryPort {
   constructor(
     @Inject(MYSQL_REPOSITORY.SUB_SCENARIO)
     repository: Repository<SubScenarioEntity>,
@@ -33,23 +33,23 @@ export class SubScenarioRepositoryAdapter
     const entities = await this.repository.find({
       relations: ['scenario', 'activityArea', 'fieldSurfaceType'],
     });
-    console.log({entities});
+    console.log({ entities });
     return entities.map((entity) => this.toDomain(entity));
   }
-  
+
   async findById(id: number): Promise<SubScenarioDomainEntity | null> {
     const entity = await this.repository.findOne({
       where: { id },
     });
     return entity ? this.toDomain(entity) : null;
   }
-  
+
   async save(domainEntity: SubScenarioDomainEntity): Promise<SubScenarioDomainEntity> {
     const entity = this.toEntity(domainEntity);
     const savedEntity = await this.repository.save(entity);
     return this.toDomain(savedEntity);
   }
-  
+
   async delete(id: number): Promise<boolean> {
     const result = await this.repository.delete(id);
     return typeof result.affected === 'number' && result.affected > 0;
@@ -76,6 +76,9 @@ export class SubScenarioRepositoryAdapter
       active,
     } = opts;
 
+    console.log({ activeValue: active });
+    console.log({ type: typeof active });
+
     const qb: SelectQueryBuilder<SubScenarioEntity> = this.repository
       .createQueryBuilder('s')
       .leftJoinAndSelect('s.scenario', 'sc')
@@ -85,94 +88,97 @@ export class SubScenarioRepositoryAdapter
 
     /* ───── filtros ───── */
     if (scenarioId) qb.andWhere('sc.id = :scenarioId', { scenarioId });
-    if (activityAreaId)
-      qb.andWhere('aa.id = :activityAreaId', { activityAreaId });
-    if (neighborhoodId)
-      qb.andWhere('n.id  = :neighborhoodId', { neighborhoodId });
-    if (typeof hasCost === 'boolean')
-      qb.andWhere('s.hasCost = :hasCost', { hasCost });
-    if (typeof active === 'boolean')
-      qb.andWhere('s.active = :active', { active });
+    if (activityAreaId) qb.andWhere('aa.id = :activityAreaId', { activityAreaId });
+    if (neighborhoodId) qb.andWhere('n.id = :neighborhoodId', { neighborhoodId });
+    if (typeof hasCost === 'boolean') qb.andWhere('s.hasCost = :hasCost', { hasCost });
+    if (typeof active === 'boolean') qb.andWhere('s.active = :active', { active });
 
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      const isTiny = term.length < 4;
-
-      if (isTiny) {
-        /* LIKE prefijo + contiene */
-        const likeAny = `%${term}%`;
-        const likePref = `${term}%`;
-
-        qb.addSelect(
-          `
-        (
-          (s.name  LIKE :pref)*1     + (s.name  LIKE :any)*0.5 +
-          (sc.name LIKE :pref)*0.75 + (sc.name LIKE :any)*0.375 +
-          (aa.name LIKE :pref)*0.50 + (aa.name LIKE :any)*0.25 +
-          (fs.name LIKE :pref)*0.25 + (fs.name LIKE :any)*0.125
-        )`,
-          'score',
-        ).andWhere(
-          `
-          s.name  LIKE :any OR sc.name LIKE :any
-       OR aa.name LIKE :any OR fs.name LIKE :any
-      `,
-          { pref: likePref, any: likeAny },
-        );
-
-        /* posición de la coincidencia en s.name */
-        qb.addSelect('LOCATE(:loc, s.name)', 'pos')
-          .setParameter('loc', term)
-          .orderBy('score', 'DESC')
-          .addOrderBy('pos', 'ASC');
+      
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearch(qb, term);
       } else {
-        /* FULLTEXT BOOLEAN MODE con wildcard * */
-        const boolean = term
-          .split(/\s+/)
-          .map((w) => `+${w}*`)
-          .join(' ');
-
-        qb.addSelect(
-          `
-        (
-          (MATCH(s.name)  AGAINST (:q IN BOOLEAN MODE))*1     +
-          (MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE))*0.75 +
-          (MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE))*0.50 +
-          (MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE))*0.25
-        )`,
-          'score',
-        )
-          .andWhere(
-            `
-          MATCH(s.name)  AGAINST (:q IN BOOLEAN MODE) OR
-          MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE) OR
-          MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE) OR
-          MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE)
-      `,
-            { q: boolean },
-          )
-          .orderBy('score', 'DESC');
+        this.applyFulltextSearch(qb, term);
       }
     }
 
     /* ───── orden secundario + paginación ───── */
-    // Ordenar por fecha de creación DESC (más recientes primero) y luego por nombre
     if (!search?.trim()) {
-      // Si no hay búsqueda, ordenar solo por fecha
-      qb.orderBy('s.createdAt', 'DESC')
-        .addOrderBy('s.name', 'ASC');
+      qb.orderBy('s.createdAt', 'DESC').addOrderBy('s.name', 'ASC');
     } else {
-      // Si hay búsqueda, mantener score primero, luego fecha
-      qb.addOrderBy('s.createdAt', 'DESC')
-        .addOrderBy('s.name', 'ASC');
+      qb.addOrderBy('s.createdAt', 'DESC').addOrderBy('s.name', 'ASC');
     }
-    
-    qb.skip((page - 1) * limit)
-      .take(limit);
+
+    qb.skip((page - 1) * limit).take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    
+
     return { data: entities.map(SubScenarioEntityMapper.toDomain), total };
+  }
+
+  /**
+   * Aplica búsqueda LIKE para términos cortos
+   * @private
+   */
+  private applyLikeSearch(qb: SelectQueryBuilder<SubScenarioEntity>, term: string): void {
+    const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.addSelect(
+      `(
+        (s.name LIKE :pref)*1 + (s.name LIKE :any)*0.5 +
+        (sc.name LIKE :pref)*0.75 + (sc.name LIKE :any)*0.375 +
+        (aa.name LIKE :pref)*0.50 + (aa.name LIKE :any)*0.25 +
+        (fs.name LIKE :pref)*0.25 + (fs.name LIKE :any)*0.125
+      )`,
+      'score',
+    ).andWhere(
+      `(
+        s.name LIKE :any OR sc.name LIKE :any OR 
+        aa.name LIKE :any OR fs.name LIKE :any
+      )`,
+      { pref: prefix, any: contains },
+    );
+
+    qb.addSelect('LOCATE(:loc, s.name)', 'pos')
+      .setParameter('loc', term)
+      .orderBy('score', 'DESC')
+      .addOrderBy('pos', 'ASC');
+  }
+
+  /**
+   * Aplica búsqueda FULLTEXT para términos largos
+   * @private
+   */
+  private applyFulltextSearch(qb: SelectQueryBuilder<SubScenarioEntity>, term: string): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+    
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      // Fallback a LIKE si el término sanitizado no es válido
+      console.log(`Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      this.applyLikeSearch(qb, term);
+      return;
+    }
+
+    console.log(`Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+
+    qb.addSelect(
+      `(
+        (MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))*1 +
+        (MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE))*0.75 +
+        (MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE))*0.50 +
+        (MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE))*0.25
+      )`,
+      'score',
+    ).andWhere(
+      `(
+        MATCH(s.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE)
+      )`,
+      { q: sanitizedTerm },
+    ).orderBy('score', 'DESC');
   }
 }

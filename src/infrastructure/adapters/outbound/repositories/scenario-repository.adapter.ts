@@ -8,6 +8,7 @@ import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-e
 import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
+import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
 export class ScenarioRepositoryAdapter
@@ -79,8 +80,6 @@ export class ScenarioRepositoryAdapter
       qb.andWhere('s.id = :scenarioId', { scenarioId });
     }
 
-    console.log('Active filter:', active);
-
     if (active !== undefined) {
       qb.andWhere('s.is_active = :active', { active });
     }
@@ -88,38 +87,11 @@ export class ScenarioRepositoryAdapter
     /* ───── BÚSQUEDA POR TEXTO EN NOMBRE DE ESCENARIO ───── */
     if (search?.trim()) {
       const term = search.trim();
-      const isTiny = term.length < 4;
-
-      if (isTiny) {
-        /* LIKE prefijo + contiene - SOLO EN SCENARIO NAME */
-        const likeAny = `%${term}%`;
-        const likePref = `${term}%`;
-
-        qb.addSelect(
-          `
-        (
-          (s.name LIKE :pref)*1 + (s.name LIKE :any)*0.5
-        )`,
-          'score',
-        ).andWhere(`s.name LIKE :any`, { pref: likePref, any: likeAny });
-
-        /* posición de la coincidencia en s.name */
-        qb.addSelect('LOCATE(:loc, s.name)', 'pos')
-          .setParameter('loc', term)
-          .orderBy('score', 'DESC')
-          .addOrderBy('pos', 'ASC');
+      
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearch(qb, term);
       } else {
-        /* FULLTEXT BOOLEAN MODE - SOLO EN SCENARIO NAME */
-        const boolean = term
-          .split(/\s+/)
-          .map((w) => `+${w}*`)
-          .join(' ');
-
-        qb.addSelect(`(MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
-          .andWhere(`MATCH(s.name) AGAINST (:q IN BOOLEAN MODE)`, {
-            q: boolean,
-          })
-          .orderBy('score', 'DESC');
+        this.applyFulltextSearch(qb, term);
       }
     }
 
@@ -131,6 +103,50 @@ export class ScenarioRepositoryAdapter
     const [entities, total] = await qb.getManyAndCount();
     console.log({ entities });
     return { data: entities.map(this.toDomain), total };
+  }
+
+  /**
+   * Aplica búsqueda LIKE para términos cortos - solo en el nombre del escenario
+   * @private
+   */
+  private applyLikeSearch(qb: SelectQueryBuilder<ScenarioEntity>, term: string): void {
+    const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.addSelect(
+      `(
+        (s.name LIKE :pref)*1 + (s.name LIKE :any)*0.5
+      )`,
+      'score',
+    ).andWhere(`s.name LIKE :any`, { pref: prefix, any: contains });
+
+    /* posición de la coincidencia en s.name */
+    qb.addSelect('LOCATE(:loc, s.name)', 'pos')
+      .setParameter('loc', term)
+      .orderBy('score', 'DESC')
+      .addOrderBy('pos', 'ASC');
+  }
+
+  /**
+   * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del escenario
+   * @private
+   */
+  private applyFulltextSearch(qb: SelectQueryBuilder<ScenarioEntity>, term: string): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+    
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      // Fallback a LIKE si el término sanitizado no es válido
+      console.log(`ScenarioRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      this.applyLikeSearch(qb, term);
+      return;
+    }
+
+    console.log(`ScenarioRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+
+    qb.addSelect(`(MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
+      .andWhere(`MATCH(s.name) AGAINST (:q IN BOOLEAN MODE)`, {
+        q: sanitizedTerm,
+      })
+      .orderBy('score', 'DESC');
   }
 
   // MÉTODO DELETE IMPLEMENTADO

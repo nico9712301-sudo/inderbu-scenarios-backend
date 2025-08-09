@@ -58,7 +58,6 @@ export class SubScenarioApplicationService
 
     // Obtener todas las imágenes en una sola consulta agrupadas por subScenarioId
     const allImages: SubScenarioImageDomainEntity[] = await this.subScenarioImageRepository.findBySubScenarioIds(subScenarioIds);
-    console.log({ allImages });
 
     // Agrupar imágenes por subScenarioId para un acceso más rápido
     const imagesBySubScenarioId = new Map<number, SubScenarioImageDomainEntity[]>();
@@ -70,10 +69,6 @@ export class SubScenarioApplicationService
       imagesBySubScenarioId.get(image.subScenarioId)!.push(image);
     });
 
-    imagesBySubScenarioId.forEach(image => {
-      console.log({ imagesBySubScenarioId: image });
-    })
-
 
     // Mapear sub-escenarios con sus imágenes
     const dto = subs.map(sub => {
@@ -84,12 +79,6 @@ export class SubScenarioApplicationService
       const subImages = imagesBySubScenarioId.get(sub.id) || [];
       return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
     });
-
-    console.log({ imagesDto: dto });
-    dto.forEach(e => {
-      console.log({ dto: e });
-      console.log({ dtoImageGallery: e.imageGallery });
-    })
 
 
     return new PageDto(
