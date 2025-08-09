@@ -3,7 +3,7 @@ import { IsString, IsBoolean, IsInt, IsOptional, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateSubScenarioDto {
-  @ApiProperty()
+  @ApiProperty({ default: 'SubScenario Example' })
   @IsString()
   name: string;
 
@@ -29,7 +29,7 @@ export class CreateSubScenarioDto {
   })
   hasCost?: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: 2 })
   @IsInt()
   @Min(0)
   @IsOptional()
@@ -42,7 +42,7 @@ export class CreateSubScenarioDto {
   })
   numberOfSpectators?: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: 2 })
   @IsInt()
   @Min(0)
   @IsOptional()
@@ -55,12 +55,12 @@ export class CreateSubScenarioDto {
   })
   numberOfPlayers?: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: 'Recommendations for the sub-scenario' })
   @IsString()
   @IsOptional()
   recommendations?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true, default: 1 })
   @IsInt()
   @Transform(({ value }) => {
     if (typeof value === 'string') {
@@ -71,7 +71,7 @@ export class CreateSubScenarioDto {
   })
   scenarioId: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: 1 })
   @IsInt()
   @IsOptional()
   @Transform(({ value }) => {
@@ -83,7 +83,7 @@ export class CreateSubScenarioDto {
   })
   activityAreaId?: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ required: false, default: 8 })
   @IsInt()
   @IsOptional()
   @Transform(({ value }) => {
@@ -94,8 +94,4 @@ export class CreateSubScenarioDto {
     return value;
   })
   fieldSurfaceTypeId?: number;
-
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, required: false })
-  @IsOptional()
-  images?: any[];
 }

@@ -40,6 +40,4 @@ export class SubScenarioWithRelationsDto extends SubScenarioResponseDto {
   @ApiProperty({ type: SubScenarioImagesDto, required: false, description: 'Imágenes del sub-escenario organizadas por tipo' })
   imageGallery?: SubScenarioImagesDto;
   
-  @ApiProperty({ type: [SubScenarioImageResponseDto], required: false, description: 'Lista plana de todas las imágenes (para compatibilidad con versiones anteriores)' })
-  images?: SubScenarioImageResponseDto[];
 }

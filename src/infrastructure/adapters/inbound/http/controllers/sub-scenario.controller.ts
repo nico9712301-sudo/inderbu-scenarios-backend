@@ -71,14 +71,12 @@ export class SubScenarioController {
 
   @Post()
   @ApiOperation({ summary: 'Crea un nuevo sub-escenario' })
-  @ApiConsumes('multipart/form-data')
   @ApiResponse({ status: 201, type: SubScenarioWithRelationsDto })
   @UseInterceptors(FilesInterceptor('images'))
   async createSubScenario(
-    @Body() createDto: CreateSubScenarioDto,
-    @UploadedFiles() images?: Express.Multer.File[],
+    @Body() createDto: CreateSubScenarioDto
   ): Promise<SubScenarioWithRelationsDto> {
-    return this.subScenarioApplicationService.create(createDto, images);
+    return this.subScenarioApplicationService.create(createDto);
   }
 
   @Put(':id')

@@ -5,8 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FileStorageService {
-  private readonly uploadDir = join(process.cwd(), 'uploads/images');
-  private readonly tempDir = join(process.cwd(), 'uploads/temp');
+  private readonly uploadDir = join(process.cwd(), 'temp/images/sub-scenarios');
+  private readonly tempDir = join(process.cwd(), 'temp/images/sub-scenarios');
 
   constructor() {
     // Asegurar que los directorios existan
@@ -48,7 +48,7 @@ export class FileStorageService {
     }
 
     const fileName = `${uuidv4()}.${fileExtension}`;
-    const relativePath = `/uploads/images/${fileName}`;
+    const relativePath = `/temp/images/sub-scenarios/${fileName}`;
     const fullPath = join(this.uploadDir, fileName);
 
     // Guardar el archivo usando writeFileSync
@@ -102,10 +102,10 @@ export class FileStorageService {
     try {
       // Ajustar la ruta si no incluye 'uploads'
       let fullPath = '';
-      if (relativePath.startsWith('/uploads/')) {
+      if (relativePath.startsWith('/temp/')) {
         fullPath = join(process.cwd(), relativePath);
       } else {
-        fullPath = join(process.cwd(), 'uploads', relativePath);
+        fullPath = join(process.cwd(), 'temp', relativePath);
       }
       
       if (existsSync(fullPath)) {

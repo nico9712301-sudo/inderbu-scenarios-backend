@@ -17,9 +17,9 @@ import { DatabaseModule } from './database/database.module';
   imports: [
     DatabaseModule,
     MulterModule.register({
-      dest: './uploads/temp', // Archivos temporales en carpeta separada
+      dest: './temp', // Archivos temporales en carpeta separada
       storage: diskStorage({
-        destination: './uploads/temp',
+        destination: './temp',
         filename: (req, file, cb) => {
           // Generar nombre único para archivo temporal
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);

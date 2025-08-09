@@ -105,13 +105,28 @@ export class SubScenarioApplicationService
   }
 
   async create(
-    createDto: CreateSubScenarioDto,
-    images?: Express.Multer.File[],
+    createDto: CreateSubScenarioDto
   ): Promise<SubScenarioWithRelationsDto> {
     // Verificar que exista el escenario
     const scenario = await this.scenarioRepository.findById(createDto.scenarioId);
     if (!scenario) {
       throw new NotFoundException(`Escenario con ID ${createDto.scenarioId} no encontrado`);
+    }
+
+    // Verificar que exista el área de actividad
+    if (createDto.activityAreaId) {
+      const activityArea = await this.activityAreaareaRepository.findById(createDto.activityAreaId);
+      if (!activityArea) {
+        throw new NotFoundException(`Área de actividad con ID ${createDto.activityAreaId} no encontrada`);
+      }
+    }
+
+    // Verificar que exista el tipo de superficie del campo
+    if (createDto.fieldSurfaceTypeId) {
+      const fieldSurface = await this.fieldSurfaceRepository.findById(createDto.fieldSurfaceTypeId);
+      if (!fieldSurface) {
+        throw new NotFoundException(`Tipo de superficie del campo con ID ${createDto.fieldSurfaceTypeId} no encontrado`);
+      }
     }
 
     // Crear el sub-escenario
@@ -129,37 +144,7 @@ export class SubScenarioApplicationService
 
     const savedSubScenario = await this.subScenarioRepository.save(subScenarioDomain);
 
-    // Si hay imágenes, subirlas usando FileStorageService
-    if (images && images.length > 0) {
-      if (!savedSubScenario.id) {
-        throw new BadRequestException('Error: Sub-escenario creado sin ID válido');
-      }
-
-      await Promise.all(images.map(async (image, index) => {
-        try {
-          // Guardar el archivo físicamente usando FileStorageService
-          const relativePath = await this.fileStorageService.saveFile(image);
-
-          // Guardar la información en la base de datos
-          await this.subScenarioImageRepository.save(
-            SubScenarioImageDomainEntity.builder()
-              .withPath(relativePath)
-              .withIsFeature(index === 0) // La primera imagen es la principal
-              .withDisplayOrder(index)
-              .withSubScenarioId(savedSubScenario.id!)
-              .build()
-          );
-        } catch (error) {
-          console.error('Error al procesar imagen:', error);
-          throw new BadRequestException(`Error al procesar imagen: ${error.message}`);
-        }
-      }));
-    }
-
-    // Obtener el sub-escenario con sus relaciones e imágenes
-    const result = await this.getByIdWithRelations(savedSubScenario.id!);
-
-    return result;
+    return await this.getByIdWithRelations(savedSubScenario.id!);
   }
 
   async update(

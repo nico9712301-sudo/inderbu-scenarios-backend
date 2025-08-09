@@ -1,4 +1,5 @@
 import { SubScenarioWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
+import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
 import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
 import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
 import { SubScenarioImageResponseMapper } from 'src/infrastructure/mappers/images/image-response.mapper';
@@ -6,7 +7,6 @@ import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area
 import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
 import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
 import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
-import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
 
 export class SubScenarioMapper {
   static toDto(
@@ -59,10 +59,7 @@ export class SubScenarioMapper {
         : undefined,
         
       // Siempre incluir galería de imágenes, incluso si está vacía
-      imageGallery: imageGallery,
-      
-      // Siempre incluir el array de imágenes, incluso si está vacío
-      images: sortedImages,
+      imageGallery: imageGallery
     };
   }
 }
