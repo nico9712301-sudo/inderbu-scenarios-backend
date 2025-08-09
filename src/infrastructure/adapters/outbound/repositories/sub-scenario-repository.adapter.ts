@@ -33,6 +33,7 @@ export class SubScenarioRepositoryAdapter
     const entities = await this.repository.find({
       relations: ['scenario', 'activityArea', 'fieldSurfaceType'],
     });
+    console.log({entities});
     return entities.map((entity) => this.toDomain(entity));
   }
   

@@ -27,8 +27,7 @@ import { FileStorageService } from 'src/infrastructure/adapters/outbound/file-st
 
 @Injectable()
 export class SubScenarioApplicationService
-  implements ISubScenarioApplicationPort
-{
+  implements ISubScenarioApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
@@ -41,9 +40,9 @@ export class SubScenarioApplicationService
     @Inject(REPOSITORY_PORTS.NEIGHBORHOOD)
     private readonly neighborhoodRepository: INeighborhoodRepositoryPort,
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_IMAGE)
-    private readonly imageRepository: ISubScenarioImageRepositoryPort,
+    private readonly subScenarioImageRepository: ISubScenarioImageRepositoryPort,
     private readonly fileStorageService: FileStorageService,
-  ) {}
+  ) { }
 
   async listWithRelations(
     opts: SubScenarioPageOptionsDto,
@@ -51,35 +50,48 @@ export class SubScenarioApplicationService
     const { data: subs, total } =
       await this.subScenarioRepository.findPaged(opts); // 1. dominio
     const [scen, area, surf, neigh] = await this.loadReferenceMaps(subs); // 2. catálogos
-    
+
     // Obtener IDs de todos los sub-escenarios
-    const subScenarioIds = subs
+    const subScenarioIds: number[] = subs
       .map(s => s.id)
       .filter((id): id is number => id !== null);
-    
+
     // Obtener todas las imágenes en una sola consulta agrupadas por subScenarioId
-    const allImages = await this.imageRepository.findBySubScenarioIds(subScenarioIds);
-    
+    const allImages: SubScenarioImageDomainEntity[] = await this.subScenarioImageRepository.findBySubScenarioIds(subScenarioIds);
+    console.log({ allImages });
+
     // Agrupar imágenes por subScenarioId para un acceso más rápido
     const imagesBySubScenarioId = new Map<number, SubScenarioImageDomainEntity[]>();
-    
+
     allImages.forEach(image => {
       if (!imagesBySubScenarioId.has(image.subScenarioId)) {
         imagesBySubScenarioId.set(image.subScenarioId, []);
       }
       imagesBySubScenarioId.get(image.subScenarioId)!.push(image);
     });
-    
+
+    imagesBySubScenarioId.forEach(image => {
+      console.log({ imagesBySubScenarioId: image });
+    })
+
+
     // Mapear sub-escenarios con sus imágenes
     const dto = subs.map(sub => {
       if (sub.id === null) {
         return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, []);
       }
-      
+
       const subImages = imagesBySubScenarioId.get(sub.id) || [];
       return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
     });
-    
+
+    console.log({ imagesDto: dto });
+    dto.forEach(e => {
+      console.log({ dto: e });
+      console.log({ dtoImageGallery: e.imageGallery });
+    })
+
+
     return new PageDto(
       dto,
       new PageMetaDto({
@@ -96,13 +108,13 @@ export class SubScenarioApplicationService
   ): Promise<SubScenarioWithRelationsDto> {
     const sub: SubScenarioDomainEntity | null = await this.subScenarioRepository.findByIdWithRelations(id);
     if (!sub) throw new NotFoundException(`SubScenario ${id} no encontrado`);
-    const [ scenMap, areaMap, surfMap, neighMap ] = await this.loadReferenceMaps([sub]);
-    
+    const [scenMap, areaMap, surfMap, neighMap] = await this.loadReferenceMaps([sub]);
+
     // Obtener las imágenes del sub-escenario
-    const images = await this.imageRepository.findBySubScenarioId(id);
+    const images = await this.subScenarioImageRepository.findBySubScenarioId(id);
     return SubScenarioMapper.toDto(sub, scenMap, areaMap, surfMap, neighMap, images);
   }
-  
+
   async create(
     createDto: CreateSubScenarioDto,
     images?: Express.Multer.File[],
@@ -112,7 +124,7 @@ export class SubScenarioApplicationService
     if (!scenario) {
       throw new NotFoundException(`Escenario con ID ${createDto.scenarioId} no encontrado`);
     }
-    
+
     // Crear el sub-escenario
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withName(createDto.name)
@@ -125,22 +137,22 @@ export class SubScenarioApplicationService
       .withActivityAreaId(createDto.activityAreaId ?? 0)
       .withFieldSurfaceTypeId(createDto.fieldSurfaceTypeId ?? 0)
       .build();
-      
+
     const savedSubScenario = await this.subScenarioRepository.save(subScenarioDomain);
-    
+
     // Si hay imágenes, subirlas usando FileStorageService
     if (images && images.length > 0) {
       if (!savedSubScenario.id) {
         throw new BadRequestException('Error: Sub-escenario creado sin ID válido');
       }
-      
+
       await Promise.all(images.map(async (image, index) => {
         try {
           // Guardar el archivo físicamente usando FileStorageService
           const relativePath = await this.fileStorageService.saveFile(image);
-          
+
           // Guardar la información en la base de datos
-          await this.imageRepository.save(
+          await this.subScenarioImageRepository.save(
             SubScenarioImageDomainEntity.builder()
               .withPath(relativePath)
               .withIsFeature(index === 0) // La primera imagen es la principal
@@ -154,13 +166,13 @@ export class SubScenarioApplicationService
         }
       }));
     }
-    
+
     // Obtener el sub-escenario con sus relaciones e imágenes
     const result = await this.getByIdWithRelations(savedSubScenario.id!);
-    
+
     return result;
   }
-  
+
   async update(
     id: number,
     updateDto: UpdateSubScenarioDto,
@@ -170,7 +182,7 @@ export class SubScenarioApplicationService
     if (!existingSubScenario) {
       throw new NotFoundException(`Sub-escenario con ID ${id} no encontrado`);
     }
-    
+
     // Actualizar el sub-escenario
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withId(id)
@@ -205,20 +217,20 @@ export class SubScenarioApplicationService
       )
       .withCreatedAt(existingSubScenario.createdAt ?? new Date())
       .build();
-      
+
     await this.subScenarioRepository.save(subScenarioDomain);
-    
+
     // Obtener el sub-escenario actualizado con sus relaciones
     return this.getByIdWithRelations(id);
   }
-  
+
   async delete(id: number): Promise<boolean> {
     // Verificar que exista el sub-escenario
     const existingSubScenario = await this.subScenarioRepository.findById(id);
     if (!existingSubScenario) {
       throw new NotFoundException(`Sub-escenario con ID ${id} no encontrado`);
     }
-    
+
     // Eliminar el sub-escenario
     return this.subScenarioRepository.delete(id);
   }
@@ -234,14 +246,14 @@ export class SubScenarioApplicationService
       .map((s) => s.fieldSurfaceTypeId)
       .filter((id): id is number => id != null)
     );
-  
+
     // 2. Cargar las entidades de cada repositorio en paralelo
     const [scenarios, activityAreas, fieldSurfaces] = await Promise.all([
       this.scenarioRepository.findByIds(scenarioIds),
       this.activityAreaareaRepository.findByIds(activityAreaIds),
       this.fieldSurfaceRepository.findByIds(fieldSurfaceTypeIds),
     ]);
-  
+
     // 3. Ahora que ya tienes los escenarios, extrae los barrios
     const neighborhoodIds = uniq(
       scenarios
@@ -251,7 +263,7 @@ export class SubScenarioApplicationService
     const neighborhoods = await this.neighborhoodRepository.findByIds(
       neighborhoodIds
     );
-  
+
     // 4. Construye tus mapas
     return [
       toMap(scenarios),         // Map<scenarioId, ScenarioDomainEntity>
@@ -260,5 +272,5 @@ export class SubScenarioApplicationService
       toMap(neighborhoods),     // Map<neighborhoodId, NeighborhoodDomainEntity>
     ] as const;
   }
-  
+
 }

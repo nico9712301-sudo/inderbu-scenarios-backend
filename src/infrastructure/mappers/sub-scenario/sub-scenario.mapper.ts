@@ -6,6 +6,7 @@ import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area
 import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
 import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
 import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
+import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
 
 export class SubScenarioMapper {
   static toDto(
@@ -23,7 +24,7 @@ export class SubScenarioMapper {
     const sortedImages = [...imageDtos].sort((a, b) => a.displayOrder - b.displayOrder);
     
     // Separar imagen destacada y adicionales
-    const featuredImage = sortedImages.find(img => img.isFeature);
+    const featuredImage: SubScenarioImageResponseDto | undefined = sortedImages.find(img => img.isFeature);
     const additionalImages = sortedImages.filter(img => !img.isFeature);
     
     // Crear estructura de galería (siempre incluirla)

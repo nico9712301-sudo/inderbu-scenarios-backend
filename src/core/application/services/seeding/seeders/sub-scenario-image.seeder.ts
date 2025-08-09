@@ -43,8 +43,8 @@ export class SubScenarioImageSeeder
     protected async transform(
         seeds: ISubScenarioSeed[],
     ): Promise<SubScenarioImageEntity[]> {
-        const bucket_host = this.configService.get<string>('BUCKET_HOST');        
-        const path_folder = bucket_host + "/temp/images/sub-scenarios/"
+        // const bucket_host = this.configService.get<string>('BUCKET_HOST');      
+        const path_folder = "/temp/images/sub-scenarios/"
         
         const entities: SubScenarioImageEntity[] = [];
         for (const seed of seeds) {
@@ -62,6 +62,7 @@ export class SubScenarioImageSeeder
             subScenarioImage.isFeature = seed.images?.[0]?.isFeature ?? false;
             subScenarioImage.displayOrder = 1;
             subScenarioImage.path = path_folder + seed.images?.[0]?.imageName + "." + seed.images?.[0]?.imageExtension;
+            subScenarioImage.subScenario = subScenario
 
             entities.push(subScenarioImage);
         }

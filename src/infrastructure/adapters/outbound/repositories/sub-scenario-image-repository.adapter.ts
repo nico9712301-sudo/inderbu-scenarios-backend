@@ -58,13 +58,11 @@ export class SubScenarioImageRepositoryAdapter
         return [];
       }
       
-      const entities = await this.repository.find({
+      const entities: SubScenarioImageEntity[] = await this.repository.find({
         where: { subScenario: { id: In(subScenarioIds) } },
         relations: ['subScenario'],
         order: { isFeature: 'DESC', displayOrder: 'ASC' },
       });
-      
-      console.log(`Encontradas ${entities.length} imágenes para los sub-escenarios`);
       
       // Agrupar imágenes por subScenarioId para depuración
       const imagesBySubScenario = {};
@@ -77,10 +75,9 @@ export class SubScenarioImageRepositoryAdapter
           imagesBySubScenario[subScenarioId].push(entity.id);
         }
       });
-      
-      console.log('Distribución de imágenes por sub-escenario:', imagesBySubScenario);
-      
-      return entities.map(SubScenarioImageEntityMapper.toDomain);
+
+      const entitiesMapped: SubScenarioImageDomainEntity[] =  entities.map(SubScenarioImageEntityMapper.toDomain);
+      return entitiesMapped
     } catch (error) {
       console.error('Error fetching images for multiple subScenarioIds:', subScenarioIds, error);
       return []; // Retornar un array vacío en caso de error
