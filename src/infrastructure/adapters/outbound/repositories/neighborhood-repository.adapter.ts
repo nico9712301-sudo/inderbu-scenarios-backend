@@ -8,6 +8,7 @@ import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.
 import { NeighborhoodEntity } from '../../../persistence/neighborhood.entity';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
+import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
 export class NeighborhoodRepositoryAdapter
@@ -65,50 +66,11 @@ export class NeighborhoodRepositoryAdapter
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      const isTiny = term.length < 4;
-
-      if (isTiny) {
-        /* LIKE prefijo + contiene */
-        const likeAny = `%${term}%`;
-        const likePref = `${term}%`;
-
-        qb.addSelect(
-          `
-          ((n.name LIKE :pref)*1 + (n.name LIKE :any)*0.5)
-          `,
-          'score',
-        ).andWhere(
-          `
-          n.name LIKE :any
-          `,
-          { pref: likePref, any: likeAny },
-        );
-
-        /* posición de la coincidencia en name */
-        qb.addSelect('LOCATE(:loc, n.name)', 'pos')
-          .setParameter('loc', term)
-          .orderBy('score', 'DESC')
-          .addOrderBy('pos', 'ASC');
+      
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearch(qb, term);
       } else {
-        /* FULLTEXT BOOLEAN MODE con wildcard * */
-        const boolean = term
-          .split(/\s+/)
-          .map((w) => `+${w}*`)
-          .join(' ');
-
-        qb.addSelect(
-          `
-          (MATCH(n.name) AGAINST (:q IN BOOLEAN MODE))
-          `,
-          'score',
-        )
-          .andWhere(
-            `
-            MATCH(n.name) AGAINST (:q IN BOOLEAN MODE)
-            `,
-            { q: boolean },
-          )
-          .orderBy('score', 'DESC');
+        this.applyFulltextSearch(qb, term);
       }
     }
 
@@ -119,5 +81,47 @@ export class NeighborhoodRepositoryAdapter
 
     const [entities, total] = await qb.getManyAndCount();
     return { data: entities.map(NeighborhoodEntityMapper.toDomain), total };
+  }
+
+  /**
+   * Aplica búsqueda LIKE para términos cortos - solo en el nombre del barrio
+   * @private
+   */
+  private applyLikeSearch(qb: SelectQueryBuilder<NeighborhoodEntity>, term: string): void {
+    const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.addSelect(
+      `(
+        (n.name LIKE :pref)*1 + (n.name LIKE :any)*0.5
+      )`,
+      'score',
+    ).andWhere(`n.name LIKE :any`, { pref: prefix, any: contains });
+
+    qb.addSelect('LOCATE(:loc, n.name)', 'pos')
+      .setParameter('loc', term)
+      .orderBy('score', 'DESC')
+      .addOrderBy('pos', 'ASC');
+  }
+
+  /**
+   * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del barrio
+   * @private
+   */
+  private applyFulltextSearch(qb: SelectQueryBuilder<NeighborhoodEntity>, term: string): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+    
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      console.log(`NeighborhoodRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      this.applyLikeSearch(qb, term);
+      return;
+    }
+
+    console.log(`NeighborhoodRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+
+    qb.addSelect(`(MATCH(n.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
+      .andWhere(`MATCH(n.name) AGAINST (:q IN BOOLEAN MODE)`, {
+        q: sanitizedTerm,
+      })
+      .orderBy('score', 'DESC');
   }
 }

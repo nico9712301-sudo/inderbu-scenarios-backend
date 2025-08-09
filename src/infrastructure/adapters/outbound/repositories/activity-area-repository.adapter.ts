@@ -7,6 +7,7 @@ import { IActivityAreaRepositoryPort } from 'src/core/domain/ports/outbound/acti
 import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
 import { ActivityAreaEntity } from 'src/infrastructure/persistence/activity-area.entity';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
 export class ActivityAreaRepositoryAdapter
@@ -52,50 +53,11 @@ export class ActivityAreaRepositoryAdapter
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      const isTiny = term.length < 4;
-
-      if (isTiny) {
-        /* LIKE prefijo + contiene */
-        const likeAny = `%${term}%`;
-        const likePref = `${term}%`;
-
-        qb.addSelect(
-          `
-          ((aa.name LIKE :pref)*1 + (aa.name LIKE :any)*0.5)
-          `,
-          'score',
-        ).andWhere(
-          `
-          aa.name LIKE :any
-          `,
-          { pref: likePref, any: likeAny },
-        );
-
-        /* posición de la coincidencia en name */
-        qb.addSelect('LOCATE(:loc, aa.name)', 'pos')
-          .setParameter('loc', term)
-          .orderBy('score', 'DESC')
-          .addOrderBy('pos', 'ASC');
+      
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearch(qb, term);
       } else {
-        /* FULLTEXT BOOLEAN MODE con wildcard * */
-        const boolean = term
-          .split(/\s+/)
-          .map((w) => `+${w}*`)
-          .join(' ');
-
-        qb.addSelect(
-          `
-          (MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE))
-          `,
-          'score',
-        )
-          .andWhere(
-            `
-            MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE)
-            `,
-            { q: boolean },
-          )
-          .orderBy('score', 'DESC');
+        this.applyFulltextSearch(qb, term);
       }
     }
 
@@ -106,6 +68,48 @@ export class ActivityAreaRepositoryAdapter
 
     const [entities, total] = await qb.getManyAndCount();
     return { data: entities.map(ActivityAreaEntityMapper.toDomain), total };
+  }
+
+  /**
+   * Aplica búsqueda LIKE para términos cortos - solo en el nombre del área de actividad
+   * @private
+   */
+  private applyLikeSearch(qb: SelectQueryBuilder<ActivityAreaEntity>, term: string): void {
+    const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.addSelect(
+      `(
+        (aa.name LIKE :pref)*1 + (aa.name LIKE :any)*0.5
+      )`,
+      'score',
+    ).andWhere(`aa.name LIKE :any`, { pref: prefix, any: contains });
+
+    qb.addSelect('LOCATE(:loc, aa.name)', 'pos')
+      .setParameter('loc', term)
+      .orderBy('score', 'DESC')
+      .addOrderBy('pos', 'ASC');
+  }
+
+  /**
+   * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del área de actividad
+   * @private
+   */
+  private applyFulltextSearch(qb: SelectQueryBuilder<ActivityAreaEntity>, term: string): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+    
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      console.log(`ActivityAreaRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      this.applyLikeSearch(qb, term);
+      return;
+    }
+
+    console.log(`ActivityAreaRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+
+    qb.addSelect(`(MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
+      .andWhere(`MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE)`, {
+        q: sanitizedTerm,
+      })
+      .orderBy('score', 'DESC');
   }
 
   // MÉTODO DELETE IMPLEMENTADO

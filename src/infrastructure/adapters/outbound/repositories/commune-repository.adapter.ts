@@ -8,6 +8,7 @@ import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-ent
 import { CommuneEntity } from '../../../persistence/commune.entity';
 import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
+import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
 export class CommuneRepositoryAdapter
@@ -64,50 +65,11 @@ export class CommuneRepositoryAdapter
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      const isTiny = term.length < 4;
-
-      if (isTiny) {
-        /* LIKE prefijo + contiene */
-        const likeAny = `%${term}%`;
-        const likePref = `${term}%`;
-
-        qb.addSelect(
-          `
-          ((c.name LIKE :pref)*1 + (c.name LIKE :any)*0.5)
-          `,
-          'score',
-        ).andWhere(
-          `
-          c.name LIKE :any
-          `,
-          { pref: likePref, any: likeAny },
-        );
-
-        /* posición de la coincidencia en name */
-        qb.addSelect('LOCATE(:loc, c.name)', 'pos')
-          .setParameter('loc', term)
-          .orderBy('score', 'DESC')
-          .addOrderBy('pos', 'ASC');
+      
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearch(qb, term);
       } else {
-        /* FULLTEXT BOOLEAN MODE con wildcard * */
-        const boolean = term
-          .split(/\s+/)
-          .map((w) => `+${w}*`)
-          .join(' ');
-
-        qb.addSelect(
-          `
-          (MATCH(c.name) AGAINST (:q IN BOOLEAN MODE))
-          `,
-          'score',
-        )
-          .andWhere(
-            `
-            MATCH(c.name) AGAINST (:q IN BOOLEAN MODE)
-            `,
-            { q: boolean },
-          )
-          .orderBy('score', 'DESC');
+        this.applyFulltextSearch(qb, term);
       }
     }
 
@@ -118,5 +80,47 @@ export class CommuneRepositoryAdapter
 
     const [entities, total] = await qb.getManyAndCount();
     return { data: entities.map(CommuneEntityMapper.toDomain), total };
+  }
+
+  /**
+   * Aplica búsqueda LIKE para términos cortos - solo en el nombre de la comuna
+   * @private
+   */
+  private applyLikeSearch(qb: SelectQueryBuilder<CommuneEntity>, term: string): void {
+    const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.addSelect(
+      `(
+        (c.name LIKE :pref)*1 + (c.name LIKE :any)*0.5
+      )`,
+      'score',
+    ).andWhere(`c.name LIKE :any`, { pref: prefix, any: contains });
+
+    qb.addSelect('LOCATE(:loc, c.name)', 'pos')
+      .setParameter('loc', term)
+      .orderBy('score', 'DESC')
+      .addOrderBy('pos', 'ASC');
+  }
+
+  /**
+   * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre de la comuna
+   * @private
+   */
+  private applyFulltextSearch(qb: SelectQueryBuilder<CommuneEntity>, term: string): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+    
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      console.log(`CommuneRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      this.applyLikeSearch(qb, term);
+      return;
+    }
+
+    console.log(`CommuneRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+
+    qb.addSelect(`(MATCH(c.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
+      .andWhere(`MATCH(c.name) AGAINST (:q IN BOOLEAN MODE)`, {
+        q: sanitizedTerm,
+      })
+      .orderBy('score', 'DESC');
   }
 }
