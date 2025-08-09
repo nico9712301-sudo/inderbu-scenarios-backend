@@ -116,7 +116,7 @@ export class SubScenarioApplicationService
     // Crear el sub-escenario
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withName(createDto.name)
-      .withState(createDto.state || false)
+      .withActive(createDto.active || false)
       .withHasCost(createDto.hasCost || false)
       .withnumberOfSpectators(createDto.numberOfSpectators || 0)
       .withNumberOfPlayers(createDto.numberOfPlayers || 0)
@@ -175,7 +175,7 @@ export class SubScenarioApplicationService
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withId(id)
       .withName(updateDto.name || existingSubScenario.name)
-      .withState(updateDto.state !== undefined ? updateDto.state : existingSubScenario.state)
+      .withActive(updateDto.active !== undefined ? updateDto.active : existingSubScenario.active)
       .withHasCost(updateDto.hasCost !== undefined ? updateDto.hasCost : existingSubScenario.hasCost)
       .withnumberOfSpectators(
         updateDto.numberOfSpectators !== undefined && updateDto.numberOfSpectators !== null

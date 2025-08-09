@@ -36,7 +36,7 @@ export class SubScenarioMapper {
     return {
       id: s.id!,
       name: s.name,
-      state: s.state,
+      active: s.active,
       hasCost: s.hasCost,
       numberOfSpectators: s.numberOfSpectators,
       numberOfPlayers: s.numberOfPlayers,

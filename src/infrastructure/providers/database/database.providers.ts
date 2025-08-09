@@ -10,7 +10,8 @@ export const databaseProviders = [
     provide: DATA_SOURCE.MYSQL,
     useFactory: async (configService: ConfigService) => {
       const logger = new Logger('DatabaseProvider');
-
+      logger.log('Desde database providers'+ENV_CONFIG.STORAGE.BUCKET_HOST)
+      logger.log('Desde database providers'+ENV_CONFIG.DATABASE.USER)
       const dataSource = new DataSource({
         type: 'mysql',
         // fuerza UTC−5 (Bogotá) en lugar de UTC puro

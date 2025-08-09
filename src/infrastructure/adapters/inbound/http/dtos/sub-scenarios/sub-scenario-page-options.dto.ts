@@ -36,4 +36,14 @@ export class SubScenarioPageOptionsDto {
   })
   @IsBoolean()
   hasCost?: boolean;
+
+  @ApiPropertyOptional({ description: 'Filtrar por estado activo: true=activos, false=inactivos' })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  active?: boolean;
 }

@@ -48,6 +48,7 @@ export class SubScenarioController {
   @ApiQuery({ name: 'activityAreaId', required: false, type: Number, description: 'Filtra por área de actividad' })
   @ApiQuery({ name: 'neighborhoodId', required: false, type: Number, description: 'Filtra por barrio (id)' })
   @ApiQuery({ name: 'hasCost', required: false, type: Boolean, description: 'Filtrar por costo: true=pagos, false=gratuitos' })
+  @ApiQuery({ name: 'active', required: false, type: Boolean, description: 'Filtrar por estado activo: true=activos, false=inactivos' })
   @ApiResponse({ status: 200, type: PageDto })
   async getSubScenarios(
     @Query() opts: SubScenarioPageOptionsDto,

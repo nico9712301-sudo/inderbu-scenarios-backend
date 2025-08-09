@@ -16,7 +16,7 @@ export class CreateSubScenarioDto {
     }
     return value;
   })
-  state?: boolean;
+  active?: boolean;
 
   @ApiProperty({ required: false, default: false })
   @IsBoolean()

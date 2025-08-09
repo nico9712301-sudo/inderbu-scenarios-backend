@@ -1,3 +1,9 @@
+interface ISubscenarioImage {
+  isFeature: boolean;
+  imageName: string;
+  imageExtension: string;
+}
+
 export interface ISubScenarioSeed {
   name: string;
   scenarioName: string;
@@ -7,4 +13,5 @@ export interface ISubScenarioSeed {
   numberOfSpectators?: number;
   numberOfPlayers?: number;
   recommendations?: string;
+  images?: ISubscenarioImage[]
 }

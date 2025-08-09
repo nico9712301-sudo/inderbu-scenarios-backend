@@ -1,20 +1,98 @@
 [
     {
-        "name": "Las Américas",
-        "address": "CRA 38 Y 43  CALLE 33 Y 33A",
+        "name": "Colorados",
+        "address": "Carrera 23 # 56-221",
+        "neighborhoodName": "Colorados",
+        "isActive": true
+    },
+    {
+        "name": "Norte",
+        "address": "Carrera 10 # 13N - 60",
+        "neighborhoodName": "Kennedy",
+        "isActive": true
+    },
+    {
+        "name": "Campo Hermoso",
+        "address": "Carrera 1 Occidental con calle 44",
+        "neighborhoodName": "Campohermoso",
+        "isActive": true
+    },
+    {
+        "name": "La Joya",
+        "address": "Carrera 4A # 35-06",
+        "neighborhoodName": "La Joya",
+        "isActive": true
+    },
+    {
+        "name": "Victoria",
+        "address": "Calle 67 No. 18-74",
+        "neighborhoodName": "La Victoria",
+        "isActive": true
+    },
+    {
+        "name": "Provenza",
+        "address": "Carrera  23  No. 110-35",
+        "neighborhoodName": "Provenza",
+        "isActive": true
+    },
+    {
+        "name": "Porvenir",
+        "address": "Calle 103 # 8a-10",
+        "neighborhoodName": "El Porvenir",
+        "isActive": true
+    },
+    {
+        "name": "americas",
+        "address": "Calle 35 # 42-14",
+        "neighborhoodName": "Alvarez",
+        "isActive": true
+    },
+    {
+        "name": "Mutis",
+        "address": "Carrerra 2 W # 58-26",
+        "neighborhoodName": "Mutis",
+        "isActive": true
+    },
+    {
+        "name": "Polideportivo Ciudad Bolívar",
+        "address": "Calle 63A N° 3-52",
+        "neighborhoodName": "Ciudad Bolívar",
+        "isActive": true
+    },
+    {
+        "name": "Coliseo Edmundo Luna Santos",
+        "address": "Carrera 15 # 60",
+        "neighborhoodName": "Ciudad Bolívar",
+        "isActive": true
+    },
+    {
+        "name": "Parque Extremo de Bucaramanga",
+        "address": "Carrera 27 A # 87-52 Barrio San Martin",
+        "neighborhoodName": "San Martín",
+        "isActive": true
+    },
+    {
+        "name": "Canchas de tenis del parque de los niños",
+        "address": "Calle 30 y 23 con cra 25 y 27 y calle 32 # 26",
+        "neighborhoodName": "Antonia Santos",
+        "isActive": true
+    },
+    {
+        "name": "Velódromo Alfonso Flórez Ortiz",
+        "address": "Calle 14 entre carrera 32 y 32ª",
         "neighborhoodName": "San Alonso",
         "isActive": true
     },
     {
-        "name": "El Mutis",
-        "address": "Dirección de El Mutis",
+        "name": "Coliseo Bicentenario",
+        "address": "Calle 7 # 30 - 140",
         "neighborhoodName": "San Alonso",
         "isActive": true
     },
     {
-        "name": "Cancha Multiple - Microfutbol Basquetbol",
-        "neighborhoodName": "Bucaramanga",
-        "address": "Calle 68 Con Cra 10",
+        "name": "Patinodromo Roberto García Peña",
+        "address": "Calle de los estudiantes",
+        "neighborhoodName": "Ciudadela Real de Minas",
         "isActive": true
     }
 ]

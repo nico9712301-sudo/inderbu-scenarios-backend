@@ -24,7 +24,7 @@ export class SubScenarioEntity {
   name: string;
 
   @Column({ type: 'boolean', default: false })
-  state: boolean;
+  active: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

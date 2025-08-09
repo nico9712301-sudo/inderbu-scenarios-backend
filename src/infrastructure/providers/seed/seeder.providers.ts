@@ -10,6 +10,7 @@ import { CitySeeder } from 'src/core/application/services/seeding/seeders/city.s
 import { RoleSeeder } from 'src/core/application/services/seeding/seeders/role.seeder';
 import { UserSeeder } from 'src/core/application/services/seeding/seeders/user.seeder';
 import { ReservationStateSeeder } from 'src/core/application/services/seeding/seeders/reservation-state.seeder';
+import { SubScenarioImageSeeder } from 'src/core/application/services/seeding/seeders/sub-scenario-image.seeder';
 
 /**
  * Important: Import seeders in the order of dependencies. Cardinality is important.
@@ -27,6 +28,7 @@ export const seederProviders = [
   ScenarioSeeder,
   SubScenarioSeeder,
   SubScenarioPriceSeeder,
+  SubScenarioImageSeeder,
   TimeSlotSeeder,
-  ReservationStateSeeder
+  ReservationStateSeeder,
 ];

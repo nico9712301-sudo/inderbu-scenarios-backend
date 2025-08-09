@@ -13,7 +13,7 @@ export class SubScenarioResponseMapper {
       scenarioId: domain.scenarioId,
       activityAreaId: domain.activityAreaId,
       fieldSurfaceTypeId: domain.fieldSurfaceTypeId,
-      state: domain.state,
+      active: domain.active,
     };
   }
 }

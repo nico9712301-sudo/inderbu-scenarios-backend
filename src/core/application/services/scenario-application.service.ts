@@ -27,7 +27,9 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
   }
 
   async getById(id: number): Promise<ScenarioDomainEntity | null> {
-    return this.scenarioRepository.findById(id);
+    const scenario = this.scenarioRepository.findById(id);
+    if (!scenario) throw new NotFoundException(`Escenario ${id} no encontrado`);
+    return scenario;
   }
 
   async listPaged(opts: PageOptionsDto): Promise<PageDto<ScenarioResponseDto>> {

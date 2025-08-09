@@ -10,7 +10,7 @@ export class UpdateSubScenarioDto {
   @ApiProperty({ required: false })
   @IsBoolean()
   @IsOptional()
-  state?: boolean;
+  active?: boolean;
 
   @ApiProperty({ required: false })
   @IsBoolean()

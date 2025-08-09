@@ -72,6 +72,7 @@ export class SubScenarioRepositoryAdapter
       activityAreaId,
       neighborhoodId,
       hasCost,
+      active,
     } = opts;
 
     const qb: SelectQueryBuilder<SubScenarioEntity> = this.repository
@@ -89,6 +90,8 @@ export class SubScenarioRepositoryAdapter
       qb.andWhere('n.id  = :neighborhoodId', { neighborhoodId });
     if (typeof hasCost === 'boolean')
       qb.andWhere('s.hasCost = :hasCost', { hasCost });
+    if (typeof active === 'boolean')
+      qb.andWhere('s.active = :active', { active });
 
     /* ───── búsqueda ───── */
     if (search?.trim()) {

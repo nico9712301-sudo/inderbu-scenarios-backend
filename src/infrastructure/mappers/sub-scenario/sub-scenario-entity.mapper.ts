@@ -6,7 +6,7 @@ export class SubScenarioEntityMapper {
     const domainEntity = SubScenarioDomainEntity.builder()
       .withId(entity.id)
       .withName(entity.name)
-      .withState(entity.state)
+      .withActive(entity.active)
       .withHasCost(entity.hasCost)
       .withnumberOfSpectators(entity.numberOfSpectators)
       .withNumberOfPlayers(entity.numberOfPlayers)
@@ -42,7 +42,7 @@ export class SubScenarioEntityMapper {
     const entity = new SubScenarioEntity();
     if (domain.id !== null) entity.id = domain.id;
     entity.name = domain.name;
-    entity.state = domain.state;
+    entity.active = domain.active;
     entity.hasCost = domain.hasCost;
     entity.numberOfSpectators = domain.numberOfSpectators ?? 0;
     entity.numberOfPlayers = domain.numberOfPlayers ?? 0;

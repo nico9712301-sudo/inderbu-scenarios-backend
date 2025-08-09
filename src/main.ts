@@ -18,8 +18,13 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   
   // Configurar archivos estáticos para servir imágenes
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads/', // Los archivos serán accesibles en /uploads/images/*
+  // app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  //   prefix: '/uploads/', // Los archivos serán accesibles en /uploads/images/*
+  // });
+  
+  // Configurar archivos estáticos para servir imágenes temporales
+  app.useStaticAssets(join(__dirname, '..', 'temp'), {
+    prefix: '/temp/', // Los archivos serán accesibles en /temp/images/*
   });
   
   // Registro de interceptores globales

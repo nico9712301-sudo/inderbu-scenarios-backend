@@ -14,6 +14,7 @@ import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scen
 import { ExportScenariosDto, ExportJobResponseDto, ExportDownloadResponseDto } from '../dtos/scenario/export-scenarios.dto';
 import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
 import { ExportJob } from 'src/core/application/services/export/redis-export-job.service';
+import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
 
 @ApiTags('Scenarios')
 @Controller('scenarios')
@@ -34,7 +35,6 @@ export class ScenarioController {
   async getAll(
     @Query() opts: PageOptionsDto,
   ): Promise<PageDto<ScenarioResponseDto>> {
-    console.log('Active filter from controller:', opts.active);
     return this.scenarioApplicationService.listPaged(opts);
   }
 
@@ -44,9 +44,8 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: ScenarioResponseDto })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   async getById(@Param('id') id: number): Promise<ScenarioResponseDto> {
-    const scenario = await this.scenarioApplicationService.getById(id);
-    if (!scenario) throw new NotFoundException(`Escenario ${id} no encontrado`);
-    return ScenarioResponseMapper.toDto(scenario);
+    const scenario: ScenarioDomainEntity | null = await this.scenarioApplicationService.getById(id);
+    return ScenarioResponseMapper.toDto(scenario!);
   }
 
   @Post()
@@ -82,7 +81,7 @@ export class ScenarioController {
   }
 
   // ===============================
-  // ENDPOINTS DE EXPORTACIÓN
+  // ENDPOINTS DE EXPORTACIÓN Y POLLING 
   // ===============================
 
   @Post('export')

@@ -88,7 +88,7 @@ export class SubScenarioSeeder
       subScenario.scenario = scenario;
       subScenario.activityArea = activityArea!;
       subScenario.fieldSurfaceType = fieldSurfaceType!;
-      subScenario.state = true
+      subScenario.active = true
 
       entities.push(subScenario);
     }

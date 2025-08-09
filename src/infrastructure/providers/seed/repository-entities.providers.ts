@@ -14,6 +14,7 @@ import { CityEntity } from 'src/infrastructure/persistence/city.entity';
 import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
 import { UserEntity } from 'src/infrastructure/persistence/user.entity';
 import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
 
 export const repositoryEntitiesProviders = [
   {
@@ -74,6 +75,12 @@ export const repositoryEntitiesProviders = [
     provide: MYSQL_REPOSITORY.SUB_SCENARIO_PRICE,
     useFactory: (dataSource: DataSource) =>
       dataSource.getRepository(SubScenarioPriceEntity),
+    inject: [DATA_SOURCE.MYSQL],
+  },
+  {
+    provide: MYSQL_REPOSITORY.SUB_SCENARIO_IMAGE,
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(SubScenarioImageEntity),
     inject: [DATA_SOURCE.MYSQL],
   },
   {

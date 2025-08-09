@@ -1,7 +1,7 @@
 export class SubScenarioDomainEntity {
   public readonly id: number | null;
   public readonly name: string;
-  public readonly state: boolean;
+  public readonly active: boolean;
   public readonly hasCost: boolean;
   public readonly numberOfSpectators?: number;
   public readonly numberOfPlayers?: number;
@@ -14,7 +14,7 @@ export class SubScenarioDomainEntity {
   constructor(builder: SubScenarioDomainBuilder) {
     this.id = builder.id;
     this.name = builder.name;
-    this.state = builder.state;
+    this.active = builder.active;
     this.hasCost = builder.hasCost;
     this.numberOfSpectators = builder.numberOfSpectators;
     this.numberOfPlayers = builder.numberOfPlayers;
@@ -33,7 +33,7 @@ export class SubScenarioDomainEntity {
 export class SubScenarioDomainBuilder {
   id: number | null = null;
   name: string = '';
-  state: boolean = false;
+  active: boolean = false;
   hasCost: boolean = false;
   numberOfSpectators?: number;
   numberOfPlayers?: number;
@@ -53,8 +53,8 @@ export class SubScenarioDomainBuilder {
     return this;
   }
   
-  withState(state: boolean): SubScenarioDomainBuilder {
-    this.state = state;
+  withActive(active: boolean): SubScenarioDomainBuilder {
+    this.active = active;
     return this;
   }
 

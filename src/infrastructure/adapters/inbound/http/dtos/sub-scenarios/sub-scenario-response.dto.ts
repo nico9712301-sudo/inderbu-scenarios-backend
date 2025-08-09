@@ -8,7 +8,7 @@ export class SubScenarioResponseDto {
   name: string;
   
   @ApiProperty()
-  state: boolean;
+  active: boolean;
 
   @ApiProperty()
   hasCost: boolean;
