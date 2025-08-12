@@ -147,7 +147,6 @@ export class ScenarioController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const filePath = await this.scenarioExportService.getJobFilePath(jobId);
-    console.log({filePath})
     
     if (!filePath) {
       throw new NotFoundException(`Archivo de exportación ${jobId} no encontrado`);

@@ -33,7 +33,6 @@ export class SubScenarioRepositoryAdapter
     const entities = await this.repository.find({
       relations: ['scenario', 'activityArea', 'fieldSurfaceType'],
     });
-    console.log({ entities });
     return entities.map((entity) => this.toDomain(entity));
   }
 
@@ -75,9 +74,6 @@ export class SubScenarioRepositoryAdapter
       hasCost,
       active,
     } = opts;
-
-    console.log({ activeValue: active });
-    console.log({ type: typeof active });
 
     const qb: SelectQueryBuilder<SubScenarioEntity> = this.repository
       .createQueryBuilder('s')

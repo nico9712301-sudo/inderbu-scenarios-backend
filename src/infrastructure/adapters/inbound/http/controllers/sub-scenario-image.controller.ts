@@ -46,6 +46,8 @@ export class SubScenarioImageController {
     @UploadedFiles() files: { [fieldname: string]: Express.Multer.File[] },
     @Body() body: any,
   ): Promise<SubScenarioImageResponseDto[]> {
+    console.log("Uploading images for sub-scenario ID:", subScenarioId);
+    
     // Verificamos que haya al menos un archivo
     if (!files || Object.keys(files).length === 0) {
       throw new BadRequestException('No se han proporcionado archivos válidos');
@@ -53,6 +55,9 @@ export class SubScenarioImageController {
     
     const results: SubScenarioImageResponseDto[] = [];
     const allFiles: Express.Multer.File[] = [];
+
+    console.log("Received files:", files);
+    
     
     try {
       // Procesar file1

@@ -101,7 +101,6 @@ export class ScenarioRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    console.log({ entities });
     return { data: entities.map(this.toDomain), total };
   }
 

@@ -91,8 +91,6 @@ export class UserRepositoryAdapter
       order: { id: 'ASC' },
     });
 
-    console.log({users});
-
     return {
       users: users.map((e) => this.toDomain(e)),
       totalItems,

@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
+import * as bodyParser from 'body-parser';
 import 'reflect-metadata';
 
 import { AppModule } from './infrastructure/modules/config/app.module';
@@ -16,6 +17,10 @@ function loadEnv() {
 async function bootstrap() {
   loadEnv();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  
+  // Configurar límites de tamaño de payload globalmente
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
   
   // Configurar archivos estáticos para servir imágenes
   // app.useStaticAssets(join(__dirname, '..', 'uploads'), {
