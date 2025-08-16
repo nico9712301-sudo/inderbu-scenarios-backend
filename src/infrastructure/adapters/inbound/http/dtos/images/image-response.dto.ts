@@ -18,6 +18,9 @@ export class SubScenarioImageResponseDto {
 
   @ApiProperty({ description: 'ID del sub-escenario al que pertenece esta imagen' })
   subScenarioId: number;
+
+  @ApiProperty({ description: 'Indica si esta imagen es la versión actual (no histórica)' })
+  current: boolean;
   
   @ApiProperty({ required: false, description: 'Fecha de creación de la imagen' })
   createdAt?: Date;

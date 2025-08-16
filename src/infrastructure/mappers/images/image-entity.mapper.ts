@@ -10,6 +10,7 @@ export class SubScenarioImageEntityMapper {
       .withIsFeature(entity.isFeature)
       .withDisplayOrder(entity.displayOrder)
       .withSubScenarioId(entity.subScenario?.id)
+      .withCurrent(entity.current)
       .withCreatedAt(entity.createdAt)
       .build();
   }
@@ -26,6 +27,7 @@ export class SubScenarioImageEntityMapper {
     entity.path = domain.path;
     entity.isFeature = domain.isFeature;
     entity.displayOrder = domain.displayOrder;
+    entity.current = domain.current;
     entity.createdAt = domain.createdAt || new Date();
     
     // Crear una referencia al sub-escenario

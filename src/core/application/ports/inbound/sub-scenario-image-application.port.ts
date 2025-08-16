@@ -12,11 +12,23 @@ export interface ISubScenarioImageApplicationPort {
   
   getImagesBySubScenarioId(
     subScenarioId: number,
+    includeHistorical?: boolean,
   ): Promise<SubScenarioImageResponseDto[]>;
   
   updateImage(
     imageId: number,
     updateDto: UpdateImageDto,
   ): Promise<SubScenarioImageResponseDto>;
+
+  manageImages(
+    subScenarioId: number,
+    imageUpdates: {
+      featured?: Express.Multer.File;
+      additional1?: Express.Multer.File;
+      additional2?: Express.Multer.File;
+    }
+  ): Promise<SubScenarioImageResponseDto[]>;
+
+  deleteImage(imageId: number): Promise<void>;
 
 }

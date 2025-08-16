@@ -53,18 +53,31 @@ export class SubScenarioImageSeeder
                 name: seed.name,
             });
             if (!subScenario) {
-                this.logger.warn(`Escenario ${seed.scenarioName} no encontrado.`);
+                this.logger.warn(`Sub-escenario ${seed.name} no encontrado.`);
                 continue;
             }
 
-            // Create the entity properly
-            const subScenarioImage: SubScenarioImageEntity = new SubScenarioImageEntity();
-            subScenarioImage.isFeature = seed.images?.[0]?.isFeature ?? false;
-            subScenarioImage.displayOrder = 1;
-            subScenarioImage.path = path_folder + seed.images?.[0]?.imageName + "." + seed.images?.[0]?.imageExtension;
-            subScenarioImage.subScenario = subScenario
+            // Procesar todas las imágenes del sub-escenario (no solo la primera)
+            if (seed.images && seed.images.length > 0) {
+                for (let index = 0; index < seed.images.length; index++) {
+                    const imageData = seed.images[index];
+                    
+                    // Create the entity properly
+                    const subScenarioImage: SubScenarioImageEntity = new SubScenarioImageEntity();
+                    subScenarioImage.isFeature = imageData.isFeature;
+                    // Featured images have displayOrder 0, additional images start from 1
+                    subScenarioImage.displayOrder = imageData.isFeature ? 0 : index;
+                    subScenarioImage.path = path_folder + imageData.imageName + "." + imageData.imageExtension;
+                    subScenarioImage.current = true; // 🆕 Todas las imágenes de seed son actuales
+                    subScenarioImage.subScenario = subScenario;
 
-            entities.push(subScenarioImage);
+                    entities.push(subScenarioImage);
+                    
+                    this.logger.log(`Creando imagen ${imageData.imageName} para sub-escenario ${seed.name} (isFeature: ${imageData.isFeature}, order: ${subScenarioImage.displayOrder})`);
+                }
+            } else {
+                this.logger.warn(`Sub-escenario ${seed.name} no tiene imágenes definidas.`);
+            }
         }
         return entities;
     }

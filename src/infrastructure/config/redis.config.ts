@@ -7,10 +7,11 @@ export class RedisConfig {
   constructor(private configService: ConfigService) {}
 
   createRedisClient(): Redis {
-    const redisConfig = {
+    const password = this.configService.get<string>('REDIS_PASSWORD');
+    
+    const redisConfig: any = {
       host: this.configService.get<string>('REDIS_HOST', 'localhost'),
       port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASSWORD'),
       db: this.configService.get<number>('REDIS_DB', 0),
       retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
@@ -18,6 +19,14 @@ export class RedisConfig {
       keepAlive: 30000,
       family: 4, // IPv4
     };
+
+    // Only add password if it's actually configured
+    if (password) {
+      redisConfig.password = password;
+    }
+
+    console.log('Connecting to Redis with config:', redisConfig);
+    
 
     const redis = new Redis(redisConfig);
 

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository, In } from 'typeorm';
+import { Repository, In, Not } from 'typeorm';
 
 import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
 import { ISubScenarioImageRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-image-repository.port';
@@ -34,10 +34,18 @@ export class SubScenarioImageRepositoryAdapter
 
   async findBySubScenarioId(
     subScenarioId: number,
+    includeHistorical: boolean = false,
   ): Promise<SubScenarioImageDomainEntity[]> {
     try {
+      const where: any = { subScenario: { id: subScenarioId } };
+      
+      // Por defecto, solo traer imágenes actuales (current: true)
+      if (!includeHistorical) {
+        where.current = true;
+      }
+
       const entities = await this.repository.find({
-        where: { subScenario: { id: subScenarioId } },
+        where,
         relations: ['subScenario'],
         order: { isFeature: 'DESC', displayOrder: 'ASC' },
       });
@@ -50,6 +58,7 @@ export class SubScenarioImageRepositoryAdapter
   
   async findBySubScenarioIds(
     subScenarioIds: number[],
+    includeHistorical: boolean = false,
   ): Promise<SubScenarioImageDomainEntity[]> {
     try {
       console.log(`Buscando imágenes para ${subScenarioIds.length} sub-escenarios: ${subScenarioIds.join(', ')}`);
@@ -58,8 +67,15 @@ export class SubScenarioImageRepositoryAdapter
         return [];
       }
       
+      const where: any = { subScenario: { id: In(subScenarioIds) } };
+      
+      // Por defecto, solo traer imágenes actuales (current: true)
+      if (!includeHistorical) {
+        where.current = true;
+      }
+      
       const entities: SubScenarioImageEntity[] = await this.repository.find({
-        where: { subScenario: { id: In(subScenarioIds) } },
+        where,
         relations: ['subScenario'],
         order: { isFeature: 'DESC', displayOrder: 'ASC' },
       });
@@ -128,5 +144,28 @@ export class SubScenarioImageRepositoryAdapter
     }
     
     return updatedImages;
+  }
+
+  async markAsHistorical(subScenarioId: number, exceptIds?: number[]): Promise<void> {
+    const where: any = { subScenario: { id: subScenarioId } };
+    
+    // Si se proporcionan IDs a excluir, agregar condición NOT IN
+    if (exceptIds && exceptIds.length > 0) {
+      where.id = Not(In(exceptIds));
+    }
+
+    await this.repository.update(where, { current: false });
+  }
+
+  async markAsHistoricalByPosition(subScenarioId: number, isFeature: boolean, displayOrder: number): Promise<void> {
+    // Solo marcar como históricas las imágenes que ocupan la misma posición
+    const where = { 
+      subScenario: { id: subScenarioId },
+      isFeature,
+      displayOrder,
+      current: true
+    };
+
+    await this.repository.update(where, { current: false });
   }
 }

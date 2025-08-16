@@ -14,6 +14,7 @@ export class SubScenarioImageResponseMapper {
     dto.isFeature = domain.isFeature;
     dto.displayOrder = domain.displayOrder;
     dto.subScenarioId = domain.subScenarioId;
+    dto.current = domain.current;
     dto.createdAt = domain.createdAt;
     return dto;
   }

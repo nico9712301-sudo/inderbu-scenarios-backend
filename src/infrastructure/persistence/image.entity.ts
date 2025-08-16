@@ -22,6 +22,9 @@ export class SubScenarioImageEntity {
   @Column({ type: 'int', default: 0 })
   displayOrder: number;
 
+  @Column({ type: 'boolean', default: true })
+  current: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 

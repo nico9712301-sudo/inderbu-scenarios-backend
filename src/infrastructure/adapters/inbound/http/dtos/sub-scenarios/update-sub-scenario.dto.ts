@@ -37,6 +37,11 @@ export class UpdateSubScenarioDto {
   @ApiProperty({ required: false })
   @IsInt()
   @IsOptional()
+  scenarioId?: number;
+
+  @ApiProperty({ required: false })
+  @IsInt()
+  @IsOptional()
   activityAreaId?: number;
 
   @ApiProperty({ required: false })

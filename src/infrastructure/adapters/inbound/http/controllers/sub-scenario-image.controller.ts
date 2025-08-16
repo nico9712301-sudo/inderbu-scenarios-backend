@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Param,
   Body,
   UseInterceptors,
@@ -10,6 +11,8 @@ import {
   BadRequestException,
   ParseIntPipe,
   UploadedFiles,
+  Query,
+  ParseBoolPipe,
 } from '@nestjs/common';
 import { FilesInterceptor, FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiParam, ApiResponse, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -46,7 +49,7 @@ export class SubScenarioImageController {
     @UploadedFiles() files: { [fieldname: string]: Express.Multer.File[] },
     @Body() body: any,
   ): Promise<SubScenarioImageResponseDto[]> {
-    console.log("Uploading images for sub-scenario ID:", subScenarioId);
+    console.log("Uploading images for sub-scenario ID:", subScenarioId, " images are:", files);
     
     // Verificamos que haya al menos un archivo
     if (!files || Object.keys(files).length === 0) {
@@ -149,13 +152,24 @@ export class SubScenarioImageController {
   }
 
   @Get(':subScenarioId/images')
-  @ApiOperation({ summary: 'Obtiene todas las imágenes de un sub-escenario' })
+  @ApiOperation({ summary: 'Obtiene las imágenes de un sub-escenario (por defecto solo las actuales)' })
   @ApiParam({ name: 'subScenarioId', type: Number, description: 'ID del sub-escenario' })
   @ApiResponse({ status: 200, type: [SubScenarioImageResponseDto] })
   async getImages(
     @Param('subScenarioId', ParseIntPipe) subScenarioId: number,
+    @Query('includeHistorical', new ParseBoolPipe({ optional: true })) includeHistorical?: boolean,
   ): Promise<SubScenarioImageResponseDto[]> {
-    return this.imageApplicationService.getImagesBySubScenarioId(subScenarioId);
+    return this.imageApplicationService.getImagesBySubScenarioId(subScenarioId, includeHistorical || false);
+  }
+
+  @Get(':subScenarioId/images/history')
+  @ApiOperation({ summary: 'Obtiene el historial completo de imágenes de un sub-escenario (incluyendo versiones históricas)' })
+  @ApiParam({ name: 'subScenarioId', type: Number, description: 'ID del sub-escenario' })
+  @ApiResponse({ status: 200, type: [SubScenarioImageResponseDto] })
+  async getImagesHistory(
+    @Param('subScenarioId', ParseIntPipe) subScenarioId: number,
+  ): Promise<SubScenarioImageResponseDto[]> {
+    return this.imageApplicationService.getImagesBySubScenarioId(subScenarioId, true);
   }
 
   @Patch(':subScenarioId/images/:imageId')
@@ -168,6 +182,109 @@ export class SubScenarioImageController {
     @Body() updateDto: UpdateImageDto,
   ): Promise<SubScenarioImageResponseDto> {
     return this.imageApplicationService.updateImage(imageId, updateDto);
+  }
+
+  @Delete(':subScenarioId/images/:imageId')
+  @ApiOperation({ summary: 'Elimina una imagen específica marcándola como histórica' })
+  @ApiParam({ name: 'subScenarioId', type: Number, description: 'ID del sub-escenario' })
+  @ApiParam({ name: 'imageId', type: Number, description: 'ID de la imagen' })
+  @ApiResponse({ status: 200, description: 'Imagen marcada como histórica exitosamente' })
+  async deleteImage(
+    @Param('subScenarioId', ParseIntPipe) subScenarioId: number,
+    @Param('imageId', ParseIntPipe) imageId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.imageApplicationService.deleteImage(imageId);
+    return {
+      success: true,
+      message: 'Imagen marcada como histórica exitosamente'
+    };
+  }
+
+  @Post(':subScenarioId/manage-images')
+  @ApiOperation({ summary: 'Gestiona imágenes de un sub-escenario - permite actualizar o eliminar imágenes específicas por posición' })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'subScenarioId', type: Number, description: 'ID del sub-escenario' })
+  @ApiResponse({ status: 201, type: [SubScenarioImageResponseDto] })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'featured', maxCount: 1 },
+      { name: 'additional1', maxCount: 1 },
+      { name: 'additional2', maxCount: 1 },
+    ])
+  )
+  async manageImages(
+    @Param('subScenarioId', ParseIntPipe) subScenarioId: number,
+    @UploadedFiles() files: { 
+      featured?: Express.Multer.File[], 
+      additional1?: Express.Multer.File[], 
+      additional2?: Express.Multer.File[] 
+    },
+  ): Promise<SubScenarioImageResponseDto[]> {
+    console.log("Managing images for sub-scenario ID:", subScenarioId, "files:", files);
+    
+    const allFiles: Express.Multer.File[] = [];
+    
+    try {
+      // Preparar los archivos para el servicio de aplicación
+      const imageUpdates: {
+        featured?: Express.Multer.File;
+        additional1?: Express.Multer.File;
+        additional2?: Express.Multer.File;
+      } = {};
+
+      // Procesar imagen featured
+      if (files.featured && files.featured.length > 0) {
+        const file = files.featured[0];
+        const buffer = fs.readFileSync(file.path);
+        imageUpdates.featured = { ...file, buffer };
+        allFiles.push(file);
+      }
+
+      // Procesar imagen additional1
+      if (files.additional1 && files.additional1.length > 0) {
+        const file = files.additional1[0];
+        const buffer = fs.readFileSync(file.path);
+        imageUpdates.additional1 = { ...file, buffer };
+        allFiles.push(file);
+      }
+
+      // Procesar imagen additional2
+      if (files.additional2 && files.additional2.length > 0) {
+        const file = files.additional2[0];
+        const buffer = fs.readFileSync(file.path);
+        imageUpdates.additional2 = { ...file, buffer };
+        allFiles.push(file);
+      }
+
+      // Llamar al servicio de aplicación
+      const results = await this.imageApplicationService.manageImages(subScenarioId, imageUpdates);
+
+      // Limpiar archivos temporales
+      for (const file of allFiles) {
+        try {
+          if (file.path && fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        } catch (err) {
+          console.error('Error al eliminar archivo temporal:', err);
+        }
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error gestionando imágenes:', error);
+      // Limpiar archivos temporales en caso de error
+      for (const file of allFiles) {
+        try {
+          if (file.path && fs.existsSync(file.path)) {
+            fs.unlinkSync(file.path);
+          }
+        } catch (err) {
+          console.error('Error al eliminar archivo temporal:', err);
+        }
+      }
+      throw error;
+    }
   }
 
 }

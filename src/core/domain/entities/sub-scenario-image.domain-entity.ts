@@ -4,6 +4,7 @@ export class SubScenarioImageDomainEntity {
   public readonly isFeature: boolean;
   public readonly displayOrder: number;
   public readonly subScenarioId: number;
+  public readonly current: boolean;
   public readonly createdAt?: Date;
 
   constructor(builder: SubScenarioImageDomainBuilder) {
@@ -12,6 +13,7 @@ export class SubScenarioImageDomainEntity {
     this.isFeature = builder.isFeature;
     this.displayOrder = builder.displayOrder;
     this.subScenarioId = builder.subScenarioId;
+    this.current = builder.current;
     this.createdAt = builder.createdAt;
   }
 
@@ -26,6 +28,7 @@ export class SubScenarioImageDomainBuilder {
   isFeature: boolean = false;
   displayOrder: number = 0;
   subScenarioId: number = 0;
+  current: boolean = true;
   createdAt?: Date;
 
   withId(id: number): SubScenarioImageDomainBuilder {
@@ -50,6 +53,11 @@ export class SubScenarioImageDomainBuilder {
 
   withSubScenarioId(subScenarioId: number): SubScenarioImageDomainBuilder {
     this.subScenarioId = subScenarioId;
+    return this;
+  }
+
+  withCurrent(current: boolean): SubScenarioImageDomainBuilder {
+    this.current = current;
     return this;
   }
   

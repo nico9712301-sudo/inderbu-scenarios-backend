@@ -157,6 +157,30 @@ export class SubScenarioApplicationService
       throw new NotFoundException(`Sub-escenario con ID ${id} no encontrado`);
     }
 
+    // Verificar que exista el escenario si se proporciona
+    if (updateDto.scenarioId) {
+      const scenario = await this.scenarioRepository.findById(updateDto.scenarioId);
+      if (!scenario) {
+        throw new NotFoundException(`Escenario con ID ${updateDto.scenarioId} no encontrado`);
+      }
+    }
+
+    // Verificar que exista el área de actividad si se proporciona
+    if (updateDto.activityAreaId) {
+      const activityArea = await this.activityAreaareaRepository.findById(updateDto.activityAreaId);
+      if (!activityArea) {
+        throw new NotFoundException(`Área de actividad con ID ${updateDto.activityAreaId} no encontrada`);
+      }
+    }
+
+    // Verificar que exista el tipo de superficie del campo si se proporciona
+    if (updateDto.fieldSurfaceTypeId) {
+      const fieldSurface = await this.fieldSurfaceRepository.findById(updateDto.fieldSurfaceTypeId);
+      if (!fieldSurface) {
+        throw new NotFoundException(`Tipo de superficie del campo con ID ${updateDto.fieldSurfaceTypeId} no encontrado`);
+      }
+    }
+
     // Actualizar el sub-escenario
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withId(id)
@@ -178,7 +202,11 @@ export class SubScenarioApplicationService
           ? updateDto.recommendations
           : existingSubScenario.recommendations ?? ''
       )
-      .withScenarioId(existingSubScenario.scenarioId)
+      .withScenarioId(
+        updateDto.scenarioId !== undefined && updateDto.scenarioId !== null
+          ? updateDto.scenarioId
+          : existingSubScenario.scenarioId
+      )
       .withActivityAreaId(
         updateDto.activityAreaId !== undefined && updateDto.activityAreaId !== null
           ? updateDto.activityAreaId
