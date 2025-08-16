@@ -75,7 +75,7 @@ export class UserDto {
     description: 'Estado de activación de la cuenta',
     example: true,
   })
-  isActive: boolean;
+  active: boolean;
 
   static fromDomainEntity(user: UserDomainEntity): UserDto {
     return {
@@ -88,7 +88,7 @@ export class UserDto {
       roleId: user.roleId,
       address: user.address,
       neighborhoodId: user.neighborhoodId,
-      isActive: user.isActive,
+      active: user.active,
     };
   }
 }

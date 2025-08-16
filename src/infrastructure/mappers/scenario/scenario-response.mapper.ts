@@ -12,7 +12,7 @@ export class ScenarioResponseMapper {
       id: domain.id ?? 1,
       name: domain.name,
       address: domain.address,
-      active: domain.isActive,
+      active: domain.active,
     };
 
     // Solo agregar neighborhood si está disponible

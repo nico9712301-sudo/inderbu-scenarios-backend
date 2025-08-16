@@ -17,7 +17,7 @@ export class UserEntityMapper {
       .withRoleId(entity.role?.id) // Se asigna el ID del rol
       .withAddress(entity.address)
       .withNeighborhoodId(entity.neighborhood?.id)
-      .withIsActive(entity.isActive)
+      .withActive(entity.active)
       .withConfirmationToken(entity.confirmationToken)
       .withConfirmationTokenExpiresAt(entity.confirmationTokenExpiresAt)
       .build();
@@ -52,7 +52,7 @@ export class UserEntityMapper {
     entity.role = { id: domain.roleId } as RoleEntity;
     entity.address = domain.address;
     entity.neighborhood = { id: domain.neighborhoodId } as any;
-    entity.isActive = domain.isActive;
+    entity.active = domain.active;
     entity.confirmationToken = (domain as any).confirmationToken;
     entity.confirmationTokenExpiresAt = (domain as any).confirmationTokenExpiresAt;
     return entity;

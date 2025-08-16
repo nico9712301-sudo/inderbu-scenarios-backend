@@ -122,7 +122,7 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
       .withName(dto.name ?? existingScenario.name)
       .withAddress(dto.address ?? existingScenario.address)
       .withNeighborhoodId(targetNeighborhoodId)
-      .withIsActive(dto.isActive ?? existingScenario.isActive)
+      .withActive(dto.active ?? existingScenario.active)
       .build();
 
     console.log('Updated scenario before saving:', updatedScenario);

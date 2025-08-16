@@ -12,7 +12,7 @@
     "neighborhood": {
       "name": "San Alonso"
     },
-    "isActive": 1
+    "active": 1
   },
   {
     "dni": 987654321,
@@ -27,7 +27,7 @@
     "neighborhood": {
       "name": "San Alonso"
     },
-    "isActive": 1
+    "active": 1
   },
   {
     "dni": 112233445,
@@ -42,7 +42,7 @@
     "neighborhood": {
       "name": "Cabecera del Llano"
     },
-    "isActive": 1
+    "active": 1
   },
   {
     "dni": 556677889,
@@ -57,7 +57,7 @@
     "neighborhood": {
       "name": "Mutis"
     },
-    "isActive": 1
+    "active": 1
   },
   {
     "dni": 998877665,
@@ -72,6 +72,6 @@
     "neighborhood": {
       "name": "La Victoria"
     },
-    "isActive": 1
+    "active": 1
   }
 ]

@@ -45,6 +45,7 @@ export class ScenarioSeeder extends AbstractSeeder<ScenarioEntity, IScenarioSeed
         name: seed.name,
         address: seed.address,
         neighborhood,
+        active: seed.active,
       }));
     }
     return entities;

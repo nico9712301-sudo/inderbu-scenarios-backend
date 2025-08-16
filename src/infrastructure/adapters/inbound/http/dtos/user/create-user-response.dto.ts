@@ -32,5 +32,5 @@ export class UserResponseDto {
 
   @ApiProperty({ example: false, description: 'Indica si la cuenta está activa' })
   @Expose()
-  isActive: boolean;
+  active: boolean;
 }

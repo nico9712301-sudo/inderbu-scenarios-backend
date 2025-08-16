@@ -6,6 +6,7 @@
       "Bash(git add:*)",
       "Bash(npm install:*)"
     ],
-    "deny": []
+    "deny": [],
+    "defaultMode": "acceptEdits"
   }
 }

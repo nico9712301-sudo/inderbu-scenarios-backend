@@ -109,7 +109,7 @@ export class FileExportService {
         'ID': scenario.id,
         'Nombre': scenario.name,
         'Dirección': scenario.address,
-        'Activo': scenario.isActive ? 'Sí' : 'No',
+        'Activo': scenario.active ? 'Sí' : 'No',
         'Barrio': neighborhood?.name || 'Sin barrio',
         'Comuna': neighborhood?.commune?.name || 'Sin comuna',
         // 'Fecha Creación': scenario.createdAt ? new Date(scenario.createdAt).toLocaleDateString('es-CL') : '',

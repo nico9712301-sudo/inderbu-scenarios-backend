@@ -33,5 +33,5 @@ export class UpdateScenarioDto {
 
   @ApiProperty({ description: 'Indica si el escenario está activo', example: true, required: false })
   @IsOptional()
-  isActive?: boolean;
+  active?: boolean;
 }

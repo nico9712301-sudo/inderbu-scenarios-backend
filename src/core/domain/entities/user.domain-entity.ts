@@ -33,7 +33,7 @@ export class UserDomainEntity {
   @Expose()
   public readonly neighborhoodId: number;
 
-  @Expose() public readonly isActive: boolean;
+  @Expose() public readonly active: boolean;
   private readonly confirmationToken: string;
   private readonly confirmationTokenExpiresAt: Date | null;
 
@@ -49,7 +49,7 @@ export class UserDomainEntity {
     this.roleId = builder.roleId;
     this.address = builder.address;
     this.neighborhoodId = builder.neighborhoodId;
-    this.isActive = builder.isActive;
+    this.active = builder.active;
     this.confirmationToken = builder.confirmationToken;
     this.confirmationTokenExpiresAt = builder.confirmationTokenExpiresAt;
   }
@@ -84,7 +84,7 @@ export class UserDomainBuilder {
   roleId: number = 0;
   address: string = '';
   neighborhoodId: number = 0;
-  isActive = false;
+  active = false;
   confirmationToken = '';
   confirmationTokenExpiresAt: Date | null = null;
 
@@ -138,8 +138,8 @@ export class UserDomainBuilder {
     return this;
   }
 
-  withIsActive(isActive: boolean): this {
-    this.isActive = isActive;
+  withActive(active: boolean): this {
+    this.active = active;
     return this;
   }
   withConfirmationToken(token: string): this {

@@ -37,7 +37,7 @@ export class UserEntity {
   neighborhood: NeighborhoodEntity;
 
   @Column({ default: false })
-  isActive: boolean;
+  active: boolean;
 
   @Column({ length: 128, nullable: true })
   confirmationToken: string;

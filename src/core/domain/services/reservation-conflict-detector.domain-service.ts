@@ -77,7 +77,7 @@ export class ReservationConflictDetectorDomainService {
       instance.subScenarioId === subScenarioId &&
       this.isSameDate(instance.reservationDate, date) &&
       instance.timeslotId === timeslotId &&
-      this.isActiveReservation(instance.reservationStateId)
+      this.activeReservation(instance.reservationStateId)
     );
 
     if (conflict) {
@@ -102,7 +102,7 @@ export class ReservationConflictDetectorDomainService {
   /**
    * Verifica si una reserva está activa (PENDIENTE o CONFIRMADA)
    */
-  private isActiveReservation(reservationStateId: number): boolean {
+  private activeReservation(reservationStateId: number): boolean {
     return reservationStateId === 1 || reservationStateId === 2; // PENDIENTE o CONFIRMADA
   }
 

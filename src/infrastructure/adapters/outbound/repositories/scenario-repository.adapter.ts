@@ -81,7 +81,7 @@ export class ScenarioRepositoryAdapter
     }
 
     if (active !== undefined) {
-      qb.andWhere('s.is_active = :active', { active });
+      qb.andWhere('s.active = :active', { active });
     }
 
     /* ───── BÚSQUEDA POR TEXTO EN NOMBRE DE ESCENARIO ───── */

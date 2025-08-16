@@ -81,7 +81,7 @@ export class ReservationDomainEntity {
   /**
    * Verifica si la reserva está activa (PENDIENTE o CONFIRMADA)
    */
-  isActive(): boolean {
+  active(): boolean {
     return this.reservationStateId === 1 || this.reservationStateId === 2;
   }
 

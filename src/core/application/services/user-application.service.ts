@@ -8,14 +8,14 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
 
-import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
-import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
 import {
   PageDto,
   PageMetaDto,
 } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
+import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
+import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
 import { IUserApplicationPort } from 'src/core/application/ports/inbound/user-application.port';
 import { IUserRepositoryPort } from 'src/core/domain/ports/outbound/user-repository.port';
 import { UserResponseMapper } from 'src/infrastructure/mappers/user/user-response.mapper';
@@ -59,7 +59,7 @@ export class UserApplicationService implements IUserApplicationPort {
   async resendConfirmation(email: string): Promise<{ message: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new NotFoundException('Usuario no encontrado');
-    if (user.isActive)
+    if (user.active)
       throw new ConflictException('La cuenta ya está activada');
 
     await this.issueConfirmation(user);
@@ -89,7 +89,7 @@ export class UserApplicationService implements IUserApplicationPort {
       .withRoleId(user.roleId)
       .withAddress(user.address)
       .withNeighborhoodId(user.neighborhoodId)
-      .withIsActive(true)
+      .withActive(true)
       .withConfirmationToken('')
       .withConfirmationTokenExpiresAt(null as unknown as Date)
       .build();
@@ -175,7 +175,7 @@ export class UserApplicationService implements IUserApplicationPort {
       .withRoleId(user.roleId)
       .withAddress(user.address)
       .withNeighborhoodId(user.neighborhoodId)
-      .withIsActive(false)
+      .withActive(false)
       .withConfirmationToken(token)
       .withConfirmationTokenExpiresAt(expires)
       .build();

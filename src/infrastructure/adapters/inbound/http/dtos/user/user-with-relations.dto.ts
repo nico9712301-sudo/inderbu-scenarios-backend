@@ -40,7 +40,7 @@ export class UserWithRelationsDto {
 
   @ApiProperty()
   @Expose()
-  isActive: boolean;
+  active: boolean;
 
   @ApiProperty({ type: () => RoleResponseDto })
   @Expose()

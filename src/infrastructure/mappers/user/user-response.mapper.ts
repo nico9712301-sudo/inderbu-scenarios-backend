@@ -16,7 +16,7 @@ export class UserResponseMapper {
       roleId: domain.roleId,
       address: domain.address,
       neighborhoodId: domain.neighborhoodId,
-      isActive: domain.isActive,
+      active: domain.active,
     }, { excludeExtraneousValues: true });
   }
 
@@ -36,7 +36,7 @@ export class UserResponseMapper {
       email: domain.email,
       phone: domain.phone,
       address: domain.address,
-      isActive: domain.isActive,
+      active: domain.active,
       role: role,
       neighborhood: neighborhood,
       commune: commune,

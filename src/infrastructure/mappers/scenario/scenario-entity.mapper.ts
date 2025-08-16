@@ -8,7 +8,7 @@ export class ScenarioEntityMapper {
       .withName(e.name)
       .withAddress(e.address)
       .withNeighborhoodId(e.neighborhood?.id ?? 0)
-      .withIsActive(e.isActive ?? true)
+      .withActive(e.active ?? true)
       .build();
   }
   static toEntity(domain: ScenarioDomainEntity): ScenarioEntity {
@@ -16,7 +16,7 @@ export class ScenarioEntityMapper {
     if (domain.id != null) e.id = domain.id;
     e.name = domain.name;
     e.address = domain.address;
-    e.isActive = domain.isActive;
+    e.active = domain.active;
     if (domain.neighborhoodId != null) {
       e.neighborhood = { id: domain.neighborhoodId } as any;
     }

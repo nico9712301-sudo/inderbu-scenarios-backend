@@ -61,7 +61,7 @@ export class ReservationInstanceDomainEntity {
   /**
    * Verifica si la instancia está activa (PENDIENTE o CONFIRMADA)
    */
-  isActive(): boolean {
+  active(): boolean {
     return this.reservationStateId === 1 || this.reservationStateId === 2;
   }
 
@@ -102,7 +102,7 @@ export class ReservationInstanceDomainEntity {
     // Hay conflicto si es el mismo slot, fecha y escenario, pero diferentes reservas
     return this.isEqualTo(other) && 
            this.reservationId !== other.reservationId &&
-           (this.isActive() || other.isActive());
+           (this.active() || other.active());
   }
 
   /**

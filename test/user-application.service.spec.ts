@@ -64,7 +64,7 @@ describe('UserApplicationService', () => {
         .withRoleId(1)
         .withAddress('123 Main St')
         .withNeighborhoodId(1)
-        .withIsActive(true)
+        .withActive(true)
         .build();
 
       // Add relations as they would be added from the repository
