@@ -1,4 +1,5 @@
 import { PageOptionsDto } from "src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto";
+import { UserPageOptionsDto } from "src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto";
 import { UserDomainEntity } from "src/core/domain/entities/user.domain-entity";
 
 export interface IUserRepositoryPort {
@@ -7,8 +8,7 @@ export interface IUserRepositoryPort {
   findByEmail(email: string): Promise<UserDomainEntity | null>;
   findByConfirmationToken(token: string): Promise<UserDomainEntity | null>;
 
-  // Nuevos métodos para listar usuarios
-  findAllPaged(pageOptionsDto: PageOptionsDto): Promise<{ users: UserDomainEntity[], totalItems: number }>;
-  findByRole(roleId: number, pageOptionsDto: PageOptionsDto): Promise<{ users: UserDomainEntity[], totalItems: number }>;
+  // Métodos para listar usuarios con filtros avanzados
+  findAllPaged(pageOptionsDto: UserPageOptionsDto): Promise<{ users: UserDomainEntity[], totalItems: number }>;
   findByIdWithRelations(id: number): Promise<UserDomainEntity | null>;
 }

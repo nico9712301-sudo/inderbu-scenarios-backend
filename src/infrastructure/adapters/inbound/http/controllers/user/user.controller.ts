@@ -15,6 +15,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +26,8 @@ import { ResendConfirmationDto } from '../../dtos/user/resend-confirmation-reque
 import { UserWithRelationsDto } from '../../dtos/user/user-with-relations.dto';
 import { UserResponseDto } from '../../dtos/user/create-user-response.dto';
 import { CreateUserDto } from '../../dtos/user/create-user-request.dto';
+import { UpdateUserDto } from '../../dtos/user/update-user.dto';
+import { UserPageOptionsDto } from '../../dtos/user/user-page-options.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { PageOptionsDto } from '../../dtos/common/page-options.dto';
 import { PageDto } from '../../dtos/common/page.dto';
@@ -48,7 +51,7 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lista paginada de usuarios con relaciones' })
+  @ApiOperation({ summary: 'Lista paginada de usuarios con relaciones y filtros avanzados' })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -67,9 +70,27 @@ export class UserController {
     type: String,
     description: 'Búsqueda por nombre, email o dni',
   })
+  @ApiQuery({
+    name: 'roleId',
+    required: false,
+    type: [Number],
+    description: 'Filtrar por ID de rol',
+  })
+  @ApiQuery({
+    name: 'neighborhoodId',
+    required: false,
+    type: Number,
+    description: 'Filtrar por ID de barrio',
+  })
+  @ApiQuery({
+    name: 'isActive',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar por estado activo/inactivo',
+  })
   @ApiResponse({ status: 200, type: PageDto })
   async getAllUsers(
-    @Query() pageOptionsDto: PageOptionsDto,
+    @Query() pageOptionsDto: UserPageOptionsDto,
   ): Promise<PageDto<UserWithRelationsDto>> {
     return this.userApplicationService.getAllUsers(pageOptionsDto);
   }
@@ -93,35 +114,6 @@ export class UserController {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
   }
-
-  @Get('by-role/:roleId')
-  @ApiOperation({ summary: 'Lista paginada de usuarios por rol' })
-  @ApiParam({ name: 'roleId', type: Number, description: 'ID del rol' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Página (1‑based)',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Tamaño de página',
-  })
-  @ApiQuery({
-    name: 'search',
-    required: false,
-    type: String,
-    description: 'Búsqueda por nombre, email o dni',
-  })
-  @ApiResponse({ status: 200, type: PageDto })
-  async getUsersByRole(
-    @Param('roleId', ParseIntPipe) roleId: number,
-    @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<UserWithRelationsDto>> {
-    return this.userApplicationService.getUsersByRole(roleId, pageOptionsDto);
-  }
   
   @Post()
   @ApiOperation({
@@ -140,6 +132,32 @@ export class UserController {
     const userDomain =
       await this.userApplicationService.createUser(createUserDto);
     return UserResponseMapper.toDto(userDomain);
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Actualiza un usuario existente',
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'ID del usuario a actualizar' })
+  @ApiResponse({
+    status: 200,
+    description: 'Usuario actualizado exitosamente',
+    type: UserWithRelationsDto,
+  })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiBody({ description: 'Datos del usuario a actualizar', type: UpdateUserDto })
+  async updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserWithRelationsDto> {
+    try {
+      return await this.userApplicationService.updateUser(id, updateUserDto);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
   }
 
   @Post('resend-confirmation')

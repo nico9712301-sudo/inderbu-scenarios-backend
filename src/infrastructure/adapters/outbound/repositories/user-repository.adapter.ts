@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository, Like, FindOptionsWhere, Not } from 'typeorm';
+import { Repository, Like, FindOptionsWhere, Not, In } from 'typeorm';
 
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
 import { IUserRepositoryPort } from 'src/core/domain/ports/outbound/user-repository.port';
 import { UserEntityMapper } from 'src/infrastructure/mappers/user/user-entity.mapper';
 import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
@@ -54,18 +55,39 @@ export class UserRepositoryAdapter
     return entity ? this.toDomain(entity) : null;
   }
 
-  async findAllPaged(pageOptionsDto: PageOptionsDto) {
-    const { page, limit, search } = pageOptionsDto;
+  async findAllPaged(pageOptionsDto: UserPageOptionsDto) {
+    const { page, limit, search, roleId, neighborhoodId, isActive } =
+      pageOptionsDto;
     const skip = (page - 1) * limit;
 
     let whereCondition: FindOptionsWhere<UserEntity>[] = [];
 
     // Base condition: exclude users with role 'super-admin'
-    const baseCondition = {
+    const baseCondition: FindOptionsWhere<UserEntity> = {
       role: {
-        name: Not('super-admin')
-      }
+        name: Not('super-admin'),
+      },
     };
+
+    // Add roleId filter if provided
+    if (roleId && roleId.length > 0) {
+      baseCondition.role = {
+        name: Not('super-admin'),
+        id: In(roleId),
+      };
+    }
+
+    // Add neighborhoodId filter if provided
+    if (neighborhoodId) {
+      baseCondition.neighborhood = {
+        id: neighborhoodId,
+      };
+    }
+
+    // Add isActive filter if provided
+    if (isActive !== undefined) {
+      baseCondition.active = isActive;
+    }
 
     if (search) {
       const like = Like(`%${search}%`);
@@ -75,11 +97,12 @@ export class UserRepositoryAdapter
         { email: like, ...baseCondition },
       ];
 
+      // If search is numeric, also search by DNI
       if (!isNaN(Number(search))) {
         whereCondition.push({ dni: Number(search), ...baseCondition } as any);
       }
     } else {
-      // If no search term, just use the base condition
+      // If no search term, just use the base condition with filters
       whereCondition = [baseCondition];
     }
 
@@ -93,54 +116,6 @@ export class UserRepositoryAdapter
 
     return {
       users: users.map((e) => this.toDomain(e)),
-      totalItems,
-    };
-  }
-
-  async findByRole(
-    roleId: number,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<{ users: UserDomainEntity[]; totalItems: number }> {
-    const { page, limit, search } = pageOptionsDto;
-    const skip = (page - 1) * limit;
-
-    // Primero obtenemos el rol para verificar que no es super-admin
-    const role = await this.repository.manager.find({
-      where: { id: roleId, name: Not('super-admin') },
-    } as any);
-
-    // Si el rol solicitado es super-admin, retornamos lista vacía
-    if (!role) {
-      return { users: [], totalItems: 0 };
-    }
-
-    let whereCondition: FindOptionsWhere<UserEntity>[] = [
-      { role: { id: roleId } },
-    ];
-
-    if (search) {
-      const like = Like(`%${search}%`);
-      whereCondition = [
-        { first_name: like, role: { id: roleId } },
-        { last_name: like, role: { id: roleId } },
-        { email: like, role: { id: roleId } },
-      ];
-
-      if (!isNaN(Number(search))) {
-        whereCondition.push({ dni: Number(search), role: { id: roleId } });
-      }
-    }
-
-    const [users, totalItems] = await this.repository.findAndCount({
-      where: whereCondition,
-      relations: [...DEFAULT_RELATIONS],
-      skip,
-      take: limit,
-      order: { id: 'ASC' },
-    });
-
-    return {
-      users: users.map((entity) => this.toDomain(entity)),
       totalItems,
     };
   }

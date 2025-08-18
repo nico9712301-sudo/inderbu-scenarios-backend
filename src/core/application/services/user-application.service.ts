@@ -14,6 +14,8 @@ import {
 } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
 import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
 import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
+import { UpdateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
+import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
 import { IUserApplicationPort } from 'src/core/application/ports/inbound/user-application.port';
@@ -53,6 +55,57 @@ export class UserApplicationService implements IUserApplicationPort {
 
     // emitimos confirmación
     return this.issueConfirmation(base.build());
+  }
+
+  /** Actualiza un usuario existente */
+  async updateUser(id: number, dto: UpdateUserDto): Promise<UserWithRelationsDto> {
+    // Verificar que el usuario existe
+    const existingUser = await this.userRepository.findByIdWithRelations(id);
+    if (!existingUser) {
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    }
+
+    // Verificar email único si se está actualizando
+    if (dto.email && dto.email !== existingUser.email) {
+      const emailExists = await this.userRepository.findByEmail(dto.email);
+      if (emailExists) {
+        throw new ConflictException('El correo electrónico ya está registrado');
+      }
+    }
+
+    // Construir entidad actualizada usando builder pattern
+    const userBuilder = UserDomainEntity.builder()
+      .withId(existingUser.id!)
+      .withDni(dto.dni ?? existingUser.dni)
+      .withFirstName(dto.firstName ?? existingUser.firstName)
+      .withLastName(dto.lastName ?? existingUser.lastName)
+      .withEmail(dto.email ?? existingUser.email)
+      .withPhone(dto.phone ?? existingUser.phone)
+      .withPasswordHash((existingUser as any).passwordHash) // Mantener password hash
+      .withRoleId(dto.roleId ?? existingUser.roleId)
+      .withAddress(dto.address ?? existingUser.address)
+      .withNeighborhoodId(dto.neighborhoodId ?? existingUser.neighborhoodId)
+      .withActive(dto.isActive ?? existingUser.active);
+
+    // Mantener datos de confirmación si existen
+    if ((existingUser as any).confirmationToken) {
+      userBuilder
+        .withConfirmationToken((existingUser as any).confirmationToken)
+        .withConfirmationTokenExpiresAt((existingUser as any).confirmationTokenExpiresAt);
+    }
+
+    const updatedUser = userBuilder.build();
+    
+    // Guardar en repositorio
+    await this.userRepository.save(updatedUser);
+    
+    // Retornar usuario actualizado con relaciones
+    const userWithRelations = await this.userRepository.findByIdWithRelations(id);
+    if (!userWithRelations) {
+      throw new NotFoundException(`Error al recuperar el usuario actualizado`);
+    }
+    
+    return UserResponseMapper.toDtoWithRelations(userWithRelations);
   }
 
   /** Reenvía token de confirmación a un email existente */
@@ -106,9 +159,9 @@ export class UserApplicationService implements IUserApplicationPort {
     return this.userRepository.findById(id);
   }
 
-  // Nuevos métodos para listado de usuarios
+  // Métodos para listado de usuarios con filtros avanzados
   async getAllUsers(
-    pageOptionsDto: PageOptionsDto,
+    pageOptionsDto: UserPageOptionsDto,
   ): Promise<PageDto<UserWithRelationsDto>> {
     const { users, totalItems } =
       await this.userRepository.findAllPaged(pageOptionsDto);
@@ -116,6 +169,7 @@ export class UserApplicationService implements IUserApplicationPort {
     const data = users.map((user) =>
       UserResponseMapper.toDtoWithRelations(user),
     );
+    
     const meta = new PageMetaDto({
       page: pageOptionsDto.page,
       limit: pageOptionsDto.limit,
@@ -124,28 +178,6 @@ export class UserApplicationService implements IUserApplicationPort {
 
     return new PageDto(data, meta);
   }
-
-  async getUsersByRole(
-    roleId: number,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<UserWithRelationsDto>> {
-    const { users, totalItems } = await this.userRepository.findByRole(
-      roleId,
-      pageOptionsDto,
-    );
-
-    const data = users.map((user) =>
-      UserResponseMapper.toDtoWithRelations(user),
-    );
-    const meta = new PageMetaDto({
-      page: pageOptionsDto.page,
-      limit: pageOptionsDto.limit,
-      totalItems,
-    });
-
-    return new PageDto(data, meta);
-  }
-
   async getUserById(id: number): Promise<UserWithRelationsDto> {
     const user = await this.userRepository.findByIdWithRelations(id);
     if (!user) {
