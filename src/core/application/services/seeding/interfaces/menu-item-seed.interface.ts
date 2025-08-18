@@ -1,5 +1,5 @@
 export interface IMenuItemSeed {
-  name: string;
+  pathName: string;
   moduleName: string;
   fk_menu_item: number;
 }

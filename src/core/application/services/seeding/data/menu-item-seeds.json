@@ -1,17 +1,10 @@
 [
   {
-    "name": "Home",
-    "moduleName": "home",
-    "fk_menu_item": 0
+    "pathName": "/",
+    "moduleName": "home"
   },
   {
-    "name": "Dashboard",
-    "moduleName": "dashboard", 
-    "fk_menu_item": 0
-  },
-  {
-    "name": "Auth",
-    "moduleName": "auth",
-    "fk_menu_item": 0
+    "pathName": "/dashboard",
+    "moduleName": "dashboard"
   }
 ]

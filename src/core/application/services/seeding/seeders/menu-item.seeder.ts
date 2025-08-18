@@ -46,7 +46,7 @@ export class MenuItemSeeder
       }
       entities.push(
         this.repository.create({
-          name: seed.name,
+          path: seed.pathName,
           module,
           fk_menu_item: seed.fk_menu_item,
         }),

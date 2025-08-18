@@ -57,12 +57,12 @@ export class HomeSlideSeeder
       }
 
       // Para placeholders, buscar la entidad
-      if (slideType === SlideType.PLACEHOLDER && seed.entityType) {
+      if (slideType === SlideType.PLACEHOLDER && seed.entity) {
         entity = await this.entityRepository.findOneBy({
-          type: seed.entityType,
+          name: seed.entity,
         });
         if (!entity) {
-          this.logger.warn(`Entity ${seed.entityType} not found for slide ${seed.title}.`);
+          this.logger.warn(`Entity ${seed.entity} not found for slide ${seed.title}.`);
           continue;
         }
       }

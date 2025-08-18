@@ -34,7 +34,7 @@ export class EntitySeeder
   protected async transform(seeds: IEntitySeed[]): Promise<EntityEntity[]> {
     return seeds.map(seed => this.repository.create({
       name: seed.name,
-      type: seed.type,
+      description: seed.description,
     }));
   }
 }

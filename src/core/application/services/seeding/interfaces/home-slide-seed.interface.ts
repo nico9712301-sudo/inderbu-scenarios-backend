@@ -6,5 +6,5 @@ export interface IHomeSlideSeed {
   isActive: boolean;
   slideType: 'banner' | 'placeholder';
   moduleName?: string; // Para banners
-  entityType?: string; // Para placeholders
+  entity?: string; // Para placeholders
 }

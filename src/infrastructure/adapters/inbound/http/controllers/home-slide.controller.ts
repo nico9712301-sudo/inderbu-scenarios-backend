@@ -123,8 +123,8 @@ export class HomeSlideController {
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new home slide' })
   @ApiResponse({
     status: 201,
@@ -140,8 +140,8 @@ export class HomeSlideController {
   }
 
   @Put(':id')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Update an existing home slide' })
   @ApiParam({ name: 'id', type: Number, description: 'Slide ID' })
   @ApiResponse({
@@ -160,8 +160,8 @@ export class HomeSlideController {
   }
 
   @Put(':id/toggle')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle slide active status' })
   @ApiParam({ name: 'id', type: Number, description: 'Slide ID' })
@@ -179,8 +179,8 @@ export class HomeSlideController {
   }
 
   @Put('reorder')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reorder multiple slides' })
   @ApiResponse({
@@ -193,8 +193,8 @@ export class HomeSlideController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @ApiBearerAuth()
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a home slide' })
   @ApiParam({ name: 'id', type: Number, description: 'Slide ID' })

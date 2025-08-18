@@ -9,8 +9,8 @@ export class EntityEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ length: 50 })
-  type: string;
+  @Column({ length: 500 })
+  description?: string;
 
   @OneToMany(() => HomeSlideEntity, (homeSlide) => homeSlide.entity)
   homeSlides: HomeSlideEntity[];

@@ -31,7 +31,7 @@ export class GetHomeSlidesUseCase {
   async execute(request: GetHomeSlidesRequest = {}): Promise<GetHomeSlidesResponse> {
     const filters: HomeSlideFilters = {
       slideType: request.slideType,
-      isActive: request.includeInactive ? undefined : true,
+      isActive: request.includeInactive,
       limit: request.limit,
       orderBy: 'displayOrder',
       orderDirection: 'ASC',

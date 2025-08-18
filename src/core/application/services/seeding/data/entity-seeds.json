@@ -1,6 +1,6 @@
 [
   {
-    "name": "Sub Scenario",
-    "type": "sub-scenario"
+    "name": "SubScenario",
+    "description": "A sub-scenario within a scenario, providing additional context or details."
   }
 ]

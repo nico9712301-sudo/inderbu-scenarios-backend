@@ -13,12 +13,14 @@ export class MenuItemEntity {
   id: number;
 
   @Column({ length: 150 })
-  name: string;
+  path: string;
 
   @ManyToOne(() => ModuleEntity)
   @JoinColumn({ name: 'fk_modules_id' })
   module: ModuleEntity;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   fk_menu_item: number; // Auto-referencia o item padre
 }
