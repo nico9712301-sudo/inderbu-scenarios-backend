@@ -11,7 +11,10 @@ import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
 
 @Injectable()
-export class ScenarioSeeder extends AbstractSeeder<ScenarioEntity, IScenarioSeed> implements ISeeder {
+export class ScenarioSeeder
+  extends AbstractSeeder<ScenarioEntity, IScenarioSeed>
+  implements ISeeder
+{
   constructor(
     @Inject(MYSQL_REPOSITORY.SCENARIO)
     repository: Repository<ScenarioEntity>,
@@ -41,12 +44,14 @@ export class ScenarioSeeder extends AbstractSeeder<ScenarioEntity, IScenarioSeed
         this.logger.warn(`Barrio ${seed.neighborhoodName} no encontrado.`);
         continue;
       }
-      entities.push(this.repository.create({
-        name: seed.name,
-        address: seed.address,
-        neighborhood,
-        active: seed.active,
-      }));
+      entities.push(
+        this.repository.create({
+          name: seed.name,
+          address: seed.address,
+          neighborhood,
+          active: seed.active,
+        }),
+      );
     }
     return entities;
   }

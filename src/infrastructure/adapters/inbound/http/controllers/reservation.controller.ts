@@ -10,7 +10,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
   Inject,
   NotFoundException,
   Param,
@@ -21,12 +20,11 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { IReservationApplicationPort } from 'src/core/application/ports/inbound/reservation-application.port';
 import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
 } from '../dtos/reservation/reservation.dto';
-import { AvailabilityResponseDto } from '../dtos/reservation/availability.dto';
+import { IReservationApplicationPort } from 'src/core/application/ports/inbound/reservation-application.port';
 import { CreateReservationRequestDto } from '../dtos/reservation/create-reservation-request.dto';
 import { AvailabilityQueryDto } from '../dtos/reservation/availability-query.dto';
 import { ReservationPageOptionsDto } from '../dtos/reservation/reservation-page-options.dto';
@@ -46,7 +44,7 @@ export class ReservationController {
   constructor(
     @Inject(APPLICATION_PORTS.RESERVATION)
     private readonly reservationApplicationService: IReservationApplicationPort,
-    
+
     @Inject(REPOSITORY_PORTS.RESERVATION_STATE)
     private readonly reservationStateRepository: IReservationStateRepositoryPort,
   ) {}
@@ -227,11 +225,11 @@ export class ReservationController {
     );
   }
 
-  
   @Get('states')
   @ApiOperation({
     summary: 'Obtener todos los estados de reserva disponibles',
-    description: 'Devuelve la lista de todos los estados posibles para las reservas (PENDIENTE, CONFIRMADA, CANCELADA, etc.)',
+    description:
+      'Devuelve la lista de todos los estados posibles para las reservas (PENDIENTE, CONFIRMADA, CANCELADA, etc.)',
   })
   @ApiResponse({
     status: 200,
@@ -240,7 +238,7 @@ export class ReservationController {
   })
   async getAllReservationStates(): Promise<ReservationStateDto[] | null> {
     const states = await this.reservationStateRepository.findAll();
-    return states.map(state => ReservationStateResponseMapper.toDto(state));
+    return states.map((state) => ReservationStateResponseMapper.toDto(state));
   }
 
   @Get(':id')

@@ -8,7 +8,7 @@ import { CommuneModule } from './commune.module'; // Import CommuneModule en lug
 @Module({
   imports: [
     DatabaseModule,
-    CommuneModule  // Import CommuneModule para acceder a ICommuneRepositoryPort
+    CommuneModule, // Import CommuneModule para acceder a ICommuneRepositoryPort
   ],
   providers: [...neighborhoodProviders],
   controllers: [NeighborhoodController],

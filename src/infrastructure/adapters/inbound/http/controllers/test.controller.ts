@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
-
 @Controller('playground')
 export class PlaygrounController {
   constructor() {}

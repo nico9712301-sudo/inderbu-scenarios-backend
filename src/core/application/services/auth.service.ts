@@ -19,26 +19,33 @@ export class AuthApplicationService {
     password: string,
   ): Promise<UserDomainEntity | null> {
     const user = await this.userApplicationService.findByEmail(email);
-    if ( user && (await bcrypt.compare(password, (user as any)['passwordHash']))) {
+    if (
+      user &&
+      (await bcrypt.compare(password, (user as any)['passwordHash']))
+    ) {
       return user;
     }
     return null;
   }
 
-  async login(user: UserDomainEntity): Promise<{ access_token: string; refresh_token: string }> {
+  async login(
+    user: UserDomainEntity,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const payload = { email: user.email, sub: user.id, role: user.roleId };
     const refreshPayload = { sub: user.id, type: 'refresh' };
-    
+
     return {
       access_token: this.jwtService.sign(payload, { expiresIn: '15000d' }), // Token de acceso con duración maxima
       refresh_token: this.jwtService.sign(refreshPayload, { expiresIn: '7d' }), // Refresh token con duración larga
     };
   }
 
-  async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
+  async refreshToken(
+    refreshToken: string,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     try {
       const decoded = this.jwtService.verify(refreshToken);
-      
+
       // Verificar que es un refresh token válido
       if (decoded.type !== 'refresh') {
         throw new Error('Invalid refresh token');
@@ -49,7 +56,7 @@ export class AuthApplicationService {
       if (!user) {
         throw new Error('User not found');
       }
-      console.log("it got here");
+      console.log('it got here');
       // Generar nuevos tokens
       return this.login(user);
     } catch (error) {

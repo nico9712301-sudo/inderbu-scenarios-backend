@@ -1,6 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { PageDto, PageMetaDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import {
+  PageDto,
+  PageMetaDto,
+} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
 import { CommuneResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/commune-response.dto';
 import { CreateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/create-commune.dto';
 import { UpdateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/update-commune.dto';
@@ -81,7 +84,9 @@ export class CommuneApplicationService implements ICommuneApplicationPort {
     if (dto.cityId && dto.cityId !== existingCommune.cityId) {
       const foundCity = await this.cityRepository.findById(dto.cityId);
       if (!foundCity) {
-        throw new NotFoundException(`Ciudad con ID ${dto.cityId} no encontrada`);
+        throw new NotFoundException(
+          `Ciudad con ID ${dto.cityId} no encontrada`,
+        );
       }
       city = foundCity;
       targetCityId = dto.cityId;
@@ -92,7 +97,7 @@ export class CommuneApplicationService implements ICommuneApplicationPort {
       .withId(id)
       .withName(dto.name || existingCommune.name)
       .withCityId(targetCityId);
-    
+
     // Solo agregar city si existe
     if (city) {
       communeBuilder.withCity(city);

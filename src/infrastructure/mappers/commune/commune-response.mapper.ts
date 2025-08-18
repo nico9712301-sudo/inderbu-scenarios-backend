@@ -3,13 +3,15 @@ import { CommuneResponseDto } from '../../adapters/inbound/http/dtos/commune/com
 
 export class CommuneResponseMapper {
   static toDto(d: CommuneDomainEntity): CommuneResponseDto {
-    return { 
-      id: d.id!, 
+    return {
+      id: d.id!,
       name: d.name,
-      city: d.city ? {
-        id: d.city.id!,
-        name: d.city.name
-      } : undefined
+      city: d.city
+        ? {
+            id: d.city.id!,
+            name: d.city.name,
+          }
+        : undefined,
     };
   }
 }

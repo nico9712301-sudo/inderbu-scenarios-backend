@@ -14,4 +14,5 @@ export const REPOSITORY_PORTS = {
   RESERVATION_STATE: 'IReservationStateRepositoryPort',
   ROLE: 'IRoleRepositoryPort',
   SUB_SCENARIO_IMAGE: 'ISubScenarioImageRepositoryPort',
+  HOME_SLIDE: 'IHomeSlideRepositoryPort',
 } as const;

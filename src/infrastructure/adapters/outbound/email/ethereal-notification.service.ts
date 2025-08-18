@@ -26,6 +26,11 @@ export class EtherealNotificationService implements INotificationService {
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
     });
+
+    this.transporter
+      .verify()
+      .then(() => console.log('Conexión con Ethereal OK'))
+      .catch((err) => console.error('Error de conexión con Ethereal:', err));
   }
 
   async sendAccountConfirmation(email: string, token: string): Promise<void> {

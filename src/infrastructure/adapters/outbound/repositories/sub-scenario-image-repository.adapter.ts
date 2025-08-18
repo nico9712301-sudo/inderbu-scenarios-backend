@@ -19,7 +19,7 @@ export class SubScenarioImageRepositoryAdapter
     image: SubScenarioImageDomainEntity,
   ): Promise<SubScenarioImageDomainEntity> {
     const entityToSave = SubScenarioImageEntityMapper.toPersistence(image);
-    
+
     if (image.isFeature) {
       // Si es una imagen principal, asegurarse de que no haya otras imágenes principales
       await this.repository.update(
@@ -27,7 +27,7 @@ export class SubScenarioImageRepositoryAdapter
         { isFeature: false },
       );
     }
-    
+
     const savedEntity = await this.repository.save(entityToSave);
     return SubScenarioImageEntityMapper.toDomain(savedEntity);
   }
@@ -38,7 +38,7 @@ export class SubScenarioImageRepositoryAdapter
   ): Promise<SubScenarioImageDomainEntity[]> {
     try {
       const where: any = { subScenario: { id: subScenarioId } };
-      
+
       // Por defecto, solo traer imágenes actuales (current: true)
       if (!includeHistorical) {
         where.current = true;
@@ -51,38 +51,44 @@ export class SubScenarioImageRepositoryAdapter
       });
       return entities.map(SubScenarioImageEntityMapper.toDomain);
     } catch (error) {
-      console.error('Error fetching images for subScenarioId:', subScenarioId, error);
+      console.error(
+        'Error fetching images for subScenarioId:',
+        subScenarioId,
+        error,
+      );
       return []; // Retornar un array vacío en caso de error
     }
   }
-  
+
   async findBySubScenarioIds(
     subScenarioIds: number[],
     includeHistorical: boolean = false,
   ): Promise<SubScenarioImageDomainEntity[]> {
     try {
-      console.log(`Buscando imágenes para ${subScenarioIds.length} sub-escenarios: ${subScenarioIds.join(', ')}`);
-      
+      console.log(
+        `Buscando imágenes para ${subScenarioIds.length} sub-escenarios: ${subScenarioIds.join(', ')}`,
+      );
+
       if (subScenarioIds.length === 0) {
         return [];
       }
-      
+
       const where: any = { subScenario: { id: In(subScenarioIds) } };
-      
+
       // Por defecto, solo traer imágenes actuales (current: true)
       if (!includeHistorical) {
         where.current = true;
       }
-      
+
       const entities: SubScenarioImageEntity[] = await this.repository.find({
         where,
         relations: ['subScenario'],
         order: { isFeature: 'DESC', displayOrder: 'ASC' },
       });
-      
+
       // Agrupar imágenes por subScenarioId para depuración
       const imagesBySubScenario = {};
-      entities.forEach(entity => {
+      entities.forEach((entity) => {
         const subScenarioId = entity.subScenario?.id;
         if (subScenarioId) {
           if (!imagesBySubScenario[subScenarioId]) {
@@ -92,10 +98,16 @@ export class SubScenarioImageRepositoryAdapter
         }
       });
 
-      const entitiesMapped: SubScenarioImageDomainEntity[] =  entities.map(SubScenarioImageEntityMapper.toDomain);
-      return entitiesMapped
+      const entitiesMapped: SubScenarioImageDomainEntity[] = entities.map(
+        SubScenarioImageEntityMapper.toDomain,
+      );
+      return entitiesMapped;
     } catch (error) {
-      console.error('Error fetching images for multiple subScenarioIds:', subScenarioIds, error);
+      console.error(
+        'Error fetching images for multiple subScenarioIds:',
+        subScenarioIds,
+        error,
+      );
       return []; // Retornar un array vacío en caso de error
     }
   }
@@ -122,33 +134,38 @@ export class SubScenarioImageRepositoryAdapter
     images: SubScenarioImageDomainEntity[],
   ): Promise<SubScenarioImageDomainEntity[]> {
     const updatedImages: SubScenarioImageDomainEntity[] = [];
-    
+
     for (const image of images) {
       if (!image.id) continue;
-      
+
       await this.repository.update(
         { id: image.id },
-        { 
+        {
           isFeature: image.isFeature,
-          displayOrder: image.displayOrder
+          displayOrder: image.displayOrder,
         },
       );
-      
+
       const updatedEntity = await this.repository.findOne({
         where: { id: image.id },
       });
-      
+
       if (updatedEntity) {
-        updatedImages.push(SubScenarioImageEntityMapper.toDomain(updatedEntity));
+        updatedImages.push(
+          SubScenarioImageEntityMapper.toDomain(updatedEntity),
+        );
       }
     }
-    
+
     return updatedImages;
   }
 
-  async markAsHistorical(subScenarioId: number, exceptIds?: number[]): Promise<void> {
+  async markAsHistorical(
+    subScenarioId: number,
+    exceptIds?: number[],
+  ): Promise<void> {
     const where: any = { subScenario: { id: subScenarioId } };
-    
+
     // Si se proporcionan IDs a excluir, agregar condición NOT IN
     if (exceptIds && exceptIds.length > 0) {
       where.id = Not(In(exceptIds));
@@ -157,13 +174,17 @@ export class SubScenarioImageRepositoryAdapter
     await this.repository.update(where, { current: false });
   }
 
-  async markAsHistoricalByPosition(subScenarioId: number, isFeature: boolean, displayOrder: number): Promise<void> {
+  async markAsHistoricalByPosition(
+    subScenarioId: number,
+    isFeature: boolean,
+    displayOrder: number,
+  ): Promise<void> {
     // Solo marcar como históricas las imágenes que ocupan la misma posición
-    const where = { 
+    const where = {
       subScenario: { id: subScenarioId },
       isFeature,
       displayOrder,
-      current: true
+      current: true,
     };
 
     await this.repository.update(where, { current: false });

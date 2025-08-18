@@ -1,15 +1,15 @@
-import { 
-  Column, 
-  CreateDateColumn, 
-  Entity, 
-  JoinColumn, 
-  ManyToOne, 
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
-  Index
-} from "typeorm";
-import { ReservationEntity } from "./reservation.entity";
-import { TimeSlotEntity } from "./time-slot.entity";
+  Index,
+} from 'typeorm';
+import { ReservationEntity } from './reservation.entity';
+import { TimeSlotEntity } from './time-slot.entity';
 
 @Entity('reservation_timeslot')
 @Unique(['reservationId', 'timeslotId'])
@@ -29,8 +29,8 @@ export class ReservationTimeslotEntity {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => ReservationEntity, reservation => reservation.timeslots, { 
-    onDelete: 'CASCADE' 
+  @ManyToOne(() => ReservationEntity, (reservation) => reservation.timeslots, {
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'reservation_id' })
   reservation: ReservationEntity;

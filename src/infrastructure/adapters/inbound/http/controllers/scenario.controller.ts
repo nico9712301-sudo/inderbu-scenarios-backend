@@ -1,5 +1,25 @@
-import { Controller, Get, Post, Put, Delete, Inject, NotFoundException, Param, Query, Body, ParseIntPipe, Res, StreamableFile } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Inject,
+  NotFoundException,
+  Param,
+  Query,
+  Body,
+  ParseIntPipe,
+  Res,
+  StreamableFile,
+} from '@nestjs/common';
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 
@@ -11,7 +31,11 @@ import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
 import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
-import { ExportScenariosDto, ExportJobResponseDto, ExportDownloadResponseDto } from '../dtos/scenario/export-scenarios.dto';
+import {
+  ExportScenariosDto,
+  ExportJobResponseDto,
+  ExportDownloadResponseDto,
+} from '../dtos/scenario/export-scenarios.dto';
 import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
 import { ExportJob } from 'src/core/application/services/export/redis-export-job.service';
 import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
@@ -27,10 +51,30 @@ export class ScenarioController {
 
   @Get()
   @ApiOperation({ summary: 'Lista paginada de escenarios' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Página (1‑based)' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Tamaño de página' })
-  @ApiQuery({ name: 'search', required: false, type: String, description: 'Texto libre sobre name' })
-  @ApiQuery({ name: 'neighborhoodId', required: false, type: Number, description: 'Filtra por barrio' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Página (1‑based)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Tamaño de página',
+  })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Texto libre sobre name',
+  })
+  @ApiQuery({
+    name: 'neighborhoodId',
+    required: false,
+    type: Number,
+    description: 'Filtra por barrio',
+  })
   @ApiResponse({ status: 200, type: PageDto })
   async getAll(
     @Query() opts: PageOptionsDto,
@@ -44,23 +88,34 @@ export class ScenarioController {
   @ApiResponse({ status: 200, type: ScenarioResponseDto })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   async getById(@Param('id') id: number): Promise<ScenarioResponseDto> {
-    const scenario: ScenarioDomainEntity | null = await this.scenarioApplicationService.getById(id);
+    const scenario: ScenarioDomainEntity | null =
+      await this.scenarioApplicationService.getById(id);
     return ScenarioResponseMapper.toDto(scenario!);
   }
 
   @Post()
   @ApiOperation({ summary: 'Crea un nuevo escenario' })
-  @ApiResponse({ status: 201, type: ScenarioResponseDto, description: 'Escenario creado exitosamente' })
+  @ApiResponse({
+    status: 201,
+    type: ScenarioResponseDto,
+    description: 'Escenario creado exitosamente',
+  })
   @ApiResponse({ status: 400, description: 'Datos de entrada inválidos' })
   @ApiResponse({ status: 404, description: 'Barrio no encontrado' })
-  async create(@Body() createDto: CreateScenarioDto): Promise<ScenarioResponseDto> {
+  async create(
+    @Body() createDto: CreateScenarioDto,
+  ): Promise<ScenarioResponseDto> {
     return this.scenarioApplicationService.create(createDto);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualiza un escenario existente' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del escenario' })
-  @ApiResponse({ status: 200, type: ScenarioResponseDto, description: 'Escenario actualizado exitosamente' })
+  @ApiResponse({
+    status: 200,
+    type: ScenarioResponseDto,
+    description: 'Escenario actualizado exitosamente',
+  })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
   @ApiResponse({ status: 400, description: 'Datos de entrada inválidos' })
   async update(
@@ -73,22 +128,39 @@ export class ScenarioController {
   @Delete(':id')
   @ApiOperation({ summary: 'Elimina un escenario' })
   @ApiParam({ name: 'id', type: Number, description: 'ID del escenario' })
-  @ApiResponse({ status: 200, type: Boolean, description: 'true si se eliminó correctamente' })
+  @ApiResponse({
+    status: 200,
+    type: Boolean,
+    description: 'true si se eliminó correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Escenario no encontrado' })
-  @ApiResponse({ status: 400, description: 'No se puede eliminar el escenario porque tiene sub-escenarios asociados' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'No se puede eliminar el escenario porque tiene sub-escenarios asociados',
+  })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     return this.scenarioApplicationService.delete(id);
   }
 
   // ===============================
-  // ENDPOINTS DE EXPORTACIÓN Y POLLING 
+  // ENDPOINTS DE EXPORTACIÓN Y POLLING
   // ===============================
 
   @Post('export')
   @ApiOperation({ summary: 'Inicia exportación asíncrona de escenarios' })
-  @ApiResponse({ status: 201, type: ExportJobResponseDto, description: 'Job de exportación creado' })
-  @ApiResponse({ status: 400, description: 'Parámetros de exportación inválidos' })
-  async startExport(@Body() exportDto: ExportScenariosDto): Promise<ExportJobResponseDto> {
+  @ApiResponse({
+    status: 201,
+    type: ExportJobResponseDto,
+    description: 'Job de exportación creado',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Parámetros de exportación inválidos',
+  })
+  async startExport(
+    @Body() exportDto: ExportScenariosDto,
+  ): Promise<ExportJobResponseDto> {
     const { jobId } = await this.scenarioExportService.startExport({
       format: exportDto.format,
       filters: exportDto.filters,
@@ -104,12 +176,19 @@ export class ScenarioController {
 
   @Get('export/:jobId/status')
   @ApiOperation({ summary: 'Consulta el estado de un job de exportación' })
-  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiParam({
+    name: 'jobId',
+    type: String,
+    description: 'ID del job de exportación',
+  })
   @ApiResponse({ status: 200, type: ExportJobResponseDto })
   @ApiResponse({ status: 404, description: 'Job no encontrado' })
-  async getExportStatus(@Param('jobId') jobId: string): Promise<ExportJobResponseDto> {
-    const job: ExportJob | null = await this.scenarioExportService.getExportStatus(jobId);
-    
+  async getExportStatus(
+    @Param('jobId') jobId: string,
+  ): Promise<ExportJobResponseDto> {
+    const job: ExportJob | null =
+      await this.scenarioExportService.getExportStatus(jobId);
+
     if (!job) {
       throw new NotFoundException(`Job de exportación ${jobId} no encontrado`);
     }
@@ -123,15 +202,29 @@ export class ScenarioController {
   }
 
   @Get('export/:jobId/download')
-  @ApiOperation({ summary: 'Obtiene información de descarga para un job completado' })
-  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiOperation({
+    summary: 'Obtiene información de descarga para un job completado',
+  })
+  @ApiParam({
+    name: 'jobId',
+    type: String,
+    description: 'ID del job de exportación',
+  })
   @ApiResponse({ status: 200, type: ExportDownloadResponseDto })
-  @ApiResponse({ status: 404, description: 'Job no encontrado o no completado' })
-  async getExportDownload(@Param('jobId') jobId: string): Promise<ExportDownloadResponseDto> {
-    const downloadInfo = await this.scenarioExportService.getDownloadInfo(jobId);
-    
+  @ApiResponse({
+    status: 404,
+    description: 'Job no encontrado o no completado',
+  })
+  async getExportDownload(
+    @Param('jobId') jobId: string,
+  ): Promise<ExportDownloadResponseDto> {
+    const downloadInfo =
+      await this.scenarioExportService.getDownloadInfo(jobId);
+
     if (!downloadInfo) {
-      throw new NotFoundException(`Archivo de exportación ${jobId} no disponible`);
+      throw new NotFoundException(
+        `Archivo de exportación ${jobId} no disponible`,
+      );
     }
 
     return downloadInfo;
@@ -139,7 +232,11 @@ export class ScenarioController {
 
   @Get('export/:jobId/file')
   @ApiOperation({ summary: 'Descarga directa del archivo exportado' })
-  @ApiParam({ name: 'jobId', type: String, description: 'ID del job de exportación' })
+  @ApiParam({
+    name: 'jobId',
+    type: String,
+    description: 'ID del job de exportación',
+  })
   @ApiResponse({ status: 200, description: 'Archivo descargado exitosamente' })
   @ApiResponse({ status: 404, description: 'Archivo no encontrado' })
   async downloadExportFile(
@@ -147,21 +244,26 @@ export class ScenarioController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<StreamableFile> {
     const filePath = await this.scenarioExportService.getJobFilePath(jobId);
-    
+
     if (!filePath) {
-      throw new NotFoundException(`Archivo de exportación ${jobId} no encontrado`);
+      throw new NotFoundException(
+        `Archivo de exportación ${jobId} no encontrado`,
+      );
     }
 
     const job = await this.scenarioExportService.getExportStatus(jobId);
     if (!job || job.status !== 'completed' || !job.fileName) {
-      throw new NotFoundException(`Exportación ${jobId} no completada o archivo no disponible`);
+      throw new NotFoundException(
+        `Exportación ${jobId} no completada o archivo no disponible`,
+      );
     }
 
     // Configurar headers para descarga
-    const mimeType = job.format === 'xlsx' 
-      ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      : 'text/csv';
-    
+    const mimeType =
+      job.format === 'xlsx'
+        ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        : 'text/csv';
+
     res.set({
       'Content-Type': mimeType,
       'Content-Disposition': `attachment; filename="${job.fileName}"`,

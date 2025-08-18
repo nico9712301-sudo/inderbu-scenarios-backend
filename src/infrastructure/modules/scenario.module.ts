@@ -11,10 +11,7 @@ import { RedisExportJobService } from 'src/core/application/services/export/redi
 import { FileExportService } from 'src/core/application/services/export/file-export.service';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    RedisModule,
-  ],
+  imports: [DatabaseModule, RedisModule],
   controllers: [ScenarioController],
   providers: [
     ...scenarioProviders,
@@ -23,7 +20,7 @@ import { FileExportService } from 'src/core/application/services/export/file-exp
     FileExportService,
   ],
   exports: [
-    APPLICATION_PORTS.SCENARIO, 
+    APPLICATION_PORTS.SCENARIO,
     REPOSITORY_PORTS.SCENARIO,
     ScenarioExportApplicationService,
   ],

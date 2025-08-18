@@ -39,12 +39,18 @@ export class HybridExportJobService implements OnModuleInit {
     });
   }
 
-  async createJob(format: 'xlsx' | 'csv', metadata?: Record<string, any>): Promise<ExportJob> {
+  async createJob(
+    format: 'xlsx' | 'csv',
+    metadata?: Record<string, any>,
+  ): Promise<ExportJob> {
     if (this.isRedisAvailable) {
       try {
         return await this.redisService.createJob(format, metadata);
       } catch (error) {
-        console.warn('Error creando job en Redis, usando memoria:', error.message);
+        console.warn(
+          'Error creando job en Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
         return this.memoryService.createJob(format, metadata);
       }
@@ -58,50 +64,88 @@ export class HybridExportJobService implements OnModuleInit {
         const job = await this.redisService.getJob(jobId);
         if (job) return job;
       } catch (error) {
-        console.warn('Error obteniendo job de Redis, intentando memoria:', error.message);
+        console.warn(
+          'Error obteniendo job de Redis, intentando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
     return this.memoryService.getJob(jobId);
   }
 
-  async updateJob(jobId: string, updates: Partial<ExportJob>): Promise<ExportJob | null> {
+  async updateJob(
+    jobId: string,
+    updates: Partial<ExportJob>,
+  ): Promise<ExportJob | null> {
     if (this.isRedisAvailable) {
       try {
         const result = await this.redisService.updateJob(jobId, updates);
         if (result) return result;
       } catch (error) {
-        console.warn('Error actualizando job en Redis, usando memoria:', error.message);
+        console.warn(
+          'Error actualizando job en Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
     return this.memoryService.updateJob(jobId, updates);
   }
 
-  async updateProgress(jobId: string, progress: number, status?: ExportJob['status']): Promise<ExportJob | null> {
+  async updateProgress(
+    jobId: string,
+    progress: number,
+    status?: ExportJob['status'],
+  ): Promise<ExportJob | null> {
     if (this.isRedisAvailable) {
       try {
-        const result = await this.redisService.updateProgress(jobId, progress, status);
+        const result = await this.redisService.updateProgress(
+          jobId,
+          progress,
+          status,
+        );
         if (result) return result;
       } catch (error) {
-        console.warn('Error actualizando progreso en Redis, usando memoria:', error.message);
+        console.warn(
+          'Error actualizando progreso en Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
     return this.memoryService.updateProgress(jobId, progress, status);
   }
 
-  async markCompleted(jobId: string, fileName: string, filePath: string, fileSize?: number): Promise<ExportJob | null> {
+  async markCompleted(
+    jobId: string,
+    fileName: string,
+    filePath: string,
+    fileSize?: number,
+  ): Promise<ExportJob | null> {
     if (this.isRedisAvailable) {
       try {
-        const result = await this.redisService.markCompleted(jobId, fileName, filePath, fileSize);
+        const result = await this.redisService.markCompleted(
+          jobId,
+          fileName,
+          filePath,
+          fileSize,
+        );
         if (result) return result;
       } catch (error) {
-        console.warn('Error marcando completado en Redis, usando memoria:', error.message);
+        console.warn(
+          'Error marcando completado en Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
-    return this.memoryService.markCompleted(jobId, fileName, filePath, fileSize);
+    return this.memoryService.markCompleted(
+      jobId,
+      fileName,
+      filePath,
+      fileSize,
+    );
   }
 
   async markFailed(jobId: string, error: string): Promise<ExportJob | null> {
@@ -110,7 +154,10 @@ export class HybridExportJobService implements OnModuleInit {
         const result = await this.redisService.markFailed(jobId, error);
         if (result) return result;
       } catch (error) {
-        console.warn('Error marcando fallido en Redis, usando memoria:', error.message);
+        console.warn(
+          'Error marcando fallido en Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
@@ -122,7 +169,10 @@ export class HybridExportJobService implements OnModuleInit {
       try {
         return await this.redisService.deleteJob(jobId);
       } catch (error) {
-        console.warn('Error eliminando job de Redis, usando memoria:', error.message);
+        console.warn(
+          'Error eliminando job de Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
@@ -134,7 +184,10 @@ export class HybridExportJobService implements OnModuleInit {
       try {
         return await this.redisService.getAllJobs();
       } catch (error) {
-        console.warn('Error obteniendo jobs de Redis, usando memoria:', error.message);
+        console.warn(
+          'Error obteniendo jobs de Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }
@@ -146,7 +199,10 @@ export class HybridExportJobService implements OnModuleInit {
       try {
         return await this.redisService.cleanupOldJobs(olderThanHours);
       } catch (error) {
-        console.warn('Error limpiando jobs de Redis, usando memoria:', error.message);
+        console.warn(
+          'Error limpiando jobs de Redis, usando memoria:',
+          error.message,
+        );
         this.isRedisAvailable = false;
       }
     }

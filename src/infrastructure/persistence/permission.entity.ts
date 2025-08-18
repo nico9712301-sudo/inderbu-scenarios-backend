@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { MenuItemEntity } from './menu-item.entity';
 import { ModuleEntity } from './module.entity';
 import { RoleEntity } from './role.entity';

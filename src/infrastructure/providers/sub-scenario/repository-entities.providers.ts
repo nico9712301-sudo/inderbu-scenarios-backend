@@ -34,7 +34,7 @@ export const repositoryEntitiesProviders = [
     inject: [DATA_SOURCE.MYSQL],
   },
   {
-    provide: MYSQL_REPOSITORY.FIELD_SURFACE_TYPE,      // ¡el token SQL que usarás abajo!
+    provide: MYSQL_REPOSITORY.FIELD_SURFACE_TYPE, // ¡el token SQL que usarás abajo!
     useFactory: (dataSource: DataSource) =>
       dataSource.getRepository(FieldSurfaceTypeEntity),
     inject: [DATA_SOURCE.MYSQL],

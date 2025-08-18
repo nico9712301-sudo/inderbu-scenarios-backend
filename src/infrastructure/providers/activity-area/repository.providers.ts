@@ -1,5 +1,5 @@
-import { ActivityAreaRepositoryAdapter } from "src/infrastructure/adapters/outbound/repositories/activity-area-repository.adapter";
-import { REPOSITORY_PORTS } from "src/infrastructure/tokens/ports";
+import { ActivityAreaRepositoryAdapter } from 'src/infrastructure/adapters/outbound/repositories/activity-area-repository.adapter';
+import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
 
 export const activityAreaRepositoryProviders = [
   {

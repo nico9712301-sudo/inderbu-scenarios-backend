@@ -9,7 +9,7 @@ export interface IScenarioApplicationPort {
   listAll(): Promise<ScenarioDomainEntity[]>;
   getById(id: number): Promise<ScenarioDomainEntity | null>;
   listPaged(opts: PageOptionsDto): Promise<PageDto<ScenarioResponseDto>>;
-  
+
   // NUEVOS MÉTODOS CRUD
   create(dto: CreateScenarioDto): Promise<ScenarioResponseDto>;
   update(id: number, dto: UpdateScenarioDto): Promise<ScenarioResponseDto>;

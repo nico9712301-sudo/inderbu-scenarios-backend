@@ -1,4 +1,4 @@
-import { ReservationStateDomainEntity } from "../../entities/reservation-state.domain-entity";
+import { ReservationStateDomainEntity } from '../../entities/reservation-state.domain-entity';
 
 export interface IReservationStateRepositoryPort {
   /**

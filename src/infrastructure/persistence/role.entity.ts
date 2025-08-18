@@ -7,15 +7,15 @@ export class RoleEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 50 })
+  @Column({ length: 100 })
   name: string;
 
   @Column({ length: 250 })
   description: string;
 
-  @OneToMany(() => UserEntity, user => user.role)
+  @OneToMany(() => UserEntity, (user) => user.role)
   users: UserEntity[];
 
-  @OneToMany(() => PermissionEntity, permission => permission.role)
+  @OneToMany(() => PermissionEntity, (permission) => permission.role)
   permissions: PermissionEntity[];
 }

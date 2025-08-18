@@ -52,7 +52,7 @@ export class SubScenarioDomainBuilder {
     this.name = name;
     return this;
   }
-  
+
   withActive(active: boolean): SubScenarioDomainBuilder {
     this.active = active;
     return this;
@@ -92,7 +92,7 @@ export class SubScenarioDomainBuilder {
     this.fieldSurfaceTypeId = fieldSurfaceTypeId;
     return this;
   }
-  
+
   withCreatedAt(createdAt: Date): SubScenarioDomainBuilder {
     this.createdAt = createdAt;
     return this;

@@ -14,13 +14,13 @@ export class ReservationDateCalculatorDomainService {
     type: 'SINGLE' | 'RANGE',
     initialDate: Date,
     finalDate?: Date | null,
-    weekdays?: number[] | null
+    weekdays?: number[] | null,
   ): Date[] {
     return this.calculateDates(
       type,
       initialDate,
       finalDate || undefined,
-      weekdays || undefined
+      weekdays || undefined,
     );
   }
 
@@ -30,7 +30,7 @@ export class ReservationDateCalculatorDomainService {
   calculateDatesForRange(
     initialDate: Date,
     finalDate: Date,
-    weekdays?: number[]
+    weekdays?: number[],
   ): Date[] {
     const dates: Date[] = [];
     const current = new Date(initialDate);
@@ -67,7 +67,7 @@ export class ReservationDateCalculatorDomainService {
     type: 'SINGLE' | 'RANGE',
     initialDate: Date,
     finalDate?: Date,
-    weekdays?: number[]
+    weekdays?: number[],
   ): Date[] {
     if (type === 'SINGLE') {
       return this.calculateDatesForSingle(initialDate);
@@ -77,7 +77,9 @@ export class ReservationDateCalculatorDomainService {
       return this.calculateDatesForRange(initialDate, finalDate, weekdays);
     }
 
-    throw new Error('Invalid reservation type or missing finalDate for RANGE type');
+    throw new Error(
+      'Invalid reservation type or missing finalDate for RANGE type',
+    );
   }
 
   /**
@@ -87,7 +89,7 @@ export class ReservationDateCalculatorDomainService {
     type: 'SINGLE' | 'RANGE',
     initialDate: Date,
     finalDate?: Date,
-    weekdays?: number[]
+    weekdays?: number[],
   ): string[] {
     const errors: string[] = [];
 
@@ -107,8 +109,10 @@ export class ReservationDateCalculatorDomainService {
         errors.push('finalDate must be after initialDate');
       }
 
-      if (weekdays && weekdays.some(w => w < 0 || w > 6)) {
-        errors.push('weekdays must contain values between 0 (Sunday) and 6 (Saturday)');
+      if (weekdays && weekdays.some((w) => w < 0 || w > 6)) {
+        errors.push(
+          'weekdays must contain values between 0 (Sunday) and 6 (Saturday)',
+        );
       }
     }
 

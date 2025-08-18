@@ -13,7 +13,8 @@ import { SearchQueryHelper } from './common/search-query.helper';
 @Injectable()
 export class SubScenarioRepositoryAdapter
   extends BaseRepositoryAdapter<SubScenarioEntity, SubScenarioDomainEntity>
-  implements ISubScenarioRepositoryPort {
+  implements ISubScenarioRepositoryPort
+{
   constructor(
     @Inject(MYSQL_REPOSITORY.SUB_SCENARIO)
     repository: Repository<SubScenarioEntity>,
@@ -43,7 +44,9 @@ export class SubScenarioRepositoryAdapter
     return entity ? this.toDomain(entity) : null;
   }
 
-  async save(domainEntity: SubScenarioDomainEntity): Promise<SubScenarioDomainEntity> {
+  async save(
+    domainEntity: SubScenarioDomainEntity,
+  ): Promise<SubScenarioDomainEntity> {
     const entity = this.toEntity(domainEntity);
     const savedEntity = await this.repository.save(entity);
     return this.toDomain(savedEntity);
@@ -54,10 +57,17 @@ export class SubScenarioRepositoryAdapter
     return typeof result.affected === 'number' && result.affected > 0;
   }
 
-  async findByIdWithRelations(id: number): Promise<SubScenarioDomainEntity | null> {
+  async findByIdWithRelations(
+    id: number,
+  ): Promise<SubScenarioDomainEntity | null> {
     const entity = await this.repository.findOne({
       where: { id },
-      relations: ['scenario', 'scenario.neighborhood', 'activityArea', 'fieldSurfaceType'],
+      relations: [
+        'scenario',
+        'scenario.neighborhood',
+        'activityArea',
+        'fieldSurfaceType',
+      ],
     });
     return entity ? this.toDomain(entity) : null;
   }
@@ -84,15 +94,19 @@ export class SubScenarioRepositoryAdapter
 
     /* ───── filtros ───── */
     if (scenarioId) qb.andWhere('sc.id = :scenarioId', { scenarioId });
-    if (activityAreaId) qb.andWhere('aa.id = :activityAreaId', { activityAreaId });
-    if (neighborhoodId) qb.andWhere('n.id = :neighborhoodId', { neighborhoodId });
-    if (typeof hasCost === 'boolean') qb.andWhere('s.hasCost = :hasCost', { hasCost });
-    if (typeof active === 'boolean') qb.andWhere('s.active = :active', { active });
+    if (activityAreaId)
+      qb.andWhere('aa.id = :activityAreaId', { activityAreaId });
+    if (neighborhoodId)
+      qb.andWhere('n.id = :neighborhoodId', { neighborhoodId });
+    if (typeof hasCost === 'boolean')
+      qb.andWhere('s.hasCost = :hasCost', { hasCost });
+    if (typeof active === 'boolean')
+      qb.andWhere('s.active = :active', { active });
 
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      
+
       if (SearchQueryHelper.shouldUseLikeSearch(term)) {
         this.applyLikeSearch(qb, term);
       } else {
@@ -118,7 +132,10 @@ export class SubScenarioRepositoryAdapter
    * Aplica búsqueda LIKE para términos cortos
    * @private
    */
-  private applyLikeSearch(qb: SelectQueryBuilder<SubScenarioEntity>, term: string): void {
+  private applyLikeSearch(
+    qb: SelectQueryBuilder<SubScenarioEntity>,
+    term: string,
+  ): void {
     const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
 
     qb.addSelect(
@@ -147,17 +164,24 @@ export class SubScenarioRepositoryAdapter
    * Aplica búsqueda FULLTEXT para términos largos
    * @private
    */
-  private applyFulltextSearch(qb: SelectQueryBuilder<SubScenarioEntity>, term: string): void {
+  private applyFulltextSearch(
+    qb: SelectQueryBuilder<SubScenarioEntity>,
+    term: string,
+  ): void {
     const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
-    
+
     if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
       // Fallback a LIKE si el término sanitizado no es válido
-      console.log(`Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      console.log(
+        `Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+      );
       this.applyLikeSearch(qb, term);
       return;
     }
 
-    console.log(`Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+    console.log(
+      `Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+    );
 
     qb.addSelect(
       `(
@@ -167,14 +191,16 @@ export class SubScenarioRepositoryAdapter
         (MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE))*0.25
       )`,
       'score',
-    ).andWhere(
-      `(
+    )
+      .andWhere(
+        `(
         MATCH(s.name) AGAINST (:q IN BOOLEAN MODE) OR
         MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE) OR
         MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE) OR
         MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE)
       )`,
-      { q: sanitizedTerm },
-    ).orderBy('score', 'DESC');
+        { q: sanitizedTerm },
+      )
+      .orderBy('score', 'DESC');
   }
 }

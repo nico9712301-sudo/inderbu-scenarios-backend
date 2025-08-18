@@ -5,7 +5,7 @@ export interface IUserSeed {
   email: string;
   phone: string;
   role: { name: string };
-  address: string;  
+  address: string;
   neighborhood: { name: string };
   active: number;
 }

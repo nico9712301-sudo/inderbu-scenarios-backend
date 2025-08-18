@@ -3,7 +3,6 @@
  * Maneja la sanitización de términos y determinación de estrategias de búsqueda
  */
 export class SearchQueryHelper {
-  
   /**
    * Sanitiza un término de búsqueda para MySQL FULLTEXT BOOLEAN MODE
    * Filtra caracteres especiales y palabras problemáticas
@@ -13,12 +12,13 @@ export class SearchQueryHelper {
   static sanitizeSearchTerm(term: string): string {
     return term
       .split(/\s+/)
-      .filter(word => 
-        word.length > 1 && 
-        !/^[-+*()~<>"]+$/.test(word) &&
-        /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(word) // Al menos una letra
+      .filter(
+        (word) =>
+          word.length > 1 &&
+          !/^[-+*()~<>"]+$/.test(word) &&
+          /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(word), // Al menos una letra
       )
-      .map(word => `+${word.replace(/[+\-*()~<>"]/g, '')}*`)
+      .map((word) => `+${word.replace(/[+\-*()~<>"]/g, '')}*`)
       .join(' ');
   }
 
@@ -37,11 +37,14 @@ export class SearchQueryHelper {
    * @param term - Término de búsqueda
    * @returns Objeto con patrones para prefijo y contiene
    */
-  static generateLikePatterns(term: string): { prefix: string; contains: string } {
+  static generateLikePatterns(term: string): {
+    prefix: string;
+    contains: string;
+  } {
     const cleanTerm = term.trim();
     return {
       prefix: `${cleanTerm}%`,
-      contains: `%${cleanTerm}%`
+      contains: `%${cleanTerm}%`,
     };
   }
 

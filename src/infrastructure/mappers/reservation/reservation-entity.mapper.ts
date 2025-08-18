@@ -1,5 +1,8 @@
 import { ReservationEntity } from 'src/infrastructure/persistence/reservation.entity';
-import { ReservationDomainEntity, ReservationType } from 'src/core/domain/entities/reservation.domain-entity';
+import {
+  ReservationDomainEntity,
+  ReservationType,
+} from 'src/core/domain/entities/reservation.domain-entity';
 import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
 import { UserEntity } from 'src/infrastructure/persistence/user.entity';
 import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
@@ -10,7 +13,11 @@ export class ReservationEntityMapper {
       .withId(entity.id)
       .withSubScenarioId(entity.subScenarioId)
       .withUserId(entity.userId)
-      .withType(entity.type === 'SINGLE' ? ReservationType.SINGLE : ReservationType.RANGE)
+      .withType(
+        entity.type === 'SINGLE'
+          ? ReservationType.SINGLE
+          : ReservationType.RANGE,
+      )
       .withInitialDate(entity.initialDate)
       .withFinalDate(entity.finalDate || undefined)
       .withWeekDays(entity.weekDays || undefined)
@@ -36,13 +43,13 @@ export class ReservationEntityMapper {
     if (entity.instances) {
       (domainEntity as any).instances = entity.instances;
     }
-    
+
     return domainEntity;
   }
 
   static toEntity(domain: ReservationDomainEntity): ReservationEntity {
     const entity = new ReservationEntity();
-    
+
     if (domain.id !== null) entity.id = domain.id;
     entity.subScenarioId = domain.subScenarioId;
     entity.userId = domain.userId;
@@ -52,7 +59,7 @@ export class ReservationEntityMapper {
     entity.weekDays = domain.weekDays || null;
     entity.comments = domain.comments || null;
     entity.reservationStateId = domain.reservationStateId;
-    
+
     if (domain.createdAt) entity.createdAt = domain.createdAt;
     if (domain.updatedAt) entity.updatedAt = domain.updatedAt;
 
@@ -64,9 +71,11 @@ export class ReservationEntityMapper {
       entity.user = { id: domain.userId } as UserEntity;
     }
     if (domain.reservationStateId) {
-      entity.reservationState = { id: domain.reservationStateId } as ReservationStateEntity;
+      entity.reservationState = {
+        id: domain.reservationStateId,
+      } as ReservationStateEntity;
     }
-    
+
     return entity;
   }
 }

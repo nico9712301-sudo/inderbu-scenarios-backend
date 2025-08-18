@@ -7,9 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { activityAreaProviders } from '../providers/activity-area/activity-area.providers';
 
 @Module({
-  imports: [
-    DatabaseModule
-  ],
+  imports: [DatabaseModule],
   providers: [...activityAreaProviders],
   controllers: [ActivityAreaController],
 })

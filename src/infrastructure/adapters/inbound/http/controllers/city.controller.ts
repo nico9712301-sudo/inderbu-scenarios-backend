@@ -6,7 +6,7 @@ import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
 export class CityController {
   constructor(
     @Inject(APPLICATION_PORTS.CITY)
-    private readonly cityApplicationService: ICityApplicationPort
+    private readonly cityApplicationService: ICityApplicationPort,
   ) {}
 
   @Get()
@@ -15,9 +15,7 @@ export class CityController {
   }
 
   @Get('/:id')
-  async findById(
-    @Query('id') id: number
-  ) {
+  async findById(@Query('id') id: number) {
     return this.cityApplicationService.findById(id);
   }
 }

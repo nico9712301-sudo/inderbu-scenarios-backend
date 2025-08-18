@@ -35,9 +35,11 @@ export class TimeSlotSeeder
 
   protected async transform(seeds: ITimeSlotSeed[]): Promise<TimeSlotEntity[]> {
     // Create TypeORM entities from each seed
-    return seeds.map(seed => this.repository.create({
-      startTime: seed.startTime,
-      endTime: seed.endTime,
-    }));
+    return seeds.map((seed) =>
+      this.repository.create({
+        startTime: seed.startTime,
+        endTime: seed.endTime,
+      }),
+    );
   }
 }

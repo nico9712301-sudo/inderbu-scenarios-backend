@@ -4,7 +4,9 @@ import { ReservationEntity } from 'src/infrastructure/persistence/reservation.en
 import { TimeSlotEntity } from 'src/infrastructure/persistence/time-slot.entity';
 
 export class ReservationTimeslotEntityMapper {
-  static toDomain(entity: ReservationTimeslotEntity): ReservationTimeslotDomainEntity {
+  static toDomain(
+    entity: ReservationTimeslotEntity,
+  ): ReservationTimeslotDomainEntity {
     const domainEntity = ReservationTimeslotDomainEntity.builder()
       .withId(entity.id)
       .withReservationId(entity.reservationId)
@@ -19,17 +21,19 @@ export class ReservationTimeslotEntityMapper {
     if (entity.timeslot) {
       (domainEntity as any).timeslot = entity.timeslot;
     }
-    
+
     return domainEntity;
   }
 
-  static toEntity(domain: ReservationTimeslotDomainEntity): ReservationTimeslotEntity {
+  static toEntity(
+    domain: ReservationTimeslotDomainEntity,
+  ): ReservationTimeslotEntity {
     const entity = new ReservationTimeslotEntity();
-    
+
     if (domain.id !== null) entity.id = domain.id;
     entity.reservationId = domain.reservationId;
     entity.timeslotId = domain.timeslotId;
-    
+
     if (domain.createdAt) entity.createdAt = domain.createdAt;
 
     // Crear referencias básicas para las relaciones
@@ -39,7 +43,7 @@ export class ReservationTimeslotEntityMapper {
     if (domain.timeslotId) {
       entity.timeslot = { id: domain.timeslotId } as TimeSlotEntity;
     }
-    
+
     return entity;
   }
 }

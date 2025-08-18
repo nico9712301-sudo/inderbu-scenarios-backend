@@ -32,6 +32,6 @@ export class RoleSeeder
   }
 
   protected async transform(seeds: IRoleSeed[]): Promise<RoleEntity[]> {
-    return seeds.map(seed => this.repository.create(seed));
+    return seeds.map((seed) => this.repository.create(seed));
   }
 }

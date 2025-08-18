@@ -1,4 +1,3 @@
-
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type, Transform } from 'class-transformer';
 import { IsInt, IsOptional, Min, IsBoolean } from 'class-validator';
@@ -6,10 +5,10 @@ import { IsInt, IsOptional, Min, IsBoolean } from 'class-validator';
 export class SubScenarioPageOptionsDto {
   @ApiPropertyOptional({ minimum: 1 })
   @IsOptional()
-  @Type(() => Number)          
+  @Type(() => Number)
   @IsInt()
   @Min(1)
-  page = 1;                   
+  page = 1;
 
   @ApiPropertyOptional({ minimum: 1 })
   @IsOptional()
@@ -23,11 +22,19 @@ export class SubScenarioPageOptionsDto {
   search?: string;
 
   @ApiPropertyOptional() @IsOptional() @Type(() => Number) scenarioId?: number;
-  @ApiPropertyOptional() @IsOptional() @Type(() => Number) activityAreaId?: number;
-  @ApiPropertyOptional() @IsOptional() @Type(() => Number) neighborhoodId?: number;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  activityAreaId?: number;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Number)
+  neighborhoodId?: number;
 
   // FILTRO ESPECÍFICO PARA SUB-SCENARIOS
-  @ApiPropertyOptional({ description: 'Filtrar por costo: true=pagos, false=gratuitos' })
+  @ApiPropertyOptional({
+    description: 'Filtrar por costo: true=pagos, false=gratuitos',
+  })
   @IsOptional()
   @Transform(({ value }) => {
     if (value === 'true') return true;
@@ -37,7 +44,9 @@ export class SubScenarioPageOptionsDto {
   @IsBoolean()
   hasCost?: boolean;
 
-  @ApiPropertyOptional({ description: 'Filtrar por estado activo: true=activos, false=inactivos' })
+  @ApiPropertyOptional({
+    description: 'Filtrar por estado activo: true=activos, false=inactivos',
+  })
   @IsOptional()
   @Transform(({ value }) => {
     if (value === 'true') return true;

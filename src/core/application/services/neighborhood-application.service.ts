@@ -1,6 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { PageDto, PageMetaDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import {
+  PageDto,
+  PageMetaDto,
+} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
 import { NeighborhoodResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/neighborhood-response.dto';
 import { CreateNeighborhoodDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/create-neighborhood.dto';
 import { UpdateNeighborhoodDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/update-neighborhood.dto';
@@ -27,7 +30,9 @@ export class NeighborhoodApplicationService
     return this.neighborhoodRepository.findAll();
   }
 
-  async listPaged(opts: PageOptionsDto): Promise<PageDto<NeighborhoodResponseDto>> {
+  async listPaged(
+    opts: PageOptionsDto,
+  ): Promise<PageDto<NeighborhoodResponseDto>> {
     const { data, total } = await this.neighborhoodRepository.findPaged(opts);
     const dto = data.map(NeighborhoodResponseMapper.toDto);
 
@@ -53,7 +58,9 @@ export class NeighborhoodApplicationService
     // Verificar que la comuna existe
     const commune = await this.communeRepository.findById(dto.communeId);
     if (!commune) {
-      throw new NotFoundException(`Comuna con ID ${dto.communeId} no encontrada`);
+      throw new NotFoundException(
+        `Comuna con ID ${dto.communeId} no encontrada`,
+      );
     }
 
     // Crear entidad de dominio
@@ -64,11 +71,15 @@ export class NeighborhoodApplicationService
       .build();
 
     // Guardar
-    const savedNeighborhood = await this.neighborhoodRepository.save(neighborhoodEntity);
+    const savedNeighborhood =
+      await this.neighborhoodRepository.save(neighborhoodEntity);
     return NeighborhoodResponseMapper.toDto(savedNeighborhood);
   }
 
-  async update(id: number, dto: UpdateNeighborhoodDto): Promise<NeighborhoodResponseDto> {
+  async update(
+    id: number,
+    dto: UpdateNeighborhoodDto,
+  ): Promise<NeighborhoodResponseDto> {
     // Verificar que el barrio existe
     const existingNeighborhood = await this.neighborhoodRepository.findById(id);
     if (!existingNeighborhood) {
@@ -82,7 +93,9 @@ export class NeighborhoodApplicationService
     if (dto.communeId && dto.communeId !== existingNeighborhood.communeId) {
       const foundCommune = await this.communeRepository.findById(dto.communeId);
       if (!foundCommune) {
-        throw new NotFoundException(`Comuna con ID ${dto.communeId} no encontrada`);
+        throw new NotFoundException(
+          `Comuna con ID ${dto.communeId} no encontrada`,
+        );
       }
       commune = foundCommune;
       targetCommuneId = dto.communeId;
@@ -93,7 +106,7 @@ export class NeighborhoodApplicationService
       .withId(id)
       .withName(dto.name || existingNeighborhood.name)
       .withCommuneId(targetCommuneId);
-    
+
     // Solo agregar commune si existe
     if (commune) {
       neighborhoodBuilder.withCommune(commune);
@@ -102,7 +115,8 @@ export class NeighborhoodApplicationService
     const updatedNeighborhood = neighborhoodBuilder.build();
 
     // Guardar
-    const savedNeighborhood = await this.neighborhoodRepository.save(updatedNeighborhood);
+    const savedNeighborhood =
+      await this.neighborhoodRepository.save(updatedNeighborhood);
     return NeighborhoodResponseMapper.toDto(savedNeighborhood);
   }
 

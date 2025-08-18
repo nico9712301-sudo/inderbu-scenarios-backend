@@ -32,11 +32,15 @@ export class ResponseInterceptor<T>
         }
 
         // Si el payload ya trae { data, meta } lo dejamos plano
-        if (payload && payload.data !== undefined && payload.meta !== undefined) {
+        if (
+          payload &&
+          payload.data !== undefined &&
+          payload.meta !== undefined
+        ) {
           return {
             statusCode,
             message: 'Success',
-            ...payload         // ⬅️  expande data y meta al mismo nivel
+            ...payload, // ⬅️  expande data y meta al mismo nivel
           };
         }
 

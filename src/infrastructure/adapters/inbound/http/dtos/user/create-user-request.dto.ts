@@ -1,12 +1,12 @@
-import { 
+import {
   IsDefined,
-  IsNotEmpty, 
-  IsEmail, 
-  IsString, 
-  Matches, 
-  MinLength, 
-  IsNumber, 
-  IsPositive 
+  IsNotEmpty,
+  IsEmail,
+  IsString,
+  Matches,
+  MinLength,
+  IsNumber,
+  IsPositive,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -29,7 +29,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   readonly lastName: string;
 
-  @ApiProperty({ example: 'john.doe@example.com', description: 'Correo electrónico' })
+  @ApiProperty({
+    example: 'john.doe@example.com',
+    description: 'Correo electrónico',
+  })
   @IsDefined()
   @IsEmail()
   @IsNotEmpty()
@@ -43,7 +46,8 @@ export class CreateUserDto {
 
   @ApiProperty({
     example: 'Password@123',
-    description: 'Contraseña que debe tener al menos 8 caracteres, 1 mayúscula, 1 minúscula, 1 dígito y 1 carácter especial (@, #, $, etc.)',
+    description:
+      'Contraseña que debe tener al menos 8 caracteres, 1 mayúscula, 1 minúscula, 1 dígito y 1 carácter especial (@, #, $, etc.)',
   })
   @IsDefined()
   @IsString()
@@ -71,4 +75,11 @@ export class CreateUserDto {
   @IsNumber()
   @IsPositive()
   readonly neighborhoodId: number;
+
+  @ApiProperty({
+    example: true,
+    description: 'Estado activo/inactivo del usuario',
+  })
+  @IsDefined()
+  readonly active: boolean = true;
 }

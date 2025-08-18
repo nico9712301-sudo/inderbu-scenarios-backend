@@ -13,5 +13,5 @@ export interface ISubScenarioSeed {
   numberOfSpectators?: number;
   numberOfPlayers?: number;
   recommendations?: string;
-  images?: ISubscenarioImage[]
+  images?: ISubscenarioImage[];
 }

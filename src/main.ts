@@ -17,21 +17,21 @@ function loadEnv() {
 async function bootstrap() {
   loadEnv();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  
+
   // Configurar límites de tamaño de payload globalmente
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
-  
+
   // Configurar archivos estáticos para servir imágenes
   // app.useStaticAssets(join(__dirname, '..', 'uploads'), {
   //   prefix: '/uploads/', // Los archivos serán accesibles en /uploads/images/*
   // });
-  
+
   // Configurar archivos estáticos para servir imágenes temporales
   app.useStaticAssets(join(__dirname, '..', 'temp'), {
     prefix: '/temp/', // Los archivos serán accesibles en /temp/images/*
   });
-  
+
   // Registro de interceptores globales
   app.useGlobalInterceptors(new ResponseInterceptor());
   // Registro de filters globales

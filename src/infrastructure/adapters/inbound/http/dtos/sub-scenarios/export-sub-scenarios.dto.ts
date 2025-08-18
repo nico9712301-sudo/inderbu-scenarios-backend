@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsArray, IsBoolean, IsNumber, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ExportSubScenariosFiltersDto {
@@ -28,26 +35,33 @@ export class ExportSubScenariosFiltersDto {
 }
 
 export class ExportSubScenariosDto {
-  @ApiProperty({ 
-    enum: ['xlsx', 'csv'], 
+  @ApiProperty({
+    enum: ['xlsx', 'csv'],
     description: 'Formato de exportación',
-    example: 'xlsx'
+    example: 'xlsx',
   })
   @IsEnum(['xlsx', 'csv'])
   format: 'xlsx' | 'csv';
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Filtros para la exportación',
-    type: ExportSubScenariosFiltersDto
+    type: ExportSubScenariosFiltersDto,
   })
   @IsOptional()
   @Type(() => ExportSubScenariosFiltersDto)
   filters?: ExportSubScenariosFiltersDto;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     description: 'Campos a incluir en la exportación',
-    example: ['id', 'name', 'description', 'active', 'scenario.name', 'activityArea.name'],
-    type: [String]
+    example: [
+      'id',
+      'name',
+      'description',
+      'active',
+      'scenario.name',
+      'activityArea.name',
+    ],
+    type: [String],
   })
   @IsOptional()
   @IsArray()
@@ -59,9 +73,9 @@ export class SubScenarioExportJobResponseDto {
   @ApiProperty({ description: 'ID del job de exportación de sub-escenarios' })
   jobId: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     enum: ['pending', 'processing', 'completed', 'failed'],
-    description: 'Estado del job de exportación de sub-escenarios'
+    description: 'Estado del job de exportación de sub-escenarios',
   })
   status: 'pending' | 'processing' | 'completed' | 'failed';
 

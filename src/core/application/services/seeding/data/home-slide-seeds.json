@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Escenarios deportivos para todos",
+    "description": "Encuentra y reserva los mejores espacios deportivos de Medellín",
+    "imageUrl": "/temp/images/home/slide-1.jpg",
+    "displayOrder": 1,
+    "isActive": true,
+    "slideType": "banner",
+    "moduleName": "home"
+  },
+  {
+    "title": "Actividades para toda la familia",
+    "description": "Programas recreativos para todas las edades",
+    "imageUrl": "/temp/images/home/slide-2.jpg",
+    "displayOrder": 2,
+    "isActive": true,
+    "slideType": "banner",
+    "moduleName": "home"
+  },
+  {
+    "title": "Cómo reservar préstamos de escenarios deportivos y recreativos",
+    "description": "Participa en nuestros eventos deportivos y mejora tu rendimiento",
+    "imageUrl": "/temp/images/home/slide-3.jpg",
+    "displayOrder": 3,
+    "isActive": true,
+    "slideType": "banner",
+    "moduleName": "home"
+  },
+  {
+    "title": "Actualización, renovación y obteción",
+    "description": "Explora los escenarios deportivos de Medellín",
+    "imageUrl": "/temp/images/home/slide-4.jpg",
+    "displayOrder": 4,
+    "isActive": true,
+    "slideType": "banner",
+    "moduleName": "home"
+  },
+  {
+    "title": "Ventanilla unica del inderbú",
+    "description": "Encuentra y reserva los mejores espacios deportivos de Medellín",
+    "imageUrl": "/temp/images/home/slide-5.jpg",
+    "displayOrder": 5,
+    "isActive": true,
+    "slideType": "banner",
+    "moduleName": "home"
+  }
+]

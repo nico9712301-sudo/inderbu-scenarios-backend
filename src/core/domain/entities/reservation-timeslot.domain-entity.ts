@@ -38,8 +38,10 @@ export class ReservationTimeslotDomainEntity {
    * Verifica si esta relación es igual a otra
    */
   isEqualTo(other: ReservationTimeslotDomainEntity): boolean {
-    return this.reservationId === other.reservationId && 
-           this.timeslotId === other.timeslotId;
+    return (
+      this.reservationId === other.reservationId &&
+      this.timeslotId === other.timeslotId
+    );
   }
 }
 
@@ -72,11 +74,13 @@ export class ReservationTimeslotDomainBuilder {
   build(): ReservationTimeslotDomainEntity {
     const entity = new ReservationTimeslotDomainEntity(this);
     const errors = entity.validate();
-    
+
     if (errors.length > 0) {
-      throw new Error(`ReservationTimeslot validation failed: ${errors.join(', ')}`);
+      throw new Error(
+        `ReservationTimeslot validation failed: ${errors.join(', ')}`,
+      );
     }
-    
+
     return entity;
   }
 }

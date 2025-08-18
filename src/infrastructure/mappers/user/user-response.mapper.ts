@@ -6,7 +6,7 @@ import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
 
 export class UserResponseMapper {
   static toDto(domain: UserDomainEntity): UserResponseDto {
-    return plainToInstance(UserResponseDto, {
+    console.log('you know', {
       id: domain.id,
       dni: domain.dni,
       firstName: domain.firstName,
@@ -17,7 +17,24 @@ export class UserResponseMapper {
       address: domain.address,
       neighborhoodId: domain.neighborhoodId,
       active: domain.active,
-    }, { excludeExtraneousValues: true });
+    });
+
+    return plainToInstance(
+      UserResponseDto,
+      {
+        id: domain.id,
+        dni: domain.dni,
+        firstName: domain.firstName,
+        lastName: domain.lastName,
+        email: domain.email,
+        phone: domain.phone,
+        roleId: domain.roleId,
+        address: domain.address,
+        neighborhoodId: domain.neighborhoodId,
+        active: domain.active,
+      },
+      { excludeExtraneousValues: true },
+    );
   }
 
   static toDtoWithRelations(domain: UserDomainEntity): UserWithRelationsDto {
@@ -28,19 +45,23 @@ export class UserResponseMapper {
     const city = (domain as any).city;
 
     // Create DTO with all relations properly mapped
-    return plainToInstance(UserWithRelationsDto, {
-      id: domain.id,
-      dni: domain.dni,
-      firstName: domain.firstName,
-      lastName: domain.lastName,
-      email: domain.email,
-      phone: domain.phone,
-      address: domain.address,
-      active: domain.active,
-      role: role,
-      neighborhood: neighborhood,
-      commune: commune,
-      city: city
-    }, { excludeExtraneousValues: true });
+    return plainToInstance(
+      UserWithRelationsDto,
+      {
+        id: domain.id,
+        dni: domain.dni,
+        firstName: domain.firstName,
+        lastName: domain.lastName,
+        email: domain.email,
+        phone: domain.phone,
+        address: domain.address,
+        active: domain.active,
+        role: role,
+        neighborhood: neighborhood,
+        commune: commune,
+        city: city,
+      },
+      { excludeExtraneousValues: true },
+    );
   }
 }

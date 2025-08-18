@@ -26,7 +26,10 @@ export class RedisExportJobService {
     private readonly redis: Redis,
   ) {}
 
-  async createJob(format: 'xlsx' | 'csv', metadata?: Record<string, any>): Promise<ExportJob> {
+  async createJob(
+    format: 'xlsx' | 'csv',
+    metadata?: Record<string, any>,
+  ): Promise<ExportJob> {
     const job: ExportJob = {
       id: randomUUID(),
       status: 'pending',
@@ -58,7 +61,10 @@ export class RedisExportJobService {
     }
   }
 
-  async updateJob(jobId: string, updates: Partial<ExportJob>): Promise<ExportJob | null> {
+  async updateJob(
+    jobId: string,
+    updates: Partial<ExportJob>,
+  ): Promise<ExportJob | null> {
     const job = await this.getJob(jobId);
     if (!job) return null;
 
@@ -72,14 +78,23 @@ export class RedisExportJobService {
     return updatedJob;
   }
 
-  async updateProgress(jobId: string, progress: number, status?: ExportJob['status']): Promise<ExportJob | null> {
-    return this.updateJob(jobId, { 
+  async updateProgress(
+    jobId: string,
+    progress: number,
+    status?: ExportJob['status'],
+  ): Promise<ExportJob | null> {
+    return this.updateJob(jobId, {
       progress: Math.min(100, Math.max(0, progress)),
-      ...(status && { status })
+      ...(status && { status }),
     });
   }
 
-  async markCompleted(jobId: string, fileName: string, filePath: string, fileSize?: number): Promise<ExportJob | null> {
+  async markCompleted(
+    jobId: string,
+    fileName: string,
+    filePath: string,
+    fileSize?: number,
+  ): Promise<ExportJob | null> {
     return this.updateJob(jobId, {
       status: 'completed',
       progress: 100,
@@ -112,7 +127,7 @@ export class RedisExportJobService {
       if (keys.length === 0) return [];
 
       const pipeline = this.redis.pipeline();
-      keys.forEach(key => pipeline.get(key));
+      keys.forEach((key) => pipeline.get(key));
       const results = await pipeline.exec();
 
       const jobs: ExportJob[] = [];
@@ -142,7 +157,7 @@ export class RedisExportJobService {
     try {
       const cutoffTime = new Date(Date.now() - olderThanHours * 60 * 60 * 1000);
       const jobs = await this.getAllJobs();
-      
+
       let deletedCount = 0;
       const pipeline = this.redis.pipeline();
 
@@ -169,7 +184,7 @@ export class RedisExportJobService {
       await this.redis.setex(
         this.getKey(job.id),
         this.ttl,
-        JSON.stringify(job)
+        JSON.stringify(job),
       );
     } catch (error) {
       console.error(`Error saving job ${job.id}:`, error);
@@ -191,7 +206,10 @@ export class RedisExportJobService {
   }
 
   // Método para obtener estadísticas de jobs
-  async getJobStats(): Promise<{ total: number; byStatus: Record<string, number> }> {
+  async getJobStats(): Promise<{
+    total: number;
+    byStatus: Record<string, number>;
+  }> {
     const jobs = await this.getAllJobs();
     const stats = {
       total: jobs.length,
@@ -200,7 +218,7 @@ export class RedisExportJobService {
         processing: 0,
         completed: 0,
         failed: 0,
-      }
+      },
     };
 
     for (const job of jobs) {

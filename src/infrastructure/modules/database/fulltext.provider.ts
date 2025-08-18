@@ -2,8 +2,6 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
 import { DataSource } from 'typeorm';
 
-
-
 /**
  * Provides functionality for managing full-text indexes in a MySQL database.
  * This service ensures that specific tables have the required full-text indexes
@@ -23,6 +21,8 @@ import { DataSource } from 'typeorm';
  * - `scenarios` with index `ft_scen_name`
  * - `activity_areas` with index `ft_area_name`
  * - `field_surface_types` with index `ft_fs_name`
+ * - `neighborhoods` with index `ft_neighborhood_name`
+ * - `roles` with index `ft_role_name`
  *
  * @see {@link https://mariadb.com/kb/en/full-text-indexes/} for more information on full-text indexes in MariaDB.
  */
@@ -107,6 +107,30 @@ export class FulltextIndexProvider implements OnModuleInit {
       `,
       'field_surface_types',
       'ft_fs_name',
+    );
+
+    await this.ensure(
+      `
+      ALTER TABLE neighborhoods
+      ENGINE = InnoDB,
+      MODIFY name VARCHAR(100)
+             CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+      ADD FULLTEXT ft_neighborhood_name (name);
+      `,
+      'neighborhoods',
+      'ft_neighborhood_name',
+    );
+
+    await this.ensure(
+      `
+      ALTER TABLE roles
+      ENGINE = InnoDB,
+      MODIFY name VARCHAR(100)
+             CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+      ADD FULLTEXT ft_role_name (name);
+      `,
+      'roles',
+      'ft_role_name',
     );
   }
 }

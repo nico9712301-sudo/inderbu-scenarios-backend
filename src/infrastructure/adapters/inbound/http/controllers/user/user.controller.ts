@@ -50,8 +50,18 @@ export class UserController {
     return null as unknown as any;
   }
 
+  @Get('confirm')
+  @HttpCode(200)
+  async confirmEmail(
+    @Query('token') token: string,
+  ): Promise<{ message: string }> {
+    return this.userApplicationService.confirmUser(token);
+  }
+
   @Get()
-  @ApiOperation({ summary: 'Lista paginada de usuarios con relaciones y filtros avanzados' })
+  @ApiOperation({
+    summary: 'Lista paginada de usuarios con relaciones y filtros avanzados',
+  })
   @ApiQuery({
     name: 'page',
     required: false,
@@ -114,7 +124,7 @@ export class UserController {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
   }
-  
+
   @Post()
   @ApiOperation({
     summary:
@@ -131,21 +141,32 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const userDomain =
       await this.userApplicationService.createUser(createUserDto);
-    return UserResponseMapper.toDto(userDomain);
+      console.log('userDomain', userDomain);
+      
+    const userDto: UserResponseDto =  UserResponseMapper.toDto(userDomain);
+    console.log('userDto', userDto);
+    return userDto;
   }
 
   @Put(':id')
   @ApiOperation({
     summary: 'Actualiza un usuario existente',
   })
-  @ApiParam({ name: 'id', type: Number, description: 'ID del usuario a actualizar' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID del usuario a actualizar',
+  })
   @ApiResponse({
     status: 200,
     description: 'Usuario actualizado exitosamente',
     type: UserWithRelationsDto,
   })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  @ApiBody({ description: 'Datos del usuario a actualizar', type: UpdateUserDto })
+  @ApiBody({
+    description: 'Datos del usuario a actualizar',
+    type: UpdateUserDto,
+  })
   async updateUser(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
@@ -171,11 +192,4 @@ export class UserController {
     return this.userApplicationService.resendConfirmation(email);
   }
 
-  @Get('confirm')
-  @HttpCode(200)
-  async confirmEmail(
-    @Query('token') token: string,
-  ): Promise<{ message: string }> {
-    return this.userApplicationService.confirmUser(token);
-  }
 }

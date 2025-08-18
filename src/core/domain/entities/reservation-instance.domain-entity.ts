@@ -90,9 +90,11 @@ export class ReservationInstanceDomainEntity {
    * Verifica si esta instancia es igual a otra (mismo slot, fecha y escenario)
    */
   isEqualTo(other: ReservationInstanceDomainEntity): boolean {
-    return this.subScenarioId === other.subScenarioId &&
-           this.timeslotId === other.timeslotId &&
-           this.getDateString() === other.getDateString();
+    return (
+      this.subScenarioId === other.subScenarioId &&
+      this.timeslotId === other.timeslotId &&
+      this.getDateString() === other.getDateString()
+    );
   }
 
   /**
@@ -100,9 +102,11 @@ export class ReservationInstanceDomainEntity {
    */
   hasConflictWith(other: ReservationInstanceDomainEntity): boolean {
     // Hay conflicto si es el mismo slot, fecha y escenario, pero diferentes reservas
-    return this.isEqualTo(other) && 
-           this.reservationId !== other.reservationId &&
-           (this.active() || other.active());
+    return (
+      this.isEqualTo(other) &&
+      this.reservationId !== other.reservationId &&
+      (this.active() || other.active())
+    );
   }
 
   /**
@@ -117,11 +121,11 @@ export class ReservationInstanceDomainEntity {
       .withUserId(this.userId)
       .withReservationStateId(newStateId)
       .withCreatedAt(this.createdAt);
-      
+
     if (this.id !== null) {
       builder.withId(this.id);
     }
-    
+
     return builder.build();
   }
 }
@@ -179,11 +183,13 @@ export class ReservationInstanceDomainBuilder {
   build(): ReservationInstanceDomainEntity {
     const entity = new ReservationInstanceDomainEntity(this);
     const errors = entity.validate();
-    
+
     if (errors.length > 0) {
-      throw new Error(`ReservationInstance validation failed: ${errors.join(', ')}`);
+      throw new Error(
+        `ReservationInstance validation failed: ${errors.join(', ')}`,
+      );
     }
-    
+
     return entity;
   }
 }

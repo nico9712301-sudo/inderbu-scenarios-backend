@@ -6,11 +6,9 @@ import { AppCommandService } from 'src/core/application/services/app-command.ser
 @Module({
   imports: [
     CommandModule,
-    DatabaseModule // Añade esto para tener acceso a DATA_SOURCE.MYSQL
+    DatabaseModule, // Añade esto para tener acceso a DATA_SOURCE.MYSQL
   ],
-  providers: [
-    AppCommandService
-  ],
-  exports: [AppCommandService] // Exporta el servicio para usarlo en AppModule
+  providers: [AppCommandService],
+  exports: [AppCommandService], // Exporta el servicio para usarlo en AppModule
 })
 export class AppCommandModule {}

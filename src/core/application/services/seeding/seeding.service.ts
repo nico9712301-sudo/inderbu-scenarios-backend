@@ -12,7 +12,7 @@ export class SeedingService implements OnModuleInit {
 
   onModuleInit(): void {
     const providers = this.discoveryService.getProviders();
-    
+
     this.seeders = providers
       .filter(
         (wrapper) =>

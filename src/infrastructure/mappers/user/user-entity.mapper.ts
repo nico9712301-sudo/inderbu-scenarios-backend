@@ -1,7 +1,5 @@
 import { UserEntity } from 'src/infrastructure/persistence/user.entity';
-import {
-  UserDomainEntity,
-} from 'src/core/domain/entities/user.domain-entity';
+import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
 import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
 
 export class UserEntityMapper {
@@ -36,7 +34,7 @@ export class UserEntityMapper {
         }
       }
     }
-    
+
     return domainEntity;
   }
 
@@ -54,7 +52,9 @@ export class UserEntityMapper {
     entity.neighborhood = { id: domain.neighborhoodId } as any;
     entity.active = domain.active;
     entity.confirmationToken = (domain as any).confirmationToken;
-    entity.confirmationTokenExpiresAt = (domain as any).confirmationTokenExpiresAt;
+    entity.confirmationTokenExpiresAt = (
+      domain as any
+    ).confirmationTokenExpiresAt;
     return entity;
   }
 }

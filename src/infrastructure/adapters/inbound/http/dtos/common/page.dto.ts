@@ -6,7 +6,15 @@ export class PageMetaDto {
   @ApiProperty() readonly totalItems: number;
   @ApiProperty() readonly totalPages: number;
 
-  constructor({ page, limit, totalItems }: { page: number; limit: number; totalItems: number }) {
+  constructor({
+    page,
+    limit,
+    totalItems,
+  }: {
+    page: number;
+    limit: number;
+    totalItems: number;
+  }) {
     this.page = page;
     this.limit = limit;
     this.totalItems = totalItems;

@@ -7,7 +7,7 @@ export abstract class BaseRepositoryAdapter<Entity extends BaseEntity, Domain> {
   constructor(
     protected readonly repository: Repository<Entity>,
     protected readonly relations: string[] = [], // Lista de relaciones opcional
-  ) { }
+  ) {}
 
   async save(domain: Domain): Promise<Domain> {
     const entity = this.toEntity(domain);

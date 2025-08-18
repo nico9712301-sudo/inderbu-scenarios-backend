@@ -6,9 +6,16 @@ import { UpdateFieldSurfaceTypeDto } from 'src/infrastructure/adapters/inbound/h
 
 export interface IFieldSurfaceTypeApplicationPort {
   getAll(): Promise<FieldSurfaceTypeResponseDto[]>;
-  getPaged(options: PageOptionsDto): Promise<PageDto<FieldSurfaceTypeResponseDto>>;
+  getPaged(
+    options: PageOptionsDto,
+  ): Promise<PageDto<FieldSurfaceTypeResponseDto>>;
   getById(id: number): Promise<FieldSurfaceTypeResponseDto>;
-  create(createDto: CreateFieldSurfaceTypeDto): Promise<FieldSurfaceTypeResponseDto>;
-  update(id: number, updateDto: UpdateFieldSurfaceTypeDto): Promise<FieldSurfaceTypeResponseDto>;
+  create(
+    createDto: CreateFieldSurfaceTypeDto,
+  ): Promise<FieldSurfaceTypeResponseDto>;
+  update(
+    id: number,
+    updateDto: UpdateFieldSurfaceTypeDto,
+  ): Promise<FieldSurfaceTypeResponseDto>;
   delete(id: number): Promise<boolean>;
 }

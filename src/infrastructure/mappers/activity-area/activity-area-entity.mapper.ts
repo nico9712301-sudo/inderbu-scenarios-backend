@@ -8,7 +8,7 @@ export class ActivityAreaEntityMapper {
       .withName(e.name)
       .build();
   }
-  
+
   static toEntity(d: ActivityAreaDomainEntity): ActivityAreaEntity {
     const e = new ActivityAreaEntity();
     if (d.id) e.id = d.id;

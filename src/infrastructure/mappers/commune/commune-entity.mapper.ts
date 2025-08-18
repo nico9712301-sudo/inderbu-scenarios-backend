@@ -5,16 +5,14 @@ import { CityDomainEntity } from 'src/core/domain/entities/city.domain-entity';
 
 export class CommuneEntityMapper {
   static toDomain(e: CommuneEntity): CommuneDomainEntity {
-    const builder = CommuneDomainEntity.builder()
-      .withId(e.id)
-      .withName(e.name);
+    const builder = CommuneDomainEntity.builder().withId(e.id).withName(e.name);
 
     if (e.city) {
       const cityDomain = CityDomainEntity.builder()
         .withId(e.city.id)
         .withName(e.city.name)
         .build();
-      
+
       builder.withCity(cityDomain).withCityId(e.city.id);
     }
 

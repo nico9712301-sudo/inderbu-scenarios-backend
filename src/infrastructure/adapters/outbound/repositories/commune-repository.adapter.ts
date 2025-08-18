@@ -35,9 +35,9 @@ export class CommuneRepositoryAdapter
   }
 
   async findAll(): Promise<CommuneDomainEntity[]> {
-    const list = await this.repository.find({ 
+    const list = await this.repository.find({
       relations: ['city'],
-      order: { name: 'ASC' } 
+      order: { name: 'ASC' },
     });
     return list.map(CommuneEntityMapper.toDomain);
   }
@@ -46,17 +46,15 @@ export class CommuneRepositoryAdapter
     if (!ids.length) return [];
     const list = await this.repository.find({
       where: { id: In(ids) },
-      relations: ['city'] // Cargar relaciones
+      relations: ['city'], // Cargar relaciones
     });
     return list.map(CommuneEntityMapper.toDomain);
   }
 
-  async findPaged(opts: PageOptionsDto): Promise<{ data: CommuneDomainEntity[]; total: number }> {
-    const {
-      page = 1,
-      limit = 20,
-      search
-    } = opts;
+  async findPaged(
+    opts: PageOptionsDto,
+  ): Promise<{ data: CommuneDomainEntity[]; total: number }> {
+    const { page = 1, limit = 20, search } = opts;
 
     const qb: SelectQueryBuilder<CommuneEntity> = this.repository
       .createQueryBuilder('c')
@@ -65,7 +63,7 @@ export class CommuneRepositoryAdapter
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      
+
       if (SearchQueryHelper.shouldUseLikeSearch(term)) {
         this.applyLikeSearch(qb, term);
       } else {
@@ -86,7 +84,10 @@ export class CommuneRepositoryAdapter
    * Aplica búsqueda LIKE para términos cortos - solo en el nombre de la comuna
    * @private
    */
-  private applyLikeSearch(qb: SelectQueryBuilder<CommuneEntity>, term: string): void {
+  private applyLikeSearch(
+    qb: SelectQueryBuilder<CommuneEntity>,
+    term: string,
+  ): void {
     const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
 
     qb.addSelect(
@@ -106,16 +107,23 @@ export class CommuneRepositoryAdapter
    * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre de la comuna
    * @private
    */
-  private applyFulltextSearch(qb: SelectQueryBuilder<CommuneEntity>, term: string): void {
+  private applyFulltextSearch(
+    qb: SelectQueryBuilder<CommuneEntity>,
+    term: string,
+  ): void {
     const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
-    
+
     if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
-      console.log(`CommuneRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      console.log(
+        `CommuneRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+      );
       this.applyLikeSearch(qb, term);
       return;
     }
 
-    console.log(`CommuneRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+    console.log(
+      `CommuneRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+    );
 
     qb.addSelect(`(MATCH(c.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
       .andWhere(`MATCH(c.name) AGAINST (:q IN BOOLEAN MODE)`, {

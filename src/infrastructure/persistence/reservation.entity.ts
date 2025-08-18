@@ -1,19 +1,19 @@
-import { 
-  Column, 
-  CreateDateColumn, 
-  Entity, 
-  JoinColumn, 
-  ManyToOne, 
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  Index
-} from "typeorm";
-import { ReservationTimeslotEntity } from "./reservation-timeslot.entity";
-import { ReservationInstanceEntity } from "./reservation-instance.entity";
-import { ReservationStateEntity } from "./reservation-state.entity";
-import { SubScenarioEntity } from "./sub-scenario.entity";
-import { UserEntity } from "./user.entity";
+  Index,
+} from 'typeorm';
+import { ReservationTimeslotEntity } from './reservation-timeslot.entity';
+import { ReservationInstanceEntity } from './reservation-instance.entity';
+import { ReservationStateEntity } from './reservation-state.entity';
+import { SubScenarioEntity } from './sub-scenario.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('reservations')
 @Index(['subScenarioId', 'initialDate', 'finalDate', 'reservationStateId'])
@@ -29,10 +29,10 @@ export class ReservationEntity {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @Column({ 
-    type: 'enum', 
+  @Column({
+    type: 'enum',
     enum: ['SINGLE', 'RANGE'],
-    default: 'SINGLE'
+    default: 'SINGLE',
   })
   type: string;
 
@@ -75,7 +75,7 @@ export class ReservationEntity {
 
   @Column({
     type: 'text',
-    nullable: true
+    nullable: true,
   })
   comments: string | null;
 
@@ -101,9 +101,17 @@ export class ReservationEntity {
   @JoinColumn({ name: 'reservation_state_id' })
   reservationState: ReservationStateEntity;
 
-  @OneToMany(() => ReservationTimeslotEntity, timeslot => timeslot.reservation, { cascade: true })
+  @OneToMany(
+    () => ReservationTimeslotEntity,
+    (timeslot) => timeslot.reservation,
+    { cascade: true },
+  )
   timeslots: ReservationTimeslotEntity[];
 
-  @OneToMany(() => ReservationInstanceEntity, instance => instance.reservation, { cascade: true })
+  @OneToMany(
+    () => ReservationInstanceEntity,
+    (instance) => instance.reservation,
+    { cascade: true },
+  )
   instances: ReservationInstanceEntity[];
 }

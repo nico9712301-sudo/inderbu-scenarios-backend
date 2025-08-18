@@ -66,7 +66,7 @@ export class AuthController {
     type: RefreshTokenDto,
   })
   async refresh(@Body() body: RefreshTokenDto): Promise<AuthTokensDto> {
-    console.log("Refreshing token with body:", body);
+    console.log('Refreshing token with body:', body);
     return await this.authService.refreshToken(body.refresh_token);
   }
 

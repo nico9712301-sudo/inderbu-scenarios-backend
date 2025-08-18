@@ -19,21 +19,24 @@ export class SubScenarioMapper {
   ): SubScenarioWithRelationsDto {
     // Convertir todas las imágenes a DTOs
     const imageDtos = images.map(SubScenarioImageResponseMapper.toDto);
-    
+
     // Ordenar imágenes por orden de visualización
-    const sortedImages = [...imageDtos].sort((a, b) => a.displayOrder - b.displayOrder);
-    
+    const sortedImages = [...imageDtos].sort(
+      (a, b) => a.displayOrder - b.displayOrder,
+    );
+
     // Separar imagen destacada y adicionales
-    const featuredImage: SubScenarioImageResponseDto | undefined = sortedImages.find(img => img.isFeature);
-    const additionalImages = sortedImages.filter(img => !img.isFeature);
-    
+    const featuredImage: SubScenarioImageResponseDto | undefined =
+      sortedImages.find((img) => img.isFeature);
+    const additionalImages = sortedImages.filter((img) => !img.isFeature);
+
     // Crear estructura de galería (siempre incluirla)
     const imageGallery = {
       featured: featuredImage,
       additional: additionalImages,
-      count: sortedImages.length
+      count: sortedImages.length,
     };
-    
+
     return {
       id: s.id!,
       name: s.name,
@@ -57,9 +60,9 @@ export class SubScenarioMapper {
       fieldSurfaceType: s.fieldSurfaceTypeId
         ? mapNamedRef(s.fieldSurfaceTypeId, surfMap)
         : undefined,
-        
+
       // Siempre incluir galería de imágenes, incluso si está vacía
-      imageGallery: imageGallery
+      imageGallery: imageGallery,
     };
   }
 }
@@ -111,16 +114,20 @@ export function toMap<T extends { id: number | null }>(list: T[]) {
   );
 }
 
-export function mapNamedRef<T extends { id: number | null } & ({ name: string } | { getName(): string })>(
-  id: number | undefined,
-  map: Map<number, T>,
-) {
+export function mapNamedRef<
+  T extends { id: number | null } & ({ name: string } | { getName(): string }),
+>(id: number | undefined, map: Map<number, T>) {
   const e = id != null ? map.get(id) : undefined;
 
   // Si existe la entidad y tiene un ID
   if (e && e.id !== null) {
     // Determinar cómo obtener el nombre (propiedad directa o método getter)
-    const name = 'name' in e ? e.name : 'getName' in e && typeof e.getName === 'function' ? e.getName() : '';
+    const name =
+      'name' in e
+        ? e.name
+        : 'getName' in e && typeof e.getName === 'function'
+          ? e.getName()
+          : '';
     return { id: e.id, name };
   } else if (id != null) {
     return { id, name: '' };

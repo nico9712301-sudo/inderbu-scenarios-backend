@@ -2,7 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 
 export class CreateActivityAreaDto {
-  @ApiProperty({ description: 'Nombre del área de actividad', example: 'Fútbol' })
+  @ApiProperty({
+    description: 'Nombre del área de actividad',
+    example: 'Fútbol',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(3, { message: 'El nombre debe tener al menos 3 caracteres' })

@@ -32,14 +32,18 @@ export class FileExportService {
 
   async exportToExcel(data: ExportData): Promise<ExportResult> {
     const { scenarios, neighborhoods, includeFields } = data;
-    
+
     // Preparar datos para Excel
-    const excelData = this.prepareDataForExport(scenarios, neighborhoods, includeFields);
-    
+    const excelData = this.prepareDataForExport(
+      scenarios,
+      neighborhoods,
+      includeFields,
+    );
+
     // Crear workbook
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-    
+
     // Configurar ancho de columnas
     const columnWidths = [
       { wch: 10 }, // ID
@@ -50,18 +54,18 @@ export class FileExportService {
       { wch: 20 }, // Fecha Creación
     ];
     worksheet['!cols'] = columnWidths;
-    
+
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Escenarios');
-    
+
     // Generar archivo
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `escenarios_${timestamp}.xlsx`;
     const filePath = join(this.exportsDir, fileName);
-    
+
     XLSX.writeFile(workbook, filePath);
-    
+
     const fileSize = statSync(filePath).size;
-    
+
     return {
       fileName,
       filePath,
@@ -71,23 +75,27 @@ export class FileExportService {
 
   async exportToCsv(data: ExportData): Promise<ExportResult> {
     const { scenarios, neighborhoods, includeFields } = data;
-    
+
     // Preparar datos para CSV
-    const csvData = this.prepareDataForExport(scenarios, neighborhoods, includeFields);
-    
+    const csvData = this.prepareDataForExport(
+      scenarios,
+      neighborhoods,
+      includeFields,
+    );
+
     // Crear workbook y convertir a CSV
     const worksheet = XLSX.utils.json_to_sheet(csvData);
     const csvContent = XLSX.utils.sheet_to_csv(worksheet);
-    
+
     // Generar archivo
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `escenarios_${timestamp}.csv`;
     const filePath = join(this.exportsDir, fileName);
-    
+
     writeFileSync(filePath, csvContent, 'utf8');
-    
+
     const fileSize = statSync(filePath).size;
-    
+
     return {
       fileName,
       filePath,
@@ -98,28 +106,28 @@ export class FileExportService {
   private prepareDataForExport(
     scenarios: ScenarioDomainEntity[],
     neighborhoods: Map<number, NeighborhoodDomainEntity>,
-    includeFields?: string[]
+    includeFields?: string[],
   ): any[] {
     return scenarios.map((scenario) => {
-      const neighborhood = scenario.neighborhoodId 
-        ? neighborhoods.get(scenario.neighborhoodId) 
+      const neighborhood = scenario.neighborhoodId
+        ? neighborhoods.get(scenario.neighborhoodId)
         : null;
 
       const fullData = {
-        'ID': scenario.id,
-        'Nombre': scenario.name,
-        'Dirección': scenario.address,
-        'Activo': scenario.active ? 'Sí' : 'No',
-        'Barrio': neighborhood?.name || 'Sin barrio',
-        'Comuna': neighborhood?.commune?.name || 'Sin comuna',
+        ID: scenario.id,
+        Nombre: scenario.name,
+        Dirección: scenario.address,
+        Activo: scenario.active ? 'Sí' : 'No',
+        Barrio: neighborhood?.name || 'Sin barrio',
+        Comuna: neighborhood?.commune?.name || 'Sin comuna',
         // 'Fecha Creación': scenario.createdAt ? new Date(scenario.createdAt).toLocaleDateString('es-CL') : '',
       };
 
       // Si se especifican campos, filtrar
       if (includeFields && includeFields.length > 0) {
         const filteredData: any = {};
-        
-        includeFields.forEach(field => {
+
+        includeFields.forEach((field) => {
           switch (field) {
             case 'id':
               filteredData['ID'] = fullData['ID'];
@@ -144,7 +152,7 @@ export class FileExportService {
               break;
           }
         });
-        
+
         return filteredData;
       }
 

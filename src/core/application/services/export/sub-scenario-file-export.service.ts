@@ -35,14 +35,19 @@ export class SubScenarioFileExportService {
 
   async exportToExcel(data: SubScenarioExportData): Promise<ExportResult> {
     const { subScenarios, scenarios, activityAreas, includeFields } = data;
-    
+
     // Preparar datos para Excel
-    const excelData = this.prepareDataForExport(subScenarios, scenarios, activityAreas, includeFields);
-    
+    const excelData = this.prepareDataForExport(
+      subScenarios,
+      scenarios,
+      activityAreas,
+      includeFields,
+    );
+
     // Crear workbook
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
-    
+
     // Configurar ancho de columnas
     const columnWidths = [
       { wch: 10 }, // ID
@@ -54,18 +59,18 @@ export class SubScenarioFileExportService {
       { wch: 20 }, // Fecha Creación
     ];
     worksheet['!cols'] = columnWidths;
-    
+
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sub-Escenarios');
-    
+
     // Generar archivo
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `sub_escenarios_${timestamp}.xlsx`;
     const filePath = join(this.exportsDir, fileName);
-    
+
     XLSX.writeFile(workbook, filePath);
-    
+
     const fileSize = statSync(filePath).size;
-    
+
     return {
       fileName,
       filePath,
@@ -75,23 +80,28 @@ export class SubScenarioFileExportService {
 
   async exportToCsv(data: SubScenarioExportData): Promise<ExportResult> {
     const { subScenarios, scenarios, activityAreas, includeFields } = data;
-    
+
     // Preparar datos para CSV
-    const csvData = this.prepareDataForExport(subScenarios, scenarios, activityAreas, includeFields);
-    
+    const csvData = this.prepareDataForExport(
+      subScenarios,
+      scenarios,
+      activityAreas,
+      includeFields,
+    );
+
     // Crear workbook y convertir a CSV
     const worksheet = XLSX.utils.json_to_sheet(csvData);
     const csvContent = XLSX.utils.sheet_to_csv(worksheet);
-    
+
     // Generar archivo
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `sub_escenarios_${timestamp}.csv`;
     const filePath = join(this.exportsDir, fileName);
-    
+
     writeFileSync(filePath, csvContent, 'utf8');
-    
+
     const fileSize = statSync(filePath).size;
-    
+
     return {
       fileName,
       filePath,
@@ -103,31 +113,33 @@ export class SubScenarioFileExportService {
     subScenarios: SubScenarioDomainEntity[],
     scenarios: Map<number, ScenarioDomainEntity>,
     activityAreas: Map<number, ActivityAreaDomainEntity>,
-    includeFields?: string[]
+    includeFields?: string[],
   ): any[] {
     return subScenarios.map((subScenario) => {
-      const scenario = subScenario.scenarioId 
-        ? scenarios.get(subScenario.scenarioId) 
+      const scenario = subScenario.scenarioId
+        ? scenarios.get(subScenario.scenarioId)
         : null;
-      
-      const activityArea = subScenario.activityAreaId 
-        ? activityAreas.get(subScenario.activityAreaId) 
+
+      const activityArea = subScenario.activityAreaId
+        ? activityAreas.get(subScenario.activityAreaId)
         : null;
 
       const fullData = {
-        'ID': subScenario.id,
-        'Nombre': subScenario.name,
-        'Activo': subScenario.active ? 'Sí' : 'No',
-        'Escenario': scenario?.name || 'Sin escenario',
+        ID: subScenario.id,
+        Nombre: subScenario.name,
+        Activo: subScenario.active ? 'Sí' : 'No',
+        Escenario: scenario?.name || 'Sin escenario',
         'Área de Actividad': activityArea?.name || 'Sin área',
-        'Fecha Creación': subScenario.createdAt ? new Date(subScenario.createdAt).toLocaleDateString('es-CL') : '',
+        'Fecha Creación': subScenario.createdAt
+          ? new Date(subScenario.createdAt).toLocaleDateString('es-CL')
+          : '',
       };
 
       // Si se especifican campos, filtrar
       if (includeFields && includeFields.length > 0) {
         const filteredData: any = {};
-        
-        includeFields.forEach(field => {
+
+        includeFields.forEach((field) => {
           switch (field) {
             case 'id':
               filteredData['ID'] = fullData['ID'];
@@ -158,7 +170,7 @@ export class SubScenarioFileExportService {
               break;
           }
         });
-        
+
         return filteredData;
       }
 

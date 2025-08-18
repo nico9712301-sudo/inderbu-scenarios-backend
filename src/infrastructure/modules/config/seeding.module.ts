@@ -4,10 +4,7 @@ import { DatabaseModule } from '../database/database.module';
 import { DiscoveryModule } from '@nestjs/core';
 
 @Module({
-  imports: [
-    DatabaseModule,
-    DiscoveryModule
-  ],
+  imports: [DatabaseModule, DiscoveryModule],
   providers: [...seedProviders],
   exports: [...seedProviders],
 })

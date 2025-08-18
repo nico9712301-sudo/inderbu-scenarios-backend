@@ -4,7 +4,6 @@ import { CityController } from 'src/infrastructure/adapters/inbound/http/control
 import { cityProviders } from 'src/infrastructure/providers/city/city.providers';
 import { DatabaseModule } from '../database/database.module';
 
-
 @Module({
   imports: [DatabaseModule],
   controllers: [CityController],

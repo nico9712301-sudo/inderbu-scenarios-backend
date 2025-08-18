@@ -15,8 +15,6 @@ export class RoleApplicationService implements IRoleApplicationPort {
   async getRoles(): Promise<RoleDomainEntity[]> {
     const all = await this.roleRepository.findAll();
     // Filtramos los dos roles
-    return all.filter(
-      (r) => r.name !== 'super-admin' && r.name !== 'admin',
-    );
+    return all.filter((r) => r.name !== 'super-admin' && r.name !== 'admin');
   }
 }

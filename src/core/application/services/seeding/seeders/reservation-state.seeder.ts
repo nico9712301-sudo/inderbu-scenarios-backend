@@ -28,12 +28,14 @@ export class ReservationStateSeeder
   }
 
   protected async getSeeds(): Promise<IReservationStateSeed[]> {
-    return this.jsonLoader.load<IReservationStateSeed>('reservation-state-seeds.json');
+    return this.jsonLoader.load<IReservationStateSeed>(
+      'reservation-state-seeds.json',
+    );
   }
 
-  protected async transform(seeds: IReservationStateSeed[]): Promise<ReservationStateEntity[]> {
-    return seeds.map(seed =>
-      this.repository.create({ state: seed.state })
-    );
+  protected async transform(
+    seeds: IReservationStateSeed[],
+  ): Promise<ReservationStateEntity[]> {
+    return seeds.map((seed) => this.repository.create({ state: seed.state }));
   }
 }

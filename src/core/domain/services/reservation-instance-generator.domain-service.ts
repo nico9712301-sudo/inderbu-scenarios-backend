@@ -24,7 +24,7 @@ export class ReservationInstanceGeneratorDomainService {
     userId: number,
     reservationStateId: number,
     timeslotIds: number[],
-    reservationDates: Date[]
+    reservationDates: Date[],
   ): ReservationInstanceData[] {
     const instances: ReservationInstanceData[] = [];
 
@@ -36,7 +36,7 @@ export class ReservationInstanceGeneratorDomainService {
           reservationDate: new Date(date),
           subScenarioId,
           userId,
-          reservationStateId
+          reservationStateId,
         });
       }
     }
@@ -49,7 +49,7 @@ export class ReservationInstanceGeneratorDomainService {
    */
   calculateTotalInstances(
     timeslotIds: number[],
-    reservationDates: Date[]
+    reservationDates: Date[],
   ): number {
     return timeslotIds.length * reservationDates.length;
   }
@@ -60,7 +60,7 @@ export class ReservationInstanceGeneratorDomainService {
   validateInstanceData(
     reservationId: number,
     timeslotIds: number[],
-    reservationDates: Date[]
+    reservationDates: Date[],
   ): string[] {
     const errors: string[] = [];
 
@@ -76,7 +76,7 @@ export class ReservationInstanceGeneratorDomainService {
       errors.push('At least one reservation date must be provided');
     }
 
-    if (timeslotIds.some(id => !id || id <= 0)) {
+    if (timeslotIds.some((id) => !id || id <= 0)) {
       errors.push('All timeslot IDs must be positive numbers');
     }
 
@@ -87,7 +87,7 @@ export class ReservationInstanceGeneratorDomainService {
    * Agrupa instancias por fecha para mejor organización
    */
   groupInstancesByDate(
-    instances: ReservationInstanceData[]
+    instances: ReservationInstanceData[],
   ): Map<string, ReservationInstanceData[]> {
     const grouped = new Map<string, ReservationInstanceData[]>();
 
@@ -106,7 +106,7 @@ export class ReservationInstanceGeneratorDomainService {
    * Agrupa instancias por timeslot
    */
   groupInstancesByTimeslot(
-    instances: ReservationInstanceData[]
+    instances: ReservationInstanceData[],
   ): Map<number, ReservationInstanceData[]> {
     const grouped = new Map<number, ReservationInstanceData[]>();
 
@@ -136,13 +136,15 @@ export class ReservationInstanceGeneratorDomainService {
         totalDates: 0,
         totalTimeslots: 0,
         dateRange: { first: '', last: '' },
-        timeslotRange: { min: 0, max: 0 }
+        timeslotRange: { min: 0, max: 0 },
       };
     }
 
-    const uniqueDates = new Set(instances.map(i => i.reservationDate.toISOString().split('T')[0]));
-    const uniqueTimeslots = new Set(instances.map(i => i.timeslotId));
-    
+    const uniqueDates = new Set(
+      instances.map((i) => i.reservationDate.toISOString().split('T')[0]),
+    );
+    const uniqueTimeslots = new Set(instances.map((i) => i.timeslotId));
+
     const sortedDates = Array.from(uniqueDates).sort();
     const sortedTimeslots = Array.from(uniqueTimeslots).sort((a, b) => a - b);
 
@@ -152,12 +154,12 @@ export class ReservationInstanceGeneratorDomainService {
       totalTimeslots: uniqueTimeslots.size,
       dateRange: {
         first: sortedDates[0],
-        last: sortedDates[sortedDates.length - 1]
+        last: sortedDates[sortedDates.length - 1],
       },
       timeslotRange: {
         min: sortedTimeslots[0],
-        max: sortedTimeslots[sortedTimeslots.length - 1]
-      }
+        max: sortedTimeslots[sortedTimeslots.length - 1],
+      },
     };
   }
 }

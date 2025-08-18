@@ -17,6 +17,8 @@ import { CityEntity } from 'src/infrastructure/persistence/city.entity';
 import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
 import { UserEntity } from 'src/infrastructure/persistence/user.entity';
 import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
+import { HomeSlideEntity as PersistenceHomeSlideEntity } from 'src/infrastructure/persistence/home-slide.entity';
+import { EntityEntity } from 'src/infrastructure/persistence/entity.entity';
 
 export const persistenceEntities = [
   UserEntity,
@@ -37,5 +39,7 @@ export const persistenceEntities = [
   ReservationEntity,
   ReservationTimeslotEntity,
   ReservationInstanceEntity,
-  SubScenarioImageEntity
+  SubScenarioImageEntity,
+  PersistenceHomeSlideEntity,
+  EntityEntity,
 ];

@@ -3,7 +3,9 @@ import { SubScenarioPageOptionsDto } from 'src/infrastructure/adapters/inbound/h
 import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
 
 export interface ISubScenarioRepositoryPort {
-  findPaged(opts: SubScenarioPageOptionsDto): Promise<{ data: SubScenarioDomainEntity[]; total: number }>;
+  findPaged(
+    opts: SubScenarioPageOptionsDto,
+  ): Promise<{ data: SubScenarioDomainEntity[]; total: number }>;
   findByIdWithRelations(id: number): Promise<SubScenarioDomainEntity | null>;
   findById(id: number): Promise<SubScenarioDomainEntity | null>;
   save(subScenario: SubScenarioDomainEntity): Promise<SubScenarioDomainEntity>;

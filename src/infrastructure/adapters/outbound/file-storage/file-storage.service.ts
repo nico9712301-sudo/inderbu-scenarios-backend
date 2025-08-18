@@ -37,10 +37,10 @@ export class FileStorageService {
       // Fallback: usar mimetype para determinar la extensión
       const mimeToExt = {
         'image/jpeg': 'jpg',
-        'image/jpg': 'jpg', 
+        'image/jpg': 'jpg',
         'image/png': 'png',
         'image/gif': 'gif',
-        'image/webp': 'webp'
+        'image/webp': 'webp',
       };
       fileExtension = mimeToExt[file.mimetype] || 'jpg';
     } else {
@@ -55,7 +55,7 @@ export class FileStorageService {
     try {
       let fileData: Buffer;
       let tempFilePath: string | null = null;
-      
+
       if (file.buffer) {
         // Si tiene buffer, usarlo directamente
         fileData = file.buffer;
@@ -67,23 +67,26 @@ export class FileStorageService {
       } else {
         throw new Error('Archivo inválido: no tiene buffer ni path');
       }
-      
+
       if (!fileData || fileData.length === 0) {
         throw new Error('Archivo inválido: datos vacíos');
       }
-      
+
       // Guardar el archivo en la ubicación final
       writeFileSync(fullPath, fileData);
-      
+
       // Limpiar archivo temporal si existe
       if (tempFilePath && existsSync(tempFilePath)) {
         try {
           unlinkSync(tempFilePath);
         } catch (cleanupError) {
-          console.warn('No se pudo limpiar archivo temporal:', cleanupError.message);
+          console.warn(
+            'No se pudo limpiar archivo temporal:',
+            cleanupError.message,
+          );
         }
       }
-      
+
       return relativePath;
     } catch (error) {
       console.error(`Error al guardar archivo: ${error.message}`);
@@ -107,7 +110,7 @@ export class FileStorageService {
       } else {
         fullPath = join(process.cwd(), 'temp', relativePath);
       }
-      
+
       if (existsSync(fullPath)) {
         unlinkSync(fullPath);
         return true;

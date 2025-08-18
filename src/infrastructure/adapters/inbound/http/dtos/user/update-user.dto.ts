@@ -1,4 +1,13 @@
-import { IsOptional, IsString, IsEmail, IsNumber, IsBoolean, MinLength, MaxLength, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEmail,
+  IsNumber,
+  IsBoolean,
+  MinLength,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
@@ -93,5 +102,5 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsBoolean({ message: 'Active status must be a boolean' })
-  isActive?: boolean;
+  active?: boolean;
 }

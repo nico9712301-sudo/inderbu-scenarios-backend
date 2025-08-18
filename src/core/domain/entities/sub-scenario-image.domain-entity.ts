@@ -40,7 +40,7 @@ export class SubScenarioImageDomainBuilder {
     this.path = path;
     return this;
   }
-  
+
   withIsFeature(isFeature: boolean): SubScenarioImageDomainBuilder {
     this.isFeature = isFeature;
     return this;
@@ -60,7 +60,7 @@ export class SubScenarioImageDomainBuilder {
     this.current = current;
     return this;
   }
-  
+
   withCreatedAt(createdAt: Date): SubScenarioImageDomainBuilder {
     this.createdAt = createdAt;
     return this;

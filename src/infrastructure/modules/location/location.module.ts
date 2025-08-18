@@ -4,11 +4,7 @@ import { CommuneModule } from './commune.module';
 import { NeighborhoodModule } from './neighborhood.module';
 
 @Module({
-  imports: [
-    CityModule,
-    CommuneModule,
-    NeighborhoodModule
-  ],
+  imports: [CityModule, CommuneModule, NeighborhoodModule],
   providers: [],
 })
 export class LocationModule {}

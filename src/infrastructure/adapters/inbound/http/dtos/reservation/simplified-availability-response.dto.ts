@@ -17,7 +17,10 @@ export class TimeSlotBasicDto {
   @Expose()
   readonly endTime: string;
 
-  @ApiProperty({ example: true, description: 'Verdadero si está disponible en TODAS las fechas calculadas' })
+  @ApiProperty({
+    example: true,
+    description: 'Verdadero si está disponible en TODAS las fechas calculadas',
+  })
   @Expose()
   readonly isAvailableInAllDates: boolean;
 }
@@ -34,7 +37,10 @@ export class RequestedConfigurationDto {
   @Expose()
   readonly finalDate?: string;
 
-  @ApiPropertyOptional({ example: [1, 3, 5], description: '0=Domingo, 1=Lunes, etc.' })
+  @ApiPropertyOptional({
+    example: [1, 3, 5],
+    description: '0=Domingo, 1=Lunes, etc.',
+  })
   @Expose()
   readonly weekdays?: number[];
 }
@@ -47,11 +53,17 @@ export class AvailabilityStatsDto {
   @Expose()
   readonly totalDates: number;
 
-  @ApiProperty({ example: 24, description: 'Número total de timeslots por día' })
+  @ApiProperty({
+    example: 24,
+    description: 'Número total de timeslots por día',
+  })
   @Expose()
   readonly totalTimeslots: number;
 
-  @ApiProperty({ example: 120, description: 'Total de slots (fechas × timeslots)' })
+  @ApiProperty({
+    example: 120,
+    description: 'Total de slots (fechas × timeslots)',
+  })
   @Expose()
   readonly totalSlots: number;
 
@@ -63,7 +75,10 @@ export class AvailabilityStatsDto {
   @Expose()
   readonly occupiedSlots: number;
 
-  @ApiProperty({ example: 80.0, description: 'Porcentaje global de disponibilidad' })
+  @ApiProperty({
+    example: 80.0,
+    description: 'Porcentaje global de disponibilidad',
+  })
   @Expose()
   readonly globalAvailabilityPercentage: number;
 
@@ -89,16 +104,22 @@ export class SimplifiedAvailabilityResponseDto {
   @Type(() => RequestedConfigurationDto)
   readonly requestedConfiguration: RequestedConfigurationDto;
 
-  @ApiProperty({ 
-    example: ['2025-06-10', '2025-06-12', '2025-06-14', '2025-06-17', '2025-06-19'],
-    description: 'Fechas calculadas basadas en la configuración solicitada'
+  @ApiProperty({
+    example: [
+      '2025-06-10',
+      '2025-06-12',
+      '2025-06-14',
+      '2025-06-17',
+      '2025-06-19',
+    ],
+    description: 'Fechas calculadas basadas en la configuración solicitada',
   })
   @Expose()
   readonly calculatedDates: string[];
 
-  @ApiProperty({ 
+  @ApiProperty({
     type: [TimeSlotBasicDto],
-    description: 'Información básica de cada timeslot con su disponibilidad'
+    description: 'Información básica de cada timeslot con su disponibilidad',
   })
   @Expose()
   @Type(() => TimeSlotBasicDto)

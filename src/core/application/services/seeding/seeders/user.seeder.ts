@@ -46,7 +46,9 @@ export class UserSeeder
     return Promise.all(
       seeds.map(async (seed) => {
         const role = await this.resolveRole(seed.role.name);
-        const neighborhood = await this.resolveNeighborhood(seed.neighborhood.name);
+        const neighborhood = await this.resolveNeighborhood(
+          seed.neighborhood.name,
+        );
 
         return this.repository.create({
           dni: seed.dni,
@@ -58,7 +60,7 @@ export class UserSeeder
           role,
           address: seed.address,
           neighborhood,
-          active: Boolean(seed.active)
+          active: Boolean(seed.active),
         });
       }),
     );

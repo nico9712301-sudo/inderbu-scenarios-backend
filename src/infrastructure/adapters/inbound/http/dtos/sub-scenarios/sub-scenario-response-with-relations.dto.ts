@@ -17,19 +17,28 @@ export class NamedRefWithNeighborhoodDto extends NamedRefWithAddressDto {
 }
 
 export class SubScenarioImagesDto {
-  @ApiProperty({ type: SubScenarioImageResponseDto, nullable: true, description: 'Imagen destacada del sub-escenario (si existe)' })
+  @ApiProperty({
+    type: SubScenarioImageResponseDto,
+    nullable: true,
+    description: 'Imagen destacada del sub-escenario (si existe)',
+  })
   featured?: SubScenarioImageResponseDto;
-  
-  @ApiProperty({ type: [SubScenarioImageResponseDto], description: 'Imágenes adicionales (no destacadas) del sub-escenario' })
+
+  @ApiProperty({
+    type: [SubScenarioImageResponseDto],
+    description: 'Imágenes adicionales (no destacadas) del sub-escenario',
+  })
   additional: SubScenarioImageResponseDto[];
-  
-  @ApiProperty({ description: 'Número total de imágenes asociadas a este sub-escenario' })
+
+  @ApiProperty({
+    description: 'Número total de imágenes asociadas a este sub-escenario',
+  })
   count: number;
 }
 
 export class SubScenarioWithRelationsDto extends SubScenarioResponseDto {
   @ApiProperty({ type: () => NamedRefWithNeighborhoodDto })
-  scenario!:   NamedRefWithNeighborhoodDto;
+  scenario!: NamedRefWithNeighborhoodDto;
 
   @ApiProperty({ required: false, type: () => NamedRefDto })
   activityArea?: NamedRefDto;
@@ -37,7 +46,10 @@ export class SubScenarioWithRelationsDto extends SubScenarioResponseDto {
   @ApiProperty({ required: false, type: () => NamedRefDto })
   fieldSurfaceType?: NamedRefDto;
 
-  @ApiProperty({ type: SubScenarioImagesDto, required: false, description: 'Imágenes del sub-escenario organizadas por tipo' })
+  @ApiProperty({
+    type: SubScenarioImagesDto,
+    required: false,
+    description: 'Imágenes del sub-escenario organizadas por tipo',
+  })
   imageGallery?: SubScenarioImagesDto;
-  
 }

@@ -35,9 +35,9 @@ export class NeighborhoodRepositoryAdapter
   }
 
   async findAll(): Promise<NeighborhoodDomainEntity[]> {
-    const list = await this.repository.find({ 
+    const list = await this.repository.find({
       relations: ['commune', 'commune.city'], // Cargar relaciones
-      order: { name: 'ASC' } 
+      order: { name: 'ASC' },
     });
     return list.map(NeighborhoodEntityMapper.toDomain);
   }
@@ -46,17 +46,15 @@ export class NeighborhoodRepositoryAdapter
     if (!ids.length) return [];
     const list = await this.repository.find({
       where: { id: In(ids) },
-      relations: ['commune', 'commune.city'] // Cargar relaciones
+      relations: ['commune', 'commune.city'], // Cargar relaciones
     });
     return list.map(NeighborhoodEntityMapper.toDomain);
   }
 
-  async findPaged(opts: PageOptionsDto): Promise<{ data: NeighborhoodDomainEntity[]; total: number }> {
-    const {
-      page = 1,
-      limit = 20,
-      search
-    } = opts;
+  async findPaged(
+    opts: PageOptionsDto,
+  ): Promise<{ data: NeighborhoodDomainEntity[]; total: number }> {
+    const { page = 1, limit = 20, search } = opts;
 
     const qb: SelectQueryBuilder<NeighborhoodEntity> = this.repository
       .createQueryBuilder('n')
@@ -66,7 +64,7 @@ export class NeighborhoodRepositoryAdapter
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      
+
       if (SearchQueryHelper.shouldUseLikeSearch(term)) {
         this.applyLikeSearch(qb, term);
       } else {
@@ -87,7 +85,10 @@ export class NeighborhoodRepositoryAdapter
    * Aplica búsqueda LIKE para términos cortos - solo en el nombre del barrio
    * @private
    */
-  private applyLikeSearch(qb: SelectQueryBuilder<NeighborhoodEntity>, term: string): void {
+  private applyLikeSearch(
+    qb: SelectQueryBuilder<NeighborhoodEntity>,
+    term: string,
+  ): void {
     const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
 
     qb.addSelect(
@@ -107,16 +108,23 @@ export class NeighborhoodRepositoryAdapter
    * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del barrio
    * @private
    */
-  private applyFulltextSearch(qb: SelectQueryBuilder<NeighborhoodEntity>, term: string): void {
+  private applyFulltextSearch(
+    qb: SelectQueryBuilder<NeighborhoodEntity>,
+    term: string,
+  ): void {
     const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
-    
+
     if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
-      console.log(`NeighborhoodRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      console.log(
+        `NeighborhoodRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+      );
       this.applyLikeSearch(qb, term);
       return;
     }
 
-    console.log(`NeighborhoodRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+    console.log(
+      `NeighborhoodRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+    );
 
     qb.addSelect(`(MATCH(n.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
       .andWhere(`MATCH(n.name) AGAINST (:q IN BOOLEAN MODE)`, {

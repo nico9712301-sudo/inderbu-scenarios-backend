@@ -16,7 +16,6 @@ import { SubScenarioFileExportService } from 'src/core/application/services/expo
 import { RedisExportJobService } from 'src/core/application/services/export/redis-export-job.service';
 import { RedisModule } from './redis.module';
 
-
 @Module({
   imports: [
     DatabaseModule,
@@ -27,7 +26,8 @@ import { RedisModule } from './redis.module';
         destination: './temp',
         filename: (req, file, cb) => {
           // Generar nombre único para archivo temporal
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = file.originalname.split('.').pop() || 'tmp';
           cb(null, `${file.fieldname}-${uniqueSuffix}.${ext}`);
         },
@@ -42,8 +42,8 @@ import { RedisModule } from './redis.module';
       },
       limits: {
         fileSize: 5 * 1024 * 1024, // 5MB máximo
-        files: 10 // Máximo 10 archivos
-      }
+        files: 10, // Máximo 10 archivos
+      },
     }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
@@ -52,8 +52,8 @@ import { RedisModule } from './redis.module';
   ],
   controllers: [SubScenarioController, SubScenarioImageController],
   providers: [
-    ...subScenarioProviders, 
-    ...subScenarioImageProviders, 
+    ...subScenarioProviders,
+    ...subScenarioImageProviders,
     FileStorageService,
     SubScenarioExportApplicationService,
     SubScenarioFileExportService,

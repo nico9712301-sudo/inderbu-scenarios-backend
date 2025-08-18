@@ -7,7 +7,9 @@ import { UserEntity } from 'src/infrastructure/persistence/user.entity';
 import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
 
 export class ReservationInstanceEntityMapper {
-  static toDomain(entity: ReservationInstanceEntity): ReservationInstanceDomainEntity {
+  static toDomain(
+    entity: ReservationInstanceEntity,
+  ): ReservationInstanceDomainEntity {
     const domainEntity = ReservationInstanceDomainEntity.builder()
       .withId(entity.id)
       .withReservationId(entity.reservationId)
@@ -35,13 +37,15 @@ export class ReservationInstanceEntityMapper {
     if (entity.reservationState) {
       (domainEntity as any).reservationState = entity.reservationState;
     }
-    
+
     return domainEntity;
   }
 
-  static toEntity(domain: ReservationInstanceDomainEntity): ReservationInstanceEntity {
+  static toEntity(
+    domain: ReservationInstanceDomainEntity,
+  ): ReservationInstanceEntity {
     const entity = new ReservationInstanceEntity();
-    
+
     if (domain.id !== null) entity.id = domain.id;
     entity.reservationId = domain.reservationId;
     entity.timeslotId = domain.timeslotId;
@@ -49,7 +53,7 @@ export class ReservationInstanceEntityMapper {
     entity.subScenarioId = domain.subScenarioId;
     entity.userId = domain.userId;
     entity.reservationStateId = domain.reservationStateId;
-    
+
     if (domain.createdAt) entity.createdAt = domain.createdAt;
 
     // Crear referencias básicas para las relaciones
@@ -66,9 +70,11 @@ export class ReservationInstanceEntityMapper {
       entity.user = { id: domain.userId } as UserEntity;
     }
     if (domain.reservationStateId) {
-      entity.reservationState = { id: domain.reservationStateId } as ReservationStateEntity;
+      entity.reservationState = {
+        id: domain.reservationStateId,
+      } as ReservationStateEntity;
     }
-    
+
     return entity;
   }
 }

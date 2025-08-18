@@ -6,7 +6,7 @@ export class SubScenarioResponseDto {
 
   @ApiProperty()
   name: string;
-  
+
   @ApiProperty()
   active: boolean;
 
@@ -25,12 +25,15 @@ export class SubScenarioResponseDto {
   @ApiProperty({ description: 'Id del escenario al que pertenece' })
   scenarioId?: number;
 
-  @ApiProperty({ required: false, description: 'Id del área de actividad asociada' })
+  @ApiProperty({
+    required: false,
+    description: 'Id del área de actividad asociada',
+  })
   activityAreaId?: number;
 
   @ApiProperty({ required: false, description: 'Id del tipo de superficie' })
   fieldSurfaceTypeId?: number;
-  
+
   @ApiProperty({ required: false })
   createdAt?: Date;
 }

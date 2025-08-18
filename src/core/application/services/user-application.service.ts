@@ -16,7 +16,6 @@ import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/d
 import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
 import { UpdateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
 import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
 import { IUserApplicationPort } from 'src/core/application/ports/inbound/user-application.port';
 import { IUserRepositoryPort } from 'src/core/domain/ports/outbound/user-repository.port';
@@ -51,6 +50,7 @@ export class UserApplicationService implements IUserApplicationPort {
       .withPasswordHash(hash)
       .withRoleId(dto.roleId)
       .withAddress(dto.address)
+      .withActive(dto.active)
       .withNeighborhoodId(dto.neighborhoodId);
 
     // emitimos confirmación
@@ -58,7 +58,10 @@ export class UserApplicationService implements IUserApplicationPort {
   }
 
   /** Actualiza un usuario existente */
-  async updateUser(id: number, dto: UpdateUserDto): Promise<UserWithRelationsDto> {
+  async updateUser(
+    id: number,
+    dto: UpdateUserDto,
+  ): Promise<UserWithRelationsDto> {
     // Verificar que el usuario existe
     const existingUser = await this.userRepository.findByIdWithRelations(id);
     if (!existingUser) {
@@ -75,7 +78,7 @@ export class UserApplicationService implements IUserApplicationPort {
 
     // Construir entidad actualizada usando builder pattern
     const userBuilder = UserDomainEntity.builder()
-      .withId(existingUser.id!)
+      .withId(existingUser.id)
       .withDni(dto.dni ?? existingUser.dni)
       .withFirstName(dto.firstName ?? existingUser.firstName)
       .withLastName(dto.lastName ?? existingUser.lastName)
@@ -85,26 +88,29 @@ export class UserApplicationService implements IUserApplicationPort {
       .withRoleId(dto.roleId ?? existingUser.roleId)
       .withAddress(dto.address ?? existingUser.address)
       .withNeighborhoodId(dto.neighborhoodId ?? existingUser.neighborhoodId)
-      .withActive(dto.isActive ?? existingUser.active);
+      .withActive(dto.active ?? existingUser.active);
 
     // Mantener datos de confirmación si existen
     if ((existingUser as any).confirmationToken) {
       userBuilder
         .withConfirmationToken((existingUser as any).confirmationToken)
-        .withConfirmationTokenExpiresAt((existingUser as any).confirmationTokenExpiresAt);
+        .withConfirmationTokenExpiresAt(
+          (existingUser as any).confirmationTokenExpiresAt,
+        );
     }
 
     const updatedUser = userBuilder.build();
-    
+
     // Guardar en repositorio
     await this.userRepository.save(updatedUser);
-    
+
     // Retornar usuario actualizado con relaciones
-    const userWithRelations = await this.userRepository.findByIdWithRelations(id);
+    const userWithRelations =
+      await this.userRepository.findByIdWithRelations(id);
     if (!userWithRelations) {
       throw new NotFoundException(`Error al recuperar el usuario actualizado`);
     }
-    
+
     return UserResponseMapper.toDtoWithRelations(userWithRelations);
   }
 
@@ -112,11 +118,40 @@ export class UserApplicationService implements IUserApplicationPort {
   async resendConfirmation(email: string): Promise<{ message: string }> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) throw new NotFoundException('Usuario no encontrado');
-    if (user.active)
-      throw new ConflictException('La cuenta ya está activada');
+    if (user.active) throw new ConflictException('La cuenta ya está activada');
 
     await this.issueConfirmation(user);
     return { message: 'Enlace de confirmación reenviado con éxito' };
+  }
+
+    /**
+   * PRIVADO: genera nuevo token + expiración, guarda y envía el correo
+   */
+  private async issueConfirmation(
+    user: UserDomainEntity,
+  ): Promise<UserDomainEntity> {
+    const token = uuidv4();
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const withToken = UserDomainEntity.builder()
+      .withId(user.id ?? null)
+      .withDni(user.dni)
+      .withFirstName(user.firstName)
+      .withLastName(user.lastName)
+      .withEmail(user.email)
+      .withPhone(user.phone)
+      .withPasswordHash((user as any).passwordHash)
+      .withRoleId(user.roleId)
+      .withAddress(user.address)
+      .withNeighborhoodId(user.neighborhoodId)
+      .withActive(false)
+      .withConfirmationToken(token)
+      .withConfirmationTokenExpiresAt(expires)
+      .build();
+
+    const saved = await this.userRepository.save(withToken);
+    await this.notificationService.sendAccountConfirmation(saved.email, token);
+    return saved;
   }
 
   /** Valida el token y activa la cuenta */
@@ -132,7 +167,7 @@ export class UserApplicationService implements IUserApplicationPort {
 
     // reusamos builder para activar
     const activated = UserDomainEntity.builder()
-      .withId(user.id!)
+      .withId(user.id)
       .withDni(user.dni)
       .withFirstName(user.firstName)
       .withLastName(user.lastName)
@@ -169,7 +204,7 @@ export class UserApplicationService implements IUserApplicationPort {
     const data = users.map((user) =>
       UserResponseMapper.toDtoWithRelations(user),
     );
-    
+
     const meta = new PageMetaDto({
       page: pageOptionsDto.page,
       limit: pageOptionsDto.limit,
@@ -185,35 +220,5 @@ export class UserApplicationService implements IUserApplicationPort {
     }
 
     return UserResponseMapper.toDtoWithRelations(user);
-  }
-
-  /**
-   * PRIVADO: genera nuevo token + expiración, guarda y envía el correo
-   */
-  private async issueConfirmation(
-    user: UserDomainEntity,
-  ): Promise<UserDomainEntity> {
-    const token = uuidv4();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    const withToken = UserDomainEntity.builder()
-      .withId(user.id ?? null)
-      .withDni(user.dni)
-      .withFirstName(user.firstName)
-      .withLastName(user.lastName)
-      .withEmail(user.email)
-      .withPhone(user.phone)
-      .withPasswordHash((user as any).passwordHash)
-      .withRoleId(user.roleId)
-      .withAddress(user.address)
-      .withNeighborhoodId(user.neighborhoodId)
-      .withActive(false)
-      .withConfirmationToken(token)
-      .withConfirmationTokenExpiresAt(expires)
-      .build();
-
-    const saved = await this.userRepository.save(withToken);
-    await this.notificationService.sendAccountConfirmation(saved.email, token);
-    return saved;
   }
 }

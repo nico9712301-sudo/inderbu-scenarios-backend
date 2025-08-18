@@ -1,13 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, MaxLength, MinLength, IsNumber } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+  IsNumber,
+} from 'class-validator';
 
 export class UpdateCommuneDto {
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'Nombre de la comuna',
     example: 'COMUNA 1',
     minLength: 3,
     maxLength: 150,
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString({ message: 'El nombre debe ser un texto' })
@@ -15,10 +21,10 @@ export class UpdateCommuneDto {
   @MaxLength(150, { message: 'El nombre no puede exceder 150 caracteres' })
   name?: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     description: 'ID de la ciudad a la que pertenece la comuna',
     example: 1,
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsNumber({}, { message: 'El ID de la ciudad debe ser un número' })

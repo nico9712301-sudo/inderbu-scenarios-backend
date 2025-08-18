@@ -2,7 +2,7 @@ import { Expose } from 'class-transformer';
 
 export enum ReservationType {
   SINGLE = 'SINGLE',
-  RANGE = 'RANGE'
+  RANGE = 'RANGE',
 }
 
 export class ReservationDomainEntity {
@@ -58,8 +58,10 @@ export class ReservationDomainEntity {
         errors.push('finalDate must be after initialDate');
       }
 
-      if (this.weekDays && this.weekDays.some(w => w < 0 || w > 6)) {
-        errors.push('weekDays must contain values between 0 (Sunday) and 6 (Saturday)');
+      if (this.weekDays && this.weekDays.some((w) => w < 0 || w > 6)) {
+        errors.push(
+          'weekDays must contain values between 0 (Sunday) and 6 (Saturday)',
+        );
       }
     }
 
@@ -124,7 +126,11 @@ export class ReservationDomainEntity {
     }
 
     if (this.type === ReservationType.RANGE) {
-      return !this.weekDays || this.weekDays.length === 0 || this.weekDays.includes(weekday);
+      return (
+        !this.weekDays ||
+        this.weekDays.length === 0 ||
+        this.weekDays.includes(weekday)
+      );
     }
 
     return false;
@@ -141,13 +147,23 @@ export class ReservationDomainEntity {
     if (this.type === ReservationType.RANGE) {
       const start = this.initialDate.toISOString().split('T')[0];
       const end = this.finalDate?.toISOString().split('T')[0];
-      
+
       if (this.weekDays && this.weekDays.length > 0) {
-        const weekdayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        const selectedDays = this.weekDays.map(w => weekdayNames[w]).join(', ');
+        const weekdayNames = [
+          'Domingo',
+          'Lunes',
+          'Martes',
+          'Miércoles',
+          'Jueves',
+          'Viernes',
+          'Sábado',
+        ];
+        const selectedDays = this.weekDays
+          .map((w) => weekdayNames[w])
+          .join(', ');
         return `Reserva desde ${start} hasta ${end}, ${selectedDays}`;
       }
-      
+
       return `Reserva desde ${start} hasta ${end}`;
     }
 
@@ -232,7 +248,11 @@ export class ReservationDomainBuilder {
     return this;
   }
 
-  asRangeReservation(initialDate: Date, finalDate: Date, weekDays?: number[]): this {
+  asRangeReservation(
+    initialDate: Date,
+    finalDate: Date,
+    weekDays?: number[],
+  ): this {
     this.type = ReservationType.RANGE;
     this.initialDate = initialDate;
     this.finalDate = finalDate;
@@ -243,11 +263,11 @@ export class ReservationDomainBuilder {
   build(): ReservationDomainEntity {
     const entity = new ReservationDomainEntity(this);
     const errors = entity.validate();
-    
+
     if (errors.length > 0) {
       throw new Error(`Reservation validation failed: ${errors.join(', ')}`);
     }
-    
+
     return entity;
   }
 }

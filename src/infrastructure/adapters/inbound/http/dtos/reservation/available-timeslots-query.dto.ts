@@ -1,12 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type, Transform } from 'class-transformer';
-import { IsNumber, IsPositive, IsDateString, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsNumber,
+  IsPositive,
+  IsDateString,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 
 export class AvailableTimeslotsQueryDto {
   @ApiProperty({
     description: 'ID del sub-escenario',
     example: 16,
-    type: Number
+    type: Number,
   })
   @Type(() => Number)
   @IsNumber()
@@ -16,29 +23,31 @@ export class AvailableTimeslotsQueryDto {
   @ApiProperty({
     description: 'Fecha inicial para consultar disponibilidad (YYYY-MM-DD)',
     example: '2025-06-10',
-    type: String
+    type: String,
   })
   @IsDateString()
   readonly initialDate: string;
 
   @ApiPropertyOptional({
-    description: 'Fecha final para consultar disponibilidad (YYYY-MM-DD). Si no se especifica, consulta solo initialDate',
+    description:
+      'Fecha final para consultar disponibilidad (YYYY-MM-DD). Si no se especifica, consulta solo initialDate',
     example: '2025-06-20',
-    type: String
+    type: String,
   })
   @IsOptional()
   @IsDateString()
   readonly finalDate?: string;
 
   @ApiPropertyOptional({
-    description: 'Días de semana específicos separados por comas (0=Domingo, 1=Lunes, ..., 6=Sábado)',
+    description:
+      'Días de semana específicos separados por comas (0=Domingo, 1=Lunes, ..., 6=Sábado)',
     example: '1,3,5',
-    type: String
+    type: String,
   })
   @IsOptional()
   @IsString()
-  @Matches(/^\d+(,\d+)*$/, { 
-    message: 'weekdays must be comma-separated numbers between 0-6' 
+  @Matches(/^\d+(,\d+)*$/, {
+    message: 'weekdays must be comma-separated numbers between 0-6',
   })
   readonly weekdays?: string;
 
@@ -47,12 +56,12 @@ export class AvailableTimeslotsQueryDto {
    */
   get weekdaysArray(): number[] | undefined {
     if (!this.weekdays) return undefined;
-    
-    const parsed = this.weekdays.split(',').map(w => parseInt(w.trim()));
-    
+
+    const parsed = this.weekdays.split(',').map((w) => parseInt(w.trim()));
+
     // Validar que todos los valores estén entre 0-6
-    const validWeekdays = parsed.filter(w => w >= 0 && w <= 6);
-    
+    const validWeekdays = parsed.filter((w) => w >= 0 && w <= 6);
+
     return validWeekdays.length > 0 ? validWeekdays : undefined;
   }
 
@@ -69,7 +78,9 @@ export class AvailableTimeslotsQueryDto {
 
     // Si hay weekdays pero no finalDate, no tiene sentido
     if (this.weekdays && !this.finalDate) {
-      errors.push('weekdays parameter only applies when finalDate is specified');
+      errors.push(
+        'weekdays parameter only applies when finalDate is specified',
+      );
     }
 
     // Validar weekdays values
@@ -94,16 +105,19 @@ export class AvailableTimeslotsQueryDto {
    * Helper para logging/debugging
    */
   toString(): string {
-    const parts = [`subScenarioId=${this.subScenarioId}`, `initialDate=${this.initialDate}`];
-    
+    const parts = [
+      `subScenarioId=${this.subScenarioId}`,
+      `initialDate=${this.initialDate}`,
+    ];
+
     if (this.finalDate) {
       parts.push(`finalDate=${this.finalDate}`);
     }
-    
+
     if (this.weekdays) {
       parts.push(`weekdays=${this.weekdays}`);
     }
-    
+
     return parts.join('&');
   }
 }

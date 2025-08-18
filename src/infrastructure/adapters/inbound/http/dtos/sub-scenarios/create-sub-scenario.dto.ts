@@ -55,7 +55,10 @@ export class CreateSubScenarioDto {
   })
   numberOfPlayers?: number;
 
-  @ApiProperty({ required: false, default: 'Recommendations for the sub-scenario' })
+  @ApiProperty({
+    required: false,
+    default: 'Recommendations for the sub-scenario',
+  })
   @IsString()
   @IsOptional()
   recommendations?: string;

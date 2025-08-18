@@ -1,6 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose, Transform, Type } from 'class-transformer';
-import { TimeslotDto, SubScenarioDto, UserDto, ReservationStateDto, ReservationInstanceDto } from './base-reservation.dto';
+import {
+  TimeslotDto,
+  SubScenarioDto,
+  UserDto,
+  ReservationStateDto,
+  ReservationInstanceDto,
+} from './base-reservation.dto';
 
 /**
  * DTO principal de Reserva
@@ -56,7 +62,7 @@ export class ReservationDto {
   // ========================================
 
   /**
-   * Solo se expone en respuestas detalladas 
+   * Solo se expone en respuestas detalladas
    * No en listas paginadas por performance
    */
   @ApiPropertyOptional({ type: [TimeslotDto] })

@@ -8,7 +8,7 @@ export class RedisConfig {
 
   createRedisClient(): Redis {
     const password = this.configService.get<string>('REDIS_PASSWORD');
-    
+
     const redisConfig: any = {
       host: this.configService.get<string>('REDIS_HOST', 'localhost'),
       port: this.configService.get<number>('REDIS_PORT', 6379),
@@ -26,7 +26,6 @@ export class RedisConfig {
     }
 
     console.log('Connecting to Redis with config:', redisConfig);
-    
 
     const redis = new Redis(redisConfig);
 

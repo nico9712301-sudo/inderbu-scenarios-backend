@@ -10,6 +10,6 @@ export const repositoryProviders = [
   },
   {
     provide: APPLICATION_PORTS.NOTIFICATION_SERVICE,
-    useClass: EtherealNotificationService
-  }
+    useClass: EtherealNotificationService,
+  },
 ];

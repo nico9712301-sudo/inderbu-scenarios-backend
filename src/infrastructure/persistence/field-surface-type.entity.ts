@@ -9,10 +9,17 @@ export class FieldSurfaceTypeEntity {
   @Column({ length: 100, unique: true })
   name: string;
 
-  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    name: 'created_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   createdAt: Date;
 
   // Relaciones
-  @OneToMany(() => SubScenarioEntity, subScenario => subScenario.fieldSurfaceType)
+  @OneToMany(
+    () => SubScenarioEntity,
+    (subScenario) => subScenario.fieldSurfaceType,
+  )
   subScenarios?: SubScenarioEntity[];
 }

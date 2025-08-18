@@ -6,9 +6,8 @@ import { FulltextIndexProvider } from './fulltext.provider';
 @Module({
   providers: [
     ...databaseProviders,
-    FulltextIndexProvider,   // <‑‑ el que crea índices al iniciar
+    FulltextIndexProvider, // <‑‑ el que crea índices al iniciar
   ],
   exports: [...databaseProviders],
 })
 export class DatabaseModule {}
-

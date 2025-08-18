@@ -13,16 +13,17 @@ export const fieldSurfaceTypeProviders: Provider[] = [
   // Repositorio de TypeORM para FieldSurfaceTypeEntity
   {
     provide: FieldSurfaceTypeEntity,
-    useFactory: (connection: Connection) => connection.getRepository(FieldSurfaceTypeEntity),
+    useFactory: (connection: Connection) =>
+      connection.getRepository(FieldSurfaceTypeEntity),
     inject: [DATA_SOURCE.MYSQL],
   },
-  
+
   // Adaptador de repositorio
   {
     provide: REPOSITORY_PORTS.FIELD_SURFACE,
     useClass: FieldSurfaceTypeRepositoryAdapter,
   },
-  
+
   // Servicio de aplicación
   {
     provide: 'IFieldSurfaceTypeApplicationPort',

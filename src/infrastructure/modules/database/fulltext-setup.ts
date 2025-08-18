@@ -29,4 +29,18 @@ export async function ensureFullTextIndexes(ds: DataSource) {
       MODIFY name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
       ADD FULLTEXT ft_fs_name (name);
   `);
+
+  await ds.query(`
+    ALTER TABLE neighborhoods
+      ENGINE = InnoDB,
+      MODIFY name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+      ADD FULLTEXT ft_neighborhood_name (name);
+  `);
+
+  await ds.query(`
+    ALTER TABLE roles
+      ENGINE = InnoDB,
+      MODIFY name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+      ADD FULLTEXT ft_role_name (name);
+  `);
 }

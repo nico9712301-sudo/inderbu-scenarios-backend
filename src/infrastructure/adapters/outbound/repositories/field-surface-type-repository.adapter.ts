@@ -8,15 +8,20 @@ import { FieldSurfaceTypeEntityMapper } from 'src/infrastructure/mappers/field-s
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 
 @Injectable()
-export class FieldSurfaceTypeRepositoryAdapter implements IFieldSurfaceTypeRepositoryPort {
+export class FieldSurfaceTypeRepositoryAdapter
+  implements IFieldSurfaceTypeRepositoryPort
+{
   constructor(
     @Inject(FieldSurfaceTypeEntity)
     private readonly repository: Repository<FieldSurfaceTypeEntity>,
   ) {}
 
-  async save(fieldSurfaceType: FieldSurfaceTypeDomainEntity): Promise<FieldSurfaceTypeDomainEntity> {
+  async save(
+    fieldSurfaceType: FieldSurfaceTypeDomainEntity,
+  ): Promise<FieldSurfaceTypeDomainEntity> {
     try {
-      const entityToSave = FieldSurfaceTypeEntityMapper.toEntity(fieldSurfaceType);
+      const entityToSave =
+        FieldSurfaceTypeEntityMapper.toEntity(fieldSurfaceType);
       const savedEntity = await this.repository.save(entityToSave);
       return FieldSurfaceTypeEntityMapper.toDomain(savedEntity);
     } catch (error) {
@@ -54,15 +59,18 @@ export class FieldSurfaceTypeRepositoryAdapter implements IFieldSurfaceTypeRepos
       if (ids.length === 0) {
         return [];
       }
-      
+
       const entities = await this.repository.find({
         where: { id: In(ids) },
         order: { name: 'ASC' },
       });
-      
+
       return entities.map(FieldSurfaceTypeEntityMapper.toDomain);
     } catch (error) {
-      console.error(`Error finding field surface types with ids [${ids.join(', ')}]:`, error);
+      console.error(
+        `Error finding field surface types with ids [${ids.join(', ')}]:`,
+        error,
+      );
       return [];
     }
   }
@@ -72,15 +80,20 @@ export class FieldSurfaceTypeRepositoryAdapter implements IFieldSurfaceTypeRepos
       const entity = await this.repository.findOne({
         where: { name },
       });
-      
+
       return entity ? FieldSurfaceTypeEntityMapper.toDomain(entity) : null;
     } catch (error) {
-      console.error(`Error finding field surface type with name "${name}":`, error);
+      console.error(
+        `Error finding field surface type with name "${name}":`,
+        error,
+      );
       return null;
     }
   }
 
-  async findPaged(options: PageOptionsDto): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number }> {
+  async findPaged(
+    options: PageOptionsDto,
+  ): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number }> {
     try {
       const searchFilter = options.search
         ? { name: ILike(`%${options.search}%`) }
@@ -98,7 +111,10 @@ export class FieldSurfaceTypeRepositoryAdapter implements IFieldSurfaceTypeRepos
         total,
       };
     } catch (error) {
-      console.error('Error in paginated search for field surface types:', error);
+      console.error(
+        'Error in paginated search for field surface types:',
+        error,
+      );
       return { data: [], total: 0 };
     }
   }

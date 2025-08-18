@@ -46,7 +46,6 @@ export class ReservationRepositoryAdapter
   async findPaged(
     pageOptionsDto: ReservationPageOptionsDto,
   ): Promise<{ data: ReservationDomainEntity[]; total: number }> {
-    
     const {
       page = 1,
       limit = 10,
@@ -137,7 +136,7 @@ export class ReservationRepositoryAdapter
       .orderBy('reservation.createdAt', 'DESC');
 
     const [entities, total] = await queryBuilder.getManyAndCount();
-    
+
     return {
       data: entities.map((entity) => this.toDomain(entity)),
       total,

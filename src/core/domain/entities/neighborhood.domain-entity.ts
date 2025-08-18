@@ -4,13 +4,13 @@ import { CommuneDomainEntity } from './commune.domain-entity';
 export class NeighborhoodDomainEntity {
   @Expose()
   public readonly id: number | null;
-  
+
   @Expose()
   public readonly name: string;
-  
+
   @Expose()
   public readonly communeId: number;
-  
+
   @Expose()
   @Type(() => CommuneDomainEntity)
   public readonly commune?: CommuneDomainEntity;

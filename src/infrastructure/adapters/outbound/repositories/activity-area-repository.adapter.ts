@@ -40,20 +40,18 @@ export class ActivityAreaRepositoryAdapter
     return list.map(ActivityAreaEntityMapper.toDomain);
   }
 
-  async findPaged(opts: PageOptionsDto): Promise<{ data: ActivityAreaDomainEntity[]; total: number }> {
-    const {
-      page = 1,
-      limit = 20,
-      search
-    } = opts;
+  async findPaged(
+    opts: PageOptionsDto,
+  ): Promise<{ data: ActivityAreaDomainEntity[]; total: number }> {
+    const { page = 1, limit = 20, search } = opts;
 
-    const qb: SelectQueryBuilder<ActivityAreaEntity> = this.repository
-      .createQueryBuilder('aa');
+    const qb: SelectQueryBuilder<ActivityAreaEntity> =
+      this.repository.createQueryBuilder('aa');
 
     /* ───── búsqueda ───── */
     if (search?.trim()) {
       const term = search.trim();
-      
+
       if (SearchQueryHelper.shouldUseLikeSearch(term)) {
         this.applyLikeSearch(qb, term);
       } else {
@@ -74,7 +72,10 @@ export class ActivityAreaRepositoryAdapter
    * Aplica búsqueda LIKE para términos cortos - solo en el nombre del área de actividad
    * @private
    */
-  private applyLikeSearch(qb: SelectQueryBuilder<ActivityAreaEntity>, term: string): void {
+  private applyLikeSearch(
+    qb: SelectQueryBuilder<ActivityAreaEntity>,
+    term: string,
+  ): void {
     const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
 
     qb.addSelect(
@@ -94,16 +95,23 @@ export class ActivityAreaRepositoryAdapter
    * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del área de actividad
    * @private
    */
-  private applyFulltextSearch(qb: SelectQueryBuilder<ActivityAreaEntity>, term: string): void {
+  private applyFulltextSearch(
+    qb: SelectQueryBuilder<ActivityAreaEntity>,
+    term: string,
+  ): void {
     const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
-    
+
     if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
-      console.log(`ActivityAreaRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      console.log(
+        `ActivityAreaRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+      );
       this.applyLikeSearch(qb, term);
       return;
     }
 
-    console.log(`ActivityAreaRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+    console.log(
+      `ActivityAreaRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+    );
 
     qb.addSelect(`(MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
       .andWhere(`MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE)`, {

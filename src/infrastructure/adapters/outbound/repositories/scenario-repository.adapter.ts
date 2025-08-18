@@ -87,7 +87,7 @@ export class ScenarioRepositoryAdapter
     /* ───── BÚSQUEDA POR TEXTO EN NOMBRE DE ESCENARIO ───── */
     if (search?.trim()) {
       const term = search.trim();
-      
+
       if (SearchQueryHelper.shouldUseLikeSearch(term)) {
         this.applyLikeSearch(qb, term);
       } else {
@@ -108,7 +108,10 @@ export class ScenarioRepositoryAdapter
    * Aplica búsqueda LIKE para términos cortos - solo en el nombre del escenario
    * @private
    */
-  private applyLikeSearch(qb: SelectQueryBuilder<ScenarioEntity>, term: string): void {
+  private applyLikeSearch(
+    qb: SelectQueryBuilder<ScenarioEntity>,
+    term: string,
+  ): void {
     const { prefix, contains } = SearchQueryHelper.generateLikePatterns(term);
 
     qb.addSelect(
@@ -129,17 +132,24 @@ export class ScenarioRepositoryAdapter
    * Aplica búsqueda FULLTEXT para términos largos - solo en el nombre del escenario
    * @private
    */
-  private applyFulltextSearch(qb: SelectQueryBuilder<ScenarioEntity>, term: string): void {
+  private applyFulltextSearch(
+    qb: SelectQueryBuilder<ScenarioEntity>,
+    term: string,
+  ): void {
     const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
-    
+
     if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
       // Fallback a LIKE si el término sanitizado no es válido
-      console.log(`ScenarioRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+      console.log(
+        `ScenarioRepo: Fallback to LIKE search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+      );
       this.applyLikeSearch(qb, term);
       return;
     }
 
-    console.log(`ScenarioRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`);
+    console.log(
+      `ScenarioRepo: Using FULLTEXT search. Original: "${term}", Sanitized: "${sanitizedTerm}"`,
+    );
 
     qb.addSelect(`(MATCH(s.name) AGAINST (:q IN BOOLEAN MODE))`, 'score')
       .andWhere(`MATCH(s.name) AGAINST (:q IN BOOLEAN MODE)`, {

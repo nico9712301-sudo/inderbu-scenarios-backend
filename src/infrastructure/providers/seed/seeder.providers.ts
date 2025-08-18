@@ -11,6 +11,10 @@ import { RoleSeeder } from 'src/core/application/services/seeding/seeders/role.s
 import { UserSeeder } from 'src/core/application/services/seeding/seeders/user.seeder';
 import { ReservationStateSeeder } from 'src/core/application/services/seeding/seeders/reservation-state.seeder';
 import { SubScenarioImageSeeder } from 'src/core/application/services/seeding/seeders/sub-scenario-image.seeder';
+import { HomeSlideSeeder } from 'src/core/application/services/seeding/seeders/home-slide.seeder';
+import { ModuleSeeder } from 'src/core/application/services/seeding/seeders/module.seeder';
+import { MenuItemSeeder } from 'src/core/application/services/seeding/seeders/menu-item.seeder';
+import { EntitySeeder } from 'src/core/application/services/seeding/seeders/entity.seeder';
 
 /**
  * Important: Import seeders in the order of dependencies. Cardinality is important.
@@ -18,6 +22,9 @@ import { SubScenarioImageSeeder } from 'src/core/application/services/seeding/se
  * must be imported before the NeighborhoodSeeder.
  */
 export const seederProviders = [
+  ModuleSeeder,
+  MenuItemSeeder,
+  EntitySeeder,
   CitySeeder,
   CommuneSeeder,
   NeighborhoodSeeder,
@@ -31,4 +38,5 @@ export const seederProviders = [
   SubScenarioImageSeeder,
   TimeSlotSeeder,
   ReservationStateSeeder,
+  HomeSlideSeeder,
 ];

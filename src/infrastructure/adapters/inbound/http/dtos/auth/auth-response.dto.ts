@@ -98,7 +98,7 @@ export class RefreshTokenDto {
     description: 'Token de renovación',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
-  @IsJWT()       // verifica formato JWT
-  @IsNotEmpty()  // no permite vacío
+  @IsJWT() // verifica formato JWT
+  @IsNotEmpty() // no permite vacío
   refresh_token: string;
 }

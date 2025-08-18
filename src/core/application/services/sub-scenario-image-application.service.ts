@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
 import { UpdateImagesOrderDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/update-images-order.dto';
@@ -30,9 +35,12 @@ export class SubScenarioImageApplicationService
     displayOrder: number = 0,
   ): Promise<SubScenarioImageResponseDto> {
     // Verificar que el sub-escenario exista
-    const subScenario = await this.subScenarioRepository.findById(subScenarioId);
+    const subScenario =
+      await this.subScenarioRepository.findById(subScenarioId);
     if (!subScenario) {
-      throw new NotFoundException(`SubScenario con ID ${subScenarioId} no encontrado`);
+      throw new NotFoundException(
+        `SubScenario con ID ${subScenarioId} no encontrado`,
+      );
     }
 
     // Guardar el archivo utilizando el servicio de almacenamiento
@@ -42,9 +50,14 @@ export class SubScenarioImageApplicationService
     let order = displayOrder;
     if (!isFeature && displayOrder === 0) {
       // Solo obtener imágenes actuales para calcular el orden
-      const existingImages = await this.imageRepository.findBySubScenarioId(subScenarioId, false);
+      const existingImages = await this.imageRepository.findBySubScenarioId(
+        subScenarioId,
+        false,
+      );
       if (existingImages.length > 0) {
-        const maxOrder = Math.max(...existingImages.map(img => img.displayOrder));
+        const maxOrder = Math.max(
+          ...existingImages.map((img) => img.displayOrder),
+        );
         order = maxOrder + 1;
       }
     }
@@ -52,7 +65,11 @@ export class SubScenarioImageApplicationService
     // Marcar como históricas SOLO las imágenes que ocupan la misma posición
     // Si subo featured (displayOrder=0), solo marca featured anterior como histórica
     // Si subo additional (displayOrder=1), solo marca additional1 anterior como histórica
-    await this.imageRepository.markAsHistoricalByPosition(subScenarioId, isFeature, order);
+    await this.imageRepository.markAsHistoricalByPosition(
+      subScenarioId,
+      isFeature,
+      order,
+    );
 
     // Crear y guardar la nueva entidad de imagen (por defecto current: true)
     const imageDomain = SubScenarioImageDomainEntity.builder()
@@ -71,7 +88,10 @@ export class SubScenarioImageApplicationService
     subScenarioId: number,
     includeHistorical: boolean = false,
   ): Promise<SubScenarioImageResponseDto[]> {
-    const images = await this.imageRepository.findBySubScenarioId(subScenarioId, includeHistorical);
+    const images = await this.imageRepository.findBySubScenarioId(
+      subScenarioId,
+      includeHistorical,
+    );
     return images.map(SubScenarioImageResponseMapper.toDto);
   }
 
@@ -87,8 +107,16 @@ export class SubScenarioImageApplicationService
     const updatedImage = SubScenarioImageDomainEntity.builder()
       .withId(image.id!)
       .withPath(image.path)
-      .withIsFeature(updateDto.isFeature !== undefined ? updateDto.isFeature : image.isFeature)
-      .withDisplayOrder(updateDto.displayOrder !== undefined ? updateDto.displayOrder : image.displayOrder)
+      .withIsFeature(
+        updateDto.isFeature !== undefined
+          ? updateDto.isFeature
+          : image.isFeature,
+      )
+      .withDisplayOrder(
+        updateDto.displayOrder !== undefined
+          ? updateDto.displayOrder
+          : image.displayOrder,
+      )
       .withSubScenarioId(image.subScenarioId)
       .withCurrent(image.current) // Preservar estado current
       .withCreatedAt(image.createdAt ?? new Date())
@@ -104,19 +132,25 @@ export class SubScenarioImageApplicationService
       featured?: Express.Multer.File;
       additional1?: Express.Multer.File;
       additional2?: Express.Multer.File;
-    }
+    },
   ): Promise<SubScenarioImageResponseDto[]> {
     // Verificar que el sub-escenario exista
-    const subScenario = await this.subScenarioRepository.findById(subScenarioId);
+    const subScenario =
+      await this.subScenarioRepository.findById(subScenarioId);
     if (!subScenario) {
-      throw new NotFoundException(`SubScenario con ID ${subScenarioId} no encontrado`);
+      throw new NotFoundException(
+        `SubScenario con ID ${subScenarioId} no encontrado`,
+      );
     }
 
     const results: SubScenarioImageResponseDto[] = [];
 
     // Obtener las imágenes actuales para verificar qué posiciones tienen imágenes
-    const currentImages = await this.imageRepository.findBySubScenarioId(subScenarioId, false);
-    
+    const currentImages = await this.imageRepository.findBySubScenarioId(
+      subScenarioId,
+      false,
+    );
+
     // Crear un mapa de posiciones con imágenes actuales
     const currentImagesByPosition = new Map<string, boolean>();
     for (const image of currentImages) {
@@ -138,19 +172,19 @@ export class SubScenarioImageApplicationService
     const positions = [
       { key: 'featured', isFeature: true, displayOrder: 0 },
       { key: 'additional1', isFeature: false, displayOrder: 1 },
-      { key: 'additional2', isFeature: false, displayOrder: 2 }
+      { key: 'additional2', isFeature: false, displayOrder: 2 },
     ];
 
     for (const position of positions) {
       const file = imageUpdates[position.key as keyof typeof imageUpdates];
-      
+
       if (file) {
         // Si se envía archivo, reemplazar la imagen en esta posición
         const result = await this.uploadImage(
           subScenarioId,
           file,
           position.isFeature,
-          position.displayOrder
+          position.displayOrder,
         );
         results.push(result);
       } else {
@@ -160,7 +194,7 @@ export class SubScenarioImageApplicationService
           await this.imageRepository.markAsHistoricalByPosition(
             subScenarioId,
             position.isFeature,
-            position.displayOrder
+            position.displayOrder,
           );
         }
         // Si no hay imagen actual en esta posición, no hacer nada

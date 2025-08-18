@@ -11,7 +11,10 @@ import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
 
 @Injectable()
-export class SubScenarioPriceSeeder extends AbstractSeeder<SubScenarioPriceEntity, ISubScenarioPriceSeed> implements ISeeder {
+export class SubScenarioPriceSeeder
+  extends AbstractSeeder<SubScenarioPriceEntity, ISubScenarioPriceSeed>
+  implements ISeeder
+{
   constructor(
     @Inject(MYSQL_REPOSITORY.SUB_SCENARIO_PRICE)
     repository: Repository<SubScenarioPriceEntity>,
@@ -28,13 +31,19 @@ export class SubScenarioPriceSeeder extends AbstractSeeder<SubScenarioPriceEntit
   }
 
   protected async getSeeds(): Promise<ISubScenarioPriceSeed[]> {
-    return this.jsonLoader.load<ISubScenarioPriceSeed>('sub-scenario-price-seeds.json');
+    return this.jsonLoader.load<ISubScenarioPriceSeed>(
+      'sub-scenario-price-seeds.json',
+    );
   }
 
-  protected async transform(seeds: ISubScenarioPriceSeed[]): Promise<SubScenarioPriceEntity[]> {
+  protected async transform(
+    seeds: ISubScenarioPriceSeed[],
+  ): Promise<SubScenarioPriceEntity[]> {
     const entities: SubScenarioPriceEntity[] = [];
     for (const seed of seeds) {
-      const subScenario = await this.subScenarioRepository.findOneBy({ name: seed.subScenarioName });
+      const subScenario = await this.subScenarioRepository.findOneBy({
+        name: seed.subScenarioName,
+      });
       if (!subScenario) {
         this.logger.warn(`Subescenario ${seed.subScenarioName} no encontrado.`);
         continue;

@@ -1,18 +1,18 @@
-import { 
-  Column, 
-  CreateDateColumn, 
-  Entity, 
-  JoinColumn, 
-  ManyToOne, 
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
-  Index
-} from "typeorm";
-import { ReservationStateEntity } from "./reservation-state.entity";
-import { SubScenarioEntity } from "./sub-scenario.entity";
-import { ReservationEntity } from "./reservation.entity";
-import { TimeSlotEntity } from "./time-slot.entity";
-import { UserEntity } from "./user.entity";
+  Index,
+} from 'typeorm';
+import { ReservationStateEntity } from './reservation-state.entity';
+import { SubScenarioEntity } from './sub-scenario.entity';
+import { ReservationEntity } from './reservation.entity';
+import { TimeSlotEntity } from './time-slot.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('reservation_instances')
 @Unique(['subScenarioId', 'reservationDate', 'timeslotId'])
@@ -61,8 +61,8 @@ export class ReservationInstanceEntity {
   createdAt: Date;
 
   // Relations
-  @ManyToOne(() => ReservationEntity, reservation => reservation.instances, { 
-    onDelete: 'CASCADE' 
+  @ManyToOne(() => ReservationEntity, (reservation) => reservation.instances, {
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'reservation_id' })
   reservation: ReservationEntity;

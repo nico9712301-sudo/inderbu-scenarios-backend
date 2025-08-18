@@ -13,28 +13,30 @@ export class SubScenarioEntityMapper {
       .withRecommendations(entity.recommendations)
       .withScenarioId(entity.scenario ? entity.scenario.id : 0)
       .withActivityAreaId(entity.activityArea ? entity.activityArea.id : 0)
-      .withFieldSurfaceTypeId(entity.fieldSurfaceType ? entity.fieldSurfaceType.id : 0)
+      .withFieldSurfaceTypeId(
+        entity.fieldSurfaceType ? entity.fieldSurfaceType.id : 0,
+      )
       .withCreatedAt(entity.createdAt)
       .build();
-      
+
     // Preservamos las entidades relacionadas para la transformación a DTOs
     // Esta técnica permite mantener la información sin modificar el dominio
     if (entity.scenario) {
       (domainEntity as any).scenario = entity.scenario;
     }
-    
+
     if (entity.activityArea) {
       (domainEntity as any).activityArea = entity.activityArea;
     }
-    
+
     if (entity.fieldSurfaceType) {
       (domainEntity as any).fieldSurfaceType = entity.fieldSurfaceType;
     }
-    
+
     if (entity.subScenarioPrices) {
       (domainEntity as any).subScenarioPrices = entity.subScenarioPrices;
     }
-    
+
     return domainEntity;
   }
 
@@ -47,20 +49,20 @@ export class SubScenarioEntityMapper {
     entity.numberOfSpectators = domain.numberOfSpectators ?? 0;
     entity.numberOfPlayers = domain.numberOfPlayers ?? 0;
     entity.recommendations = domain.recommendations ?? '';
-    
+
     // Se crean instancias mínimas para las relaciones mediante el id
     if (domain.scenarioId) {
       entity.scenario = { id: domain.scenarioId } as any;
     }
-    
+
     if (domain.activityAreaId) {
       entity.activityArea = { id: domain.activityAreaId } as any;
     }
-    
+
     if (domain.fieldSurfaceTypeId) {
       entity.fieldSurfaceType = { id: domain.fieldSurfaceTypeId } as any;
     }
-    
+
     return entity;
   }
 }

@@ -17,46 +17,50 @@ export interface ReservationPageOptionsDto {
 
 export interface IReservationRepositoryPort {
   save(reservation: ReservationDomainEntity): Promise<ReservationDomainEntity>;
-  
-  update(reservation: ReservationDomainEntity): Promise<ReservationDomainEntity>;
-  
+
+  update(
+    reservation: ReservationDomainEntity,
+  ): Promise<ReservationDomainEntity>;
+
   findById(id: number): Promise<ReservationDomainEntity | null>;
-  
+
   findByUserId(userId: number): Promise<ReservationDomainEntity[]>;
-  
-  findBySubScenarioId(subScenarioId: number): Promise<ReservationDomainEntity[]>;
-  
+
+  findBySubScenarioId(
+    subScenarioId: number,
+  ): Promise<ReservationDomainEntity[]>;
+
   findBySubScenarioAndDateRange(
     subScenarioId: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<ReservationDomainEntity[]>;
-  
+
   findPaged(
-    options: ReservationPageOptionsDto
+    options: ReservationPageOptionsDto,
   ): Promise<{ data: ReservationDomainEntity[]; total: number }>;
-  
+
   findActiveBySubScenarioAndDateRange(
     subScenarioId: number,
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<ReservationDomainEntity[]>;
-  
+
   updateState(id: number, stateId: number): Promise<ReservationDomainEntity>;
-  
+
   updateStateByIds(ids: number[], stateId: number): Promise<void>;
-  
+
   delete(id: number): Promise<void>;
-  
+
   countByUserId(userId: number): Promise<number>;
-  
+
   countBySubScenarioId(subScenarioId: number): Promise<number>;
-  
+
   findOverlappingReservations(
     subScenarioId: number,
     initialDate: Date,
     finalDate?: Date,
     weekDays?: number[],
-    excludeReservationId?: number
+    excludeReservationId?: number,
   ): Promise<ReservationDomainEntity[]>;
 }

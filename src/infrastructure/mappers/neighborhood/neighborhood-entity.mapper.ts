@@ -19,7 +19,7 @@ export class NeighborhoodEntityMapper {
       const communeBuilder = CommuneDomainEntity.builder()
         .withId(e.commune.id)
         .withName(e.commune.name);
-        
+
       if (e.commune.city) {
         const cityDomain = CityDomainEntity.builder()
           .withId(e.commune.city.id)
@@ -27,7 +27,7 @@ export class NeighborhoodEntityMapper {
           .build();
         communeBuilder.withCity(cityDomain).withCityId(e.commune.city.id);
       }
-      
+
       const communeDomain = communeBuilder.build();
       builder.withCommune(communeDomain).withCommuneId(e.commune.id);
     }

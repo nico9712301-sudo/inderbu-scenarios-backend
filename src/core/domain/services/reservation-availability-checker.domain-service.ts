@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { AggregatedAvailabilityResponseDto, TimeslotAvailabilityDetailDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/aggregated-availability.dto';
-import { SimplifiedAvailabilityResponseDto, TimeSlotBasicDto, RequestedConfigurationDto, AvailabilityStatsDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
+import {
+  AggregatedAvailabilityResponseDto,
+  TimeslotAvailabilityDetailDto,
+} from 'src/infrastructure/adapters/inbound/http/dtos/reservation/aggregated-availability.dto';
+import {
+  SimplifiedAvailabilityResponseDto,
+  TimeSlotBasicDto,
+  RequestedConfigurationDto,
+  AvailabilityStatsDto,
+} from 'src/infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
 
 export interface TimeslotAvailability {
   timeslotId: number;
@@ -63,7 +71,7 @@ export class ReservationAvailabilityCheckerDomainService {
     const timeSlots: TimeSlotBasicDto[] = allTimeslotIds.map((id) => ({
       id,
       startTime: `${String(id - 1).padStart(2, '0')}:00:00`, // Usar id-1 para el tiempo
-      endTime: `${String(id - 1).padStart(2, '0')}:59:59`,   // Usar id-1 para el tiempo
+      endTime: `${String(id - 1).padStart(2, '0')}:59:59`, // Usar id-1 para el tiempo
       isAvailableInAllDates: availableInAllDates.includes(id),
     }));
 
@@ -259,7 +267,7 @@ export class ReservationAvailabilityCheckerDomainService {
       return {
         id: timeslotId,
         startTime: `${String(timeslotId - 1).padStart(2, '0')}:00:00`, // Usar timeslotId-1 para el tiempo
-        endTime: `${String(timeslotId - 1).padStart(2, '0')}:59:59`,   // Usar timeslotId-1 para el tiempo
+        endTime: `${String(timeslotId - 1).padStart(2, '0')}:59:59`, // Usar timeslotId-1 para el tiempo
         isAvailableInAllDates: availableCount === dateAvailabilities.length,
         availableInDatesCount: availableCount,
         occupiedInDatesCount: occupiedCount,

@@ -8,18 +8,18 @@ export interface ISubScenarioApplicationPort {
   listWithRelations(
     opts: SubScenarioPageOptionsDto,
   ): Promise<PageDto<SubScenarioWithRelationsDto>>;
-  
+
   getByIdWithRelations(id: number): Promise<SubScenarioWithRelationsDto>;
-  
+
   create(
     createDto: CreateSubScenarioDto,
     images?: Express.Multer.File[],
   ): Promise<SubScenarioWithRelationsDto>;
-  
+
   update(
     id: number,
     updateDto: UpdateSubScenarioDto,
   ): Promise<SubScenarioWithRelationsDto>;
-  
+
   delete(id: number): Promise<boolean>;
 }

@@ -9,7 +9,8 @@ import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 @Injectable()
 export class TimeSlotRepositoryAdapter
   extends BaseRepositoryAdapter<TimeSlotEntity, TimeSlotDomainEntity>
-  implements ITimeSlotRepositoryPort {
+  implements ITimeSlotRepositoryPort
+{
   constructor(
     @Inject(MYSQL_REPOSITORY.TIME_SLOT)
     protected readonly repository: Repository<TimeSlotEntity>,

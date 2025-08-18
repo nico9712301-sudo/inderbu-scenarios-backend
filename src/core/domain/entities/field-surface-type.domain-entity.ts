@@ -11,11 +11,11 @@ export class FieldSurfaceTypeDomainEntity {
   }
 
   // Factory method desde un DTO plano
-  static from(data: { id?: number | null; name: string }): FieldSurfaceTypeDomainEntity {
-    return new FieldSurfaceTypeDomainEntity(
-      data.id || null,
-      data.name,
-    );
+  static from(data: {
+    id?: number | null;
+    name: string;
+  }): FieldSurfaceTypeDomainEntity {
+    return new FieldSurfaceTypeDomainEntity(data.id || null, data.name);
   }
 }
 

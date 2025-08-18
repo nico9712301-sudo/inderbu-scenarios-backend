@@ -15,70 +15,76 @@ import { AbstractSeeder } from './abstract.seeder';
 import { ENV_CONFIG } from 'src/infrastructure/config/env.constants';
 import { ConfigService } from '@nestjs/config';
 
-
 @Injectable()
 export class SubScenarioImageSeeder
-    extends AbstractSeeder<SubScenarioImageEntity, ISubScenarioSeed>
-    implements ISeeder {
-    constructor(
-        @Inject(MYSQL_REPOSITORY.SUB_SCENARIO_IMAGE)
-        repository: Repository<SubScenarioImageEntity>,
-        @Inject(MYSQL_REPOSITORY.SUB_SCENARIO)
-        private subScenarioRepository: Repository<SubScenarioEntity>,
-        private readonly configService: ConfigService,
-        @Inject(DATA_LOADER.JSON)
-        protected jsonLoader: IDataLoader,
-    ) {
-        super(repository);
-    }
+  extends AbstractSeeder<SubScenarioImageEntity, ISubScenarioSeed>
+  implements ISeeder
+{
+  constructor(
+    @Inject(MYSQL_REPOSITORY.SUB_SCENARIO_IMAGE)
+    repository: Repository<SubScenarioImageEntity>,
+    @Inject(MYSQL_REPOSITORY.SUB_SCENARIO)
+    private subScenarioRepository: Repository<SubScenarioEntity>,
+    private readonly configService: ConfigService,
+    @Inject(DATA_LOADER.JSON)
+    protected jsonLoader: IDataLoader,
+  ) {
+    super(repository);
+  }
 
-    protected async alreadySeeded(): Promise<boolean> {
-        return (await this.repository.count()) > 0;
-    }
+  protected async alreadySeeded(): Promise<boolean> {
+    return (await this.repository.count()) > 0;
+  }
 
-    protected async getSeeds(): Promise<ISubScenarioSeed[]> {
-        return this.jsonLoader.load<ISubScenarioSeed>('sub-scenario-seeds.json');
-    }
+  protected async getSeeds(): Promise<ISubScenarioSeed[]> {
+    return this.jsonLoader.load<ISubScenarioSeed>('sub-scenario-seeds.json');
+  }
 
-    protected async transform(
-        seeds: ISubScenarioSeed[],
-    ): Promise<SubScenarioImageEntity[]> {
-        // const bucket_host = this.configService.get<string>('BUCKET_HOST');      
-        const path_folder = "/temp/images/sub-scenarios/"
-        
-        const entities: SubScenarioImageEntity[] = [];
-        for (const seed of seeds) {
-            //Buscar el subscenario relacionado
-            const subScenario = await this.subScenarioRepository.findOneBy({
-                name: seed.name,
-            });
-            if (!subScenario) {
-                this.logger.warn(`Sub-escenario ${seed.name} no encontrado.`);
-                continue;
-            }
+  protected async transform(
+    seeds: ISubScenarioSeed[],
+  ): Promise<SubScenarioImageEntity[]> {
+    // const bucket_host = this.configService.get<string>('BUCKET_HOST');
+    const path_folder = '/temp/images/sub-scenarios/';
 
-            // Procesar todas las imágenes del sub-escenario (no solo la primera)
-            if (seed.images && seed.images.length > 0) {
-                for (let index = 0; index < seed.images.length; index++) {
-                    const imageData = seed.images[index];
-                    
-                    // Create the entity properly
-                    const subScenarioImage: SubScenarioImageEntity = new SubScenarioImageEntity();
-                    subScenarioImage.isFeature = imageData.isFeature;
-                    // Featured images have displayOrder 0, additional images start from 1
-                    subScenarioImage.displayOrder = imageData.isFeature ? 0 : index;
-                    subScenarioImage.path = path_folder + imageData.imageName + "." + imageData.imageExtension;
-                    subScenarioImage.current = true; // 🆕 Todas las imágenes de seed son actuales
-                    subScenarioImage.subScenario = subScenario;
+    const entities: SubScenarioImageEntity[] = [];
+    for (const seed of seeds) {
+      //Buscar el subscenario relacionado
+      const subScenario = await this.subScenarioRepository.findOneBy({
+        name: seed.name,
+      });
+      if (!subScenario) {
+        this.logger.warn(`Sub-escenario ${seed.name} no encontrado.`);
+        continue;
+      }
 
-                    entities.push(subScenarioImage);
-                    
-                    this.logger.log(`Creando imagen ${imageData.imageName} para sub-escenario ${seed.name} (isFeature: ${imageData.isFeature}, order: ${subScenarioImage.displayOrder})`);
-                }
-            } else {
-                this.logger.warn(`Sub-escenario ${seed.name} no tiene imágenes definidas.`);
-            }
+      // Procesar todas las imágenes del sub-escenario (no solo la primera)
+      if (seed.images && seed.images.length > 0) {
+        for (let index = 0; index < seed.images.length; index++) {
+          const imageData = seed.images[index];
+
+          // Create the entity properly
+          const subScenarioImage: SubScenarioImageEntity =
+            new SubScenarioImageEntity();
+          subScenarioImage.isFeature = imageData.isFeature;
+          // Featured images have displayOrder 0, additional images start from 1
+          subScenarioImage.displayOrder = imageData.isFeature ? 0 : index;
+          subScenarioImage.path =
+            path_folder + imageData.imageName + '.' + imageData.imageExtension;
+          subScenarioImage.current = true; // 🆕 Todas las imágenes de seed son actuales
+          subScenarioImage.subScenario = subScenario;
+
+          entities.push(subScenarioImage);
+
+          this.logger.log(
+            `Creando imagen ${imageData.imageName} para sub-escenario ${seed.name} (isFeature: ${imageData.isFeature}, order: ${subScenarioImage.displayOrder})`,
+          );
         }
-        return entities;
+      } else {
+        this.logger.warn(
+          `Sub-escenario ${seed.name} no tiene imágenes definidas.`,
+        );
+      }
     }
+    return entities;
+  }
 }

@@ -9,6 +9,7 @@ import { ActivityAreaModule } from '../activity-area.module';
 import { SubScenarioModule } from '../sub-scenario.module';
 import { ScenarioModule } from '../scenario.module';
 import { ReservationModule } from '../reservation.module';
+import { HomeSlideModule } from '../home-slide.module';
 import { AppCommandModule } from './command.module';
 import { SeedingModule } from './seeding.module';
 import { EmailModule } from '../email.module';
@@ -27,6 +28,7 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
     SubScenarioModule,
     ActivityAreaModule,
     ReservationModule,
+    HomeSlideModule,
     EmailModule,
     RoleModule,
     FieldSurfaceTypeModule,
@@ -34,20 +36,22 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
     ConfigModule.forRoot({
       isGlobal: true, // Disponible en toda la aplicación
     }),
-    SeedingModule
+    SeedingModule,
   ],
-  providers: []
+  providers: [],
 })
 export class AppModule implements OnApplicationBootstrap {
   constructor(
     private readonly seedingService: SeedingService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    const isDevEnvironment = this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'development';
-    const shouldSeedDb = this.configService.get(ENV_CONFIG.APP.SEED_DB) === 'true';
-    
+    const isDevEnvironment =
+      this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'development';
+    const shouldSeedDb =
+      this.configService.get(ENV_CONFIG.APP.SEED_DB) === 'true';
+
     if (isDevEnvironment || shouldSeedDb) {
       await this.seedingService.seed();
     }

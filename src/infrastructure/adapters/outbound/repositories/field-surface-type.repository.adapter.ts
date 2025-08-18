@@ -17,7 +17,6 @@ export class FieldSurfaceTypeRepositoryAdapter
   >
   implements IFieldSurfaceTypeRepositoryPort
 {
-
   constructor(
     @Inject(MYSQL_REPOSITORY.FIELD_SURFACE_TYPE)
     readonly repository: Repository<FieldSurfaceTypeEntity>,
@@ -25,11 +24,15 @@ export class FieldSurfaceTypeRepositoryAdapter
     super(repository);
   }
 
-    protected toEntity(domain: FieldSurfaceTypeDomainEntity): FieldSurfaceTypeEntity {
+  protected toEntity(
+    domain: FieldSurfaceTypeDomainEntity,
+  ): FieldSurfaceTypeEntity {
     return FieldSurfaceTypeEntityMapper.toEntity(domain);
   }
 
-  protected toDomain(entity: FieldSurfaceTypeEntity): FieldSurfaceTypeDomainEntity {
+  protected toDomain(
+    entity: FieldSurfaceTypeEntity,
+  ): FieldSurfaceTypeDomainEntity {
     return FieldSurfaceTypeEntityMapper.toDomain(entity);
   }
 
@@ -43,9 +46,11 @@ export class FieldSurfaceTypeRepositoryAdapter
     return entity ? FieldSurfaceTypeEntityMapper.toDomain(entity) : null;
   }
 
-  async findPaged(options: PageOptionsDto): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number; }> {
+  async findPaged(
+    options: PageOptionsDto,
+  ): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number }> {
     const [entities, total] = await this.repository.findAndCount({
-      take: options.limit
+      take: options.limit,
     });
     return {
       data: entities.map(FieldSurfaceTypeEntityMapper.toDomain),

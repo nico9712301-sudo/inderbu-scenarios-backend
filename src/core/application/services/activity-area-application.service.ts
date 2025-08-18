@@ -1,6 +1,14 @@
-import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { PageDto, PageMetaDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import {
+  PageDto,
+  PageMetaDto,
+} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
 import { ActivityAreaResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/activity-area-response.dto';
 import { CreateActivityAreaDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/create-activity-area.dto';
 import { UpdateActivityAreaDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/update-activity-area.dto';
@@ -24,7 +32,9 @@ export class ActivityAreaApplicationService
     return this.repo.findAll();
   }
 
-  async listPaged(opts: PageOptionsDto): Promise<PageDto<ActivityAreaResponseDto>> {
+  async listPaged(
+    opts: PageOptionsDto,
+  ): Promise<PageDto<ActivityAreaResponseDto>> {
     const { data, total } = await this.repo.findPaged(opts);
     const dto = data.map(ActivityAreaResponseMapper.toDto);
 
@@ -56,11 +66,16 @@ export class ActivityAreaApplicationService
     return ActivityAreaResponseMapper.toDto(savedActivityArea);
   }
 
-  async update(id: number, dto: UpdateActivityAreaDto): Promise<ActivityAreaResponseDto> {
+  async update(
+    id: number,
+    dto: UpdateActivityAreaDto,
+  ): Promise<ActivityAreaResponseDto> {
     // Verificar que el área de actividad existe
     const existingActivityArea = await this.repo.findById(id);
     if (!existingActivityArea) {
-      throw new NotFoundException(`Área de actividad con ID ${id} no encontrada`);
+      throw new NotFoundException(
+        `Área de actividad con ID ${id} no encontrada`,
+      );
     }
 
     // Crear entidad actualizada
@@ -80,7 +95,9 @@ export class ActivityAreaApplicationService
     // Verificar que el área de actividad existe
     const existingActivityArea = await this.repo.findById(id);
     if (!existingActivityArea) {
-      throw new NotFoundException(`Área de actividad con ID ${id} no encontrada`);
+      throw new NotFoundException(
+        `Área de actividad con ID ${id} no encontrada`,
+      );
     }
 
     try {
@@ -89,7 +106,7 @@ export class ActivityAreaApplicationService
     } catch (error) {
       // Si hay sub-escenarios asociados, manejar el error
       throw new BadRequestException(
-        'No se puede eliminar el área de actividad porque tiene sub-escenarios asociados. Elimine primero los sub-escenarios.'
+        'No se puede eliminar el área de actividad porque tiene sub-escenarios asociados. Elimine primero los sub-escenarios.',
       );
     }
   }

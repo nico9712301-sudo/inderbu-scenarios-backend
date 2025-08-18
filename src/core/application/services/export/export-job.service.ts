@@ -52,14 +52,23 @@ export class ExportJobService {
     return updatedJob;
   }
 
-  updateProgress(jobId: string, progress: number, status?: ExportJob['status']): ExportJob | null {
-    return this.updateJob(jobId, { 
+  updateProgress(
+    jobId: string,
+    progress: number,
+    status?: ExportJob['status'],
+  ): ExportJob | null {
+    return this.updateJob(jobId, {
       progress: Math.min(100, Math.max(0, progress)),
-      ...(status && { status })
+      ...(status && { status }),
     });
   }
 
-  markCompleted(jobId: string, fileName: string, filePath: string, fileSize?: number): ExportJob | null {
+  markCompleted(
+    jobId: string,
+    fileName: string,
+    filePath: string,
+    fileSize?: number,
+  ): ExportJob | null {
     return this.updateJob(jobId, {
       status: 'completed',
       progress: 100,

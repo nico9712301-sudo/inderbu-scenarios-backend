@@ -27,7 +27,7 @@ export class ReservationConflictDetectorDomainService {
   async detectConflictsForNewReservation(
     subScenarioId: number,
     timeslotIds: number[],
-    reservationDates: Date[]
+    reservationDates: Date[],
   ): Promise<ReservationConflict[]> {
     // Por ahora retornamos array vacío
     // En una implementación completa, aquí consultaríamos el repositorio
@@ -42,7 +42,7 @@ export class ReservationConflictDetectorDomainService {
     subScenarioId: number,
     timeslotIds: number[],
     reservationDates: Date[],
-    existingInstances: ReservationInstanceForConflictCheck[]
+    existingInstances: ReservationInstanceForConflictCheck[],
   ): ReservationConflict[] {
     const conflicts: ReservationConflict[] = [];
 
@@ -52,7 +52,7 @@ export class ReservationConflictDetectorDomainService {
           subScenarioId,
           date,
           timeslotId,
-          existingInstances
+          existingInstances,
         );
 
         if (conflict) {
@@ -71,13 +71,14 @@ export class ReservationConflictDetectorDomainService {
     subScenarioId: number,
     date: Date,
     timeslotId: number,
-    existingInstances: ReservationInstanceForConflictCheck[]
+    existingInstances: ReservationInstanceForConflictCheck[],
   ): ReservationConflict | null {
-    const conflict = existingInstances.find(instance => 
-      instance.subScenarioId === subScenarioId &&
-      this.isSameDate(instance.reservationDate, date) &&
-      instance.timeslotId === timeslotId &&
-      this.activeReservation(instance.reservationStateId)
+    const conflict = existingInstances.find(
+      (instance) =>
+        instance.subScenarioId === subScenarioId &&
+        this.isSameDate(instance.reservationDate, date) &&
+        instance.timeslotId === timeslotId &&
+        this.activeReservation(instance.reservationStateId),
     );
 
     if (conflict) {
@@ -85,7 +86,7 @@ export class ReservationConflictDetectorDomainService {
         date,
         timeslotId,
         conflictingReservationId: conflict.reservationId,
-        conflictingUserId: conflict.userId
+        conflictingUserId: conflict.userId,
       };
     }
 
@@ -96,7 +97,9 @@ export class ReservationConflictDetectorDomainService {
    * Verifica si dos fechas son iguales (solo día, sin hora)
    */
   private isSameDate(date1: Date, date2: Date): boolean {
-    return date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0];
+    return (
+      date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0]
+    );
   }
 
   /**
@@ -114,9 +117,12 @@ export class ReservationConflictDetectorDomainService {
       return '';
     }
 
-    const conflictDetails = conflicts.map(conflict => 
-      `${conflict.date.toISOString().split('T')[0]} - TimeSlot ${conflict.timeslotId}`
-    ).join(', ');
+    const conflictDetails = conflicts
+      .map(
+        (conflict) =>
+          `${conflict.date.toISOString().split('T')[0]} - TimeSlot ${conflict.timeslotId}`,
+      )
+      .join(', ');
 
     return `Conflictos detectados en las siguientes fechas/horarios: ${conflictDetails}`;
   }
@@ -124,7 +130,9 @@ export class ReservationConflictDetectorDomainService {
   /**
    * Agrupa conflictos por fecha para mejor visualización
    */
-  groupConflictsByDate(conflicts: ReservationConflict[]): Map<string, ReservationConflict[]> {
+  groupConflictsByDate(
+    conflicts: ReservationConflict[],
+  ): Map<string, ReservationConflict[]> {
     const grouped = new Map<string, ReservationConflict[]>();
 
     for (const conflict of conflicts) {

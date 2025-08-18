@@ -46,7 +46,6 @@ import { DOMAIN_SERVICES } from '../tokens/ports';
 import { DATA_SOURCE } from '../../../infrastructure/tokens/data_sources';
 import { ReservationResponseMapper } from '../../../infrastructure/mappers/reservation/reservation-response.mapper';
 
-
 @Injectable()
 export class ReservationApplicationService
   implements IReservationApplicationPort
@@ -324,7 +323,7 @@ export class ReservationApplicationService
         // Es un rango real con fecha final
         type = ReservationType.RANGE;
         initialDate = new Date(dto.reservationRange.initialDate + 'T00:00:00'); // ✅ Sin 'Z' = fecha local
-        finalDate = new Date(dto.reservationRange.finalDate + 'T00:00:00');     // ✅ Sin 'Z' = fecha local
+        finalDate = new Date(dto.reservationRange.finalDate + 'T00:00:00'); // ✅ Sin 'Z' = fecha local
         weekDays = dto.weekdays || [];
       } else {
         // Solo initialDate, tratar como single day
@@ -449,7 +448,7 @@ export class ReservationApplicationService
       timeslots: dto.timeSlotIds.map((id) => ({
         id,
         startTime: `${String(id - 1).padStart(2, '0')}:00:00`, // Usar id-1 para el tiempo
-        endTime: `${String(id - 1).padStart(2, '0')}:59:59`,   // Usar id-1 para el tiempo
+        endTime: `${String(id - 1).padStart(2, '0')}:59:59`, // Usar id-1 para el tiempo
         isAvailable: true,
       })),
       instances: [], // Se podría llenar con datos reales si es necesario
@@ -477,7 +476,7 @@ export class ReservationApplicationService
     // Parsear initialDate y finalDate
     const initialDate = new Date(query.initialDate + 'T00:00:00'); // ✅ Sin 'Z' = fecha local
     const finalDate = query.finalDate
-      ? new Date(query.finalDate + 'T00:00:00')  // ✅ Sin 'Z' = fecha local
+      ? new Date(query.finalDate + 'T00:00:00') // ✅ Sin 'Z' = fecha local
       : undefined;
 
     // Usar la MISMA lógica de fechas que en createReservation
@@ -542,7 +541,7 @@ export class ReservationApplicationService
       );
 
     this.logger.debug(
-      `Found availability: ${result.timeSlots.filter(t => t.isAvailableInAllDates).length} timeslots available in all ${calculatedDates.length} dates`,
+      `Found availability: ${result.timeSlots.filter((t) => t.isAvailableInAllDates).length} timeslots available in all ${calculatedDates.length} dates`,
     );
 
     return result;
@@ -551,9 +550,7 @@ export class ReservationApplicationService
   /**
    * Convierte Map de ocupados a formato compatible con Domain Service
    */
-  private convertMapToInstanceFormat(
-    occupiedMap: Map<string, number[]>,
-  ): Map<
+  private convertMapToInstanceFormat(occupiedMap: Map<string, number[]>): Map<
     string,
     Array<{
       timeslotId: number;
@@ -583,8 +580,8 @@ export class ReservationApplicationService
     const { data, total } = await this.reservationRepo.findPaged(options);
 
     // Usar el mapper para convertir domain entities a DTOs
-    const dtos: ReservationWithDetailsResponseDto[] = data.map(
-      (reservation) => ReservationResponseMapper.toDetailsDto(reservation)
+    const dtos: ReservationWithDetailsResponseDto[] = data.map((reservation) =>
+      ReservationResponseMapper.toDetailsDto(reservation),
     );
 
     const meta = new PageMetaDto({

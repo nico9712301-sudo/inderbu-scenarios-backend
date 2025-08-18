@@ -9,7 +9,6 @@ import { ICitySeed } from '../interfaces/city-seed.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
 
-
 @Injectable()
 export class CitySeeder
   extends AbstractSeeder<CityEntity, ICitySeed>

@@ -14,7 +14,9 @@ export class RoleController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Obtiene todos los roles (sin super-admin ni admin)' })
+  @ApiOperation({
+    summary: 'Obtiene todos los roles (sin super-admin ni admin)',
+  })
   @ApiResponse({ status: 200, type: [RoleResponseDto] })
   async getRoles(): Promise<RoleResponseDto[]> {
     const roles = await this.roleService.getRoles();

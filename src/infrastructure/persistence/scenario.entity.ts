@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { NeighborhoodEntity } from './neighborhood.entity'; // Asume que ya la tienes creada
 import { SubScenarioEntity } from './sub-scenario.entity';
 
@@ -13,10 +21,10 @@ export class ScenarioEntity {
 
   @Column({ length: 150 })
   address: string;
-  
+
   @Column({
     name: 'active',
-    default: true
+    default: true,
   })
   active?: boolean;
 

@@ -15,6 +15,10 @@ import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
 import { UserEntity } from 'src/infrastructure/persistence/user.entity';
 import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
 import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
+import { HomeSlideEntity as PersistenceHomeSlideEntity } from 'src/infrastructure/persistence/home-slide.entity';
+import { EntityEntity } from 'src/infrastructure/persistence/entity.entity';
+import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
+import { MenuItemEntity } from 'src/infrastructure/persistence/menu-item.entity';
 
 export const repositoryEntitiesProviders = [
   {
@@ -93,6 +97,30 @@ export const repositoryEntitiesProviders = [
     provide: MYSQL_REPOSITORY.RESERVATION_STATE,
     useFactory: (dataSource: DataSource) =>
       dataSource.getRepository(ReservationStateEntity),
+    inject: [DATA_SOURCE.MYSQL],
+  },
+  {
+    provide: MYSQL_REPOSITORY.HOME_SLIDE,
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(PersistenceHomeSlideEntity),
+    inject: [DATA_SOURCE.MYSQL],
+  },
+  {
+    provide: MYSQL_REPOSITORY.ENTITY,
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(EntityEntity),
+    inject: [DATA_SOURCE.MYSQL],
+  },
+  {
+    provide: MYSQL_REPOSITORY.MODULE,
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(ModuleEntity),
+    inject: [DATA_SOURCE.MYSQL],
+  },
+  {
+    provide: MYSQL_REPOSITORY.MENU_ITEM,
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(MenuItemEntity),
     inject: [DATA_SOURCE.MYSQL],
   },
 ];

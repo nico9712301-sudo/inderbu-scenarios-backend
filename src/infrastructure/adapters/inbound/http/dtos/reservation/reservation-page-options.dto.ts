@@ -1,12 +1,18 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsNumber, IsPositive, IsDateString, IsArray } from 'class-validator';
+import {
+  IsOptional,
+  IsNumber,
+  IsPositive,
+  IsDateString,
+  IsArray,
+} from 'class-validator';
 import { PageOptionsDto } from '../common/page-options.dto';
 
 export class ReservationPageOptionsDto extends PageOptionsDto {
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 16,
-    description: 'Filtrar por ID del sub-escenario'
+    description: 'Filtrar por ID del sub-escenario',
   })
   @IsOptional()
   @Type(() => Number)
@@ -14,10 +20,11 @@ export class ReservationPageOptionsDto extends PageOptionsDto {
   @IsPositive()
   subScenarioId?: number;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: [1, 2],
-    description: 'Filtrar por IDs de estados de reserva (1=PENDIENTE, 2=CONFIRMADA, 3=CANCELADA)',
-    type: [Number]
+    description:
+      'Filtrar por IDs de estados de reserva (1=PENDIENTE, 2=CONFIRMADA, 3=CANCELADA)',
+    type: [Number],
   })
   @IsOptional()
   @IsArray()
@@ -26,32 +33,32 @@ export class ReservationPageOptionsDto extends PageOptionsDto {
   @IsPositive({ each: true })
   reservationStateIds?: number[];
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 'RANGE',
-    description: 'Filtrar por tipo de reserva (SINGLE, RANGE)'
+    description: 'Filtrar por tipo de reserva (SINGLE, RANGE)',
   })
   @IsOptional()
   type?: 'SINGLE' | 'RANGE';
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '2025-06-01',
-    description: 'Fecha de inicio para filtrar reservas (YYYY-MM-DD)'
+    description: 'Fecha de inicio para filtrar reservas (YYYY-MM-DD)',
   })
   @IsOptional()
   @IsDateString()
   startDate?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: '2025-06-30',
-    description: 'Fecha de fin para filtrar reservas (YYYY-MM-DD)'
+    description: 'Fecha de fin para filtrar reservas (YYYY-MM-DD)',
   })
   @IsOptional()
   @IsDateString()
   endDate?: string;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     example: 5,
-    description: 'Filtrar por ID de la ciudad'
+    description: 'Filtrar por ID de la ciudad',
   })
   @IsOptional()
   @Type(() => Number)

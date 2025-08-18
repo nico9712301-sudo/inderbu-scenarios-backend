@@ -4,10 +4,14 @@ import { ReservationStateDomainEntity } from 'src/core/domain/entities/reservati
 
 export class ReservationStateResponseMapper {
   static toDto(domain: ReservationStateDomainEntity): ReservationStateDto {
-    return plainToInstance(ReservationStateDto, {
-      id: domain.id,
-      name: domain.name,
-      description: `Estado: ${domain.name}`, // Descripción básica
-    }, { excludeExtraneousValues: true });
+    return plainToInstance(
+      ReservationStateDto,
+      {
+        id: domain.id,
+        name: domain.name,
+        description: `Estado: ${domain.name}`, // Descripción básica
+      },
+      { excludeExtraneousValues: true },
+    );
   }
 }

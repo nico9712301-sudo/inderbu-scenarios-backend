@@ -8,8 +8,12 @@ import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 
 @Injectable()
 export class ReservationStateRepositoryAdapter
-  extends BaseRepositoryAdapter<ReservationStateEntity, ReservationStateDomainEntity>
-  implements IReservationStateRepositoryPort {
+  extends BaseRepositoryAdapter<
+    ReservationStateEntity,
+    ReservationStateDomainEntity
+  >
+  implements IReservationStateRepositoryPort
+{
   constructor(
     @Inject(MYSQL_REPOSITORY.RESERVATION_STATE)
     repository: Repository<ReservationStateEntity>,
@@ -18,13 +22,13 @@ export class ReservationStateRepositoryAdapter
   }
 
   protected toEntity(
-    domain: ReservationStateDomainEntity
+    domain: ReservationStateDomainEntity,
   ): ReservationStateEntity {
     return this.repository.create({ state: domain.name });
   }
 
   protected toDomain(
-    entity: ReservationStateEntity
+    entity: ReservationStateEntity,
   ): ReservationStateDomainEntity {
     return ReservationStateDomainEntity.builder()
       .withId(entity.id)
@@ -32,11 +36,9 @@ export class ReservationStateRepositoryAdapter
       .build();
   }
 
-  async findByName(
-    name: string
-  ): Promise<ReservationStateDomainEntity | null> {
+  async findByName(name: string): Promise<ReservationStateDomainEntity | null> {
     const entity = await this.repository.findOne({
-      where: { state: name }
+      where: { state: name },
     });
     return entity ? this.toDomain(entity) : null;
   }
@@ -45,12 +47,12 @@ export class ReservationStateRepositoryAdapter
     const entities = await this.repository.find({
       order: { id: 'ASC' },
     });
-    return entities.map(entity => this.toDomain(entity));
+    return entities.map((entity) => this.toDomain(entity));
   }
 
   async findById(id: number): Promise<ReservationStateDomainEntity | null> {
     const entity = await this.repository.findOne({
-      where: { id }
+      where: { id },
     });
     return entity ? this.toDomain(entity) : null;
   }

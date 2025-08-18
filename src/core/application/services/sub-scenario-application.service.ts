@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 import {
   SubScenarioMapper,
@@ -27,7 +32,8 @@ import { FileStorageService } from 'src/infrastructure/adapters/outbound/file-st
 
 @Injectable()
 export class SubScenarioApplicationService
-  implements ISubScenarioApplicationPort {
+  implements ISubScenarioApplicationPort
+{
   constructor(
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
@@ -42,7 +48,7 @@ export class SubScenarioApplicationService
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_IMAGE)
     private readonly subScenarioImageRepository: ISubScenarioImageRepositoryPort,
     private readonly fileStorageService: FileStorageService,
-  ) { }
+  ) {}
 
   async listWithRelations(
     opts: SubScenarioPageOptionsDto,
@@ -53,25 +59,30 @@ export class SubScenarioApplicationService
 
     // Obtener IDs de todos los sub-escenarios
     const subScenarioIds: number[] = subs
-      .map(s => s.id)
+      .map((s) => s.id)
       .filter((id): id is number => id !== null);
 
     // Obtener todas las imágenes en una sola consulta agrupadas por subScenarioId
-    const allImages: SubScenarioImageDomainEntity[] = await this.subScenarioImageRepository.findBySubScenarioIds(subScenarioIds);
+    const allImages: SubScenarioImageDomainEntity[] =
+      await this.subScenarioImageRepository.findBySubScenarioIds(
+        subScenarioIds,
+      );
 
     // Agrupar imágenes por subScenarioId para un acceso más rápido
-    const imagesBySubScenarioId = new Map<number, SubScenarioImageDomainEntity[]>();
+    const imagesBySubScenarioId = new Map<
+      number,
+      SubScenarioImageDomainEntity[]
+    >();
 
-    allImages.forEach(image => {
+    allImages.forEach((image) => {
       if (!imagesBySubScenarioId.has(image.subScenarioId)) {
         imagesBySubScenarioId.set(image.subScenarioId, []);
       }
       imagesBySubScenarioId.get(image.subScenarioId)!.push(image);
     });
 
-
     // Mapear sub-escenarios con sus imágenes
-    const dto = subs.map(sub => {
+    const dto = subs.map((sub) => {
       if (sub.id === null) {
         return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, []);
       }
@@ -79,7 +90,6 @@ export class SubScenarioApplicationService
       const subImages = imagesBySubScenarioId.get(sub.id) || [];
       return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
     });
-
 
     return new PageDto(
       dto,
@@ -91,41 +101,61 @@ export class SubScenarioApplicationService
     );
   }
 
-
-  async getByIdWithRelations(
-    id: number,
-  ): Promise<SubScenarioWithRelationsDto> {
-    const sub: SubScenarioDomainEntity | null = await this.subScenarioRepository.findByIdWithRelations(id);
+  async getByIdWithRelations(id: number): Promise<SubScenarioWithRelationsDto> {
+    const sub: SubScenarioDomainEntity | null =
+      await this.subScenarioRepository.findByIdWithRelations(id);
     if (!sub) throw new NotFoundException(`SubScenario ${id} no encontrado`);
-    const [scenMap, areaMap, surfMap, neighMap] = await this.loadReferenceMaps([sub]);
+    const [scenMap, areaMap, surfMap, neighMap] = await this.loadReferenceMaps([
+      sub,
+    ]);
 
     // Obtener las imágenes del sub-escenario
-    const images = await this.subScenarioImageRepository.findBySubScenarioId(id);
-    return SubScenarioMapper.toDto(sub, scenMap, areaMap, surfMap, neighMap, images);
+    const images =
+      await this.subScenarioImageRepository.findBySubScenarioId(id);
+    return SubScenarioMapper.toDto(
+      sub,
+      scenMap,
+      areaMap,
+      surfMap,
+      neighMap,
+      images,
+    );
   }
 
   async create(
-    createDto: CreateSubScenarioDto
+    createDto: CreateSubScenarioDto,
   ): Promise<SubScenarioWithRelationsDto> {
     // Verificar que exista el escenario
-    const scenario = await this.scenarioRepository.findById(createDto.scenarioId);
+    const scenario = await this.scenarioRepository.findById(
+      createDto.scenarioId,
+    );
     if (!scenario) {
-      throw new NotFoundException(`Escenario con ID ${createDto.scenarioId} no encontrado`);
+      throw new NotFoundException(
+        `Escenario con ID ${createDto.scenarioId} no encontrado`,
+      );
     }
 
     // Verificar que exista el área de actividad
     if (createDto.activityAreaId) {
-      const activityArea = await this.activityAreaareaRepository.findById(createDto.activityAreaId);
+      const activityArea = await this.activityAreaareaRepository.findById(
+        createDto.activityAreaId,
+      );
       if (!activityArea) {
-        throw new NotFoundException(`Área de actividad con ID ${createDto.activityAreaId} no encontrada`);
+        throw new NotFoundException(
+          `Área de actividad con ID ${createDto.activityAreaId} no encontrada`,
+        );
       }
     }
 
     // Verificar que exista el tipo de superficie del campo
     if (createDto.fieldSurfaceTypeId) {
-      const fieldSurface = await this.fieldSurfaceRepository.findById(createDto.fieldSurfaceTypeId);
+      const fieldSurface = await this.fieldSurfaceRepository.findById(
+        createDto.fieldSurfaceTypeId,
+      );
       if (!fieldSurface) {
-        throw new NotFoundException(`Tipo de superficie del campo con ID ${createDto.fieldSurfaceTypeId} no encontrado`);
+        throw new NotFoundException(
+          `Tipo de superficie del campo con ID ${createDto.fieldSurfaceTypeId} no encontrado`,
+        );
       }
     }
 
@@ -142,7 +172,8 @@ export class SubScenarioApplicationService
       .withFieldSurfaceTypeId(createDto.fieldSurfaceTypeId ?? 0)
       .build();
 
-    const savedSubScenario = await this.subScenarioRepository.save(subScenarioDomain);
+    const savedSubScenario =
+      await this.subScenarioRepository.save(subScenarioDomain);
 
     return await this.getByIdWithRelations(savedSubScenario.id!);
   }
@@ -159,25 +190,37 @@ export class SubScenarioApplicationService
 
     // Verificar que exista el escenario si se proporciona
     if (updateDto.scenarioId) {
-      const scenario = await this.scenarioRepository.findById(updateDto.scenarioId);
+      const scenario = await this.scenarioRepository.findById(
+        updateDto.scenarioId,
+      );
       if (!scenario) {
-        throw new NotFoundException(`Escenario con ID ${updateDto.scenarioId} no encontrado`);
+        throw new NotFoundException(
+          `Escenario con ID ${updateDto.scenarioId} no encontrado`,
+        );
       }
     }
 
     // Verificar que exista el área de actividad si se proporciona
     if (updateDto.activityAreaId) {
-      const activityArea = await this.activityAreaareaRepository.findById(updateDto.activityAreaId);
+      const activityArea = await this.activityAreaareaRepository.findById(
+        updateDto.activityAreaId,
+      );
       if (!activityArea) {
-        throw new NotFoundException(`Área de actividad con ID ${updateDto.activityAreaId} no encontrada`);
+        throw new NotFoundException(
+          `Área de actividad con ID ${updateDto.activityAreaId} no encontrada`,
+        );
       }
     }
 
     // Verificar que exista el tipo de superficie del campo si se proporciona
     if (updateDto.fieldSurfaceTypeId) {
-      const fieldSurface = await this.fieldSurfaceRepository.findById(updateDto.fieldSurfaceTypeId);
+      const fieldSurface = await this.fieldSurfaceRepository.findById(
+        updateDto.fieldSurfaceTypeId,
+      );
       if (!fieldSurface) {
-        throw new NotFoundException(`Tipo de superficie del campo con ID ${updateDto.fieldSurfaceTypeId} no encontrado`);
+        throw new NotFoundException(
+          `Tipo de superficie del campo con ID ${updateDto.fieldSurfaceTypeId} no encontrado`,
+        );
       }
     }
 
@@ -185,37 +228,50 @@ export class SubScenarioApplicationService
     const subScenarioDomain = SubScenarioDomainEntity.builder()
       .withId(id)
       .withName(updateDto.name || existingSubScenario.name)
-      .withActive(updateDto.active !== undefined ? updateDto.active : existingSubScenario.active)
-      .withHasCost(updateDto.hasCost !== undefined ? updateDto.hasCost : existingSubScenario.hasCost)
+      .withActive(
+        updateDto.active !== undefined
+          ? updateDto.active
+          : existingSubScenario.active,
+      )
+      .withHasCost(
+        updateDto.hasCost !== undefined
+          ? updateDto.hasCost
+          : existingSubScenario.hasCost,
+      )
       .withnumberOfSpectators(
-        updateDto.numberOfSpectators !== undefined && updateDto.numberOfSpectators !== null
+        updateDto.numberOfSpectators !== undefined &&
+          updateDto.numberOfSpectators !== null
           ? updateDto.numberOfSpectators
-          : existingSubScenario.numberOfSpectators ?? 0
+          : (existingSubScenario.numberOfSpectators ?? 0),
       )
       .withNumberOfPlayers(
-        updateDto.numberOfPlayers !== undefined && updateDto.numberOfPlayers !== null
+        updateDto.numberOfPlayers !== undefined &&
+          updateDto.numberOfPlayers !== null
           ? updateDto.numberOfPlayers
-          : existingSubScenario.numberOfPlayers ?? 0
+          : (existingSubScenario.numberOfPlayers ?? 0),
       )
       .withRecommendations(
-        updateDto.recommendations !== undefined && updateDto.recommendations !== null
+        updateDto.recommendations !== undefined &&
+          updateDto.recommendations !== null
           ? updateDto.recommendations
-          : existingSubScenario.recommendations ?? ''
+          : (existingSubScenario.recommendations ?? ''),
       )
       .withScenarioId(
         updateDto.scenarioId !== undefined && updateDto.scenarioId !== null
           ? updateDto.scenarioId
-          : existingSubScenario.scenarioId
+          : existingSubScenario.scenarioId,
       )
       .withActivityAreaId(
-        updateDto.activityAreaId !== undefined && updateDto.activityAreaId !== null
+        updateDto.activityAreaId !== undefined &&
+          updateDto.activityAreaId !== null
           ? updateDto.activityAreaId
-          : existingSubScenario.activityAreaId ?? 0
+          : (existingSubScenario.activityAreaId ?? 0),
       )
       .withFieldSurfaceTypeId(
-        updateDto.fieldSurfaceTypeId !== undefined && updateDto.fieldSurfaceTypeId !== null
+        updateDto.fieldSurfaceTypeId !== undefined &&
+          updateDto.fieldSurfaceTypeId !== null
           ? updateDto.fieldSurfaceTypeId
-          : existingSubScenario.fieldSurfaceTypeId ?? 0
+          : (existingSubScenario.fieldSurfaceTypeId ?? 0),
       )
       .withCreatedAt(existingSubScenario.createdAt ?? new Date())
       .build();
@@ -240,13 +296,15 @@ export class SubScenarioApplicationService
   private async loadReferenceMaps(subs: SubScenarioDomainEntity[]) {
     // 1. Extraer listados de IDs (numbers), filtrando nulos
     const scenarioIds = uniq(subs.map((s) => s.scenarioId));
-    const activityAreaIds = uniq(subs
-      .map((s) => s.activityAreaId)
-      .filter((id): id is number => id != null)
+    const activityAreaIds = uniq(
+      subs
+        .map((s) => s.activityAreaId)
+        .filter((id): id is number => id != null),
     );
-    const fieldSurfaceTypeIds = uniq(subs
-      .map((s) => s.fieldSurfaceTypeId)
-      .filter((id): id is number => id != null)
+    const fieldSurfaceTypeIds = uniq(
+      subs
+        .map((s) => s.fieldSurfaceTypeId)
+        .filter((id): id is number => id != null),
     );
 
     // 2. Cargar las entidades de cada repositorio en paralelo
@@ -260,19 +318,17 @@ export class SubScenarioApplicationService
     const neighborhoodIds = uniq(
       scenarios
         .map((sc) => sc.neighborhoodId)
-        .filter((id): id is number => id != null)
+        .filter((id): id is number => id != null),
     );
-    const neighborhoods = await this.neighborhoodRepository.findByIds(
-      neighborhoodIds
-    );
+    const neighborhoods =
+      await this.neighborhoodRepository.findByIds(neighborhoodIds);
 
     // 4. Construye tus mapas
     return [
-      toMap(scenarios),         // Map<scenarioId, ScenarioDomainEntity>
-      toMap(activityAreas),     // Map<activityAreaId, ActivityAreaDomainEntity>
-      toMap(fieldSurfaces),     // Map<fieldSurfaceTypeId, FieldSurfaceTypeDomainEntity>
-      toMap(neighborhoods),     // Map<neighborhoodId, NeighborhoodDomainEntity>
+      toMap(scenarios), // Map<scenarioId, ScenarioDomainEntity>
+      toMap(activityAreas), // Map<activityAreaId, ActivityAreaDomainEntity>
+      toMap(fieldSurfaces), // Map<fieldSurfaceTypeId, FieldSurfaceTypeDomainEntity>
+      toMap(neighborhoods), // Map<neighborhoodId, NeighborhoodDomainEntity>
     ] as const;
   }
-
 }

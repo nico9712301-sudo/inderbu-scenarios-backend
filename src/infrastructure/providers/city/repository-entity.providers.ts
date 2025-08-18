@@ -7,7 +7,8 @@ import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
 export const repositoryEntityProviders = [
   {
     provide: MYSQL_REPOSITORY.CITY,
-    useFactory: (dataSource: DataSource) => dataSource.getRepository(CityEntity),
+    useFactory: (dataSource: DataSource) =>
+      dataSource.getRepository(CityEntity),
     inject: [DATA_SOURCE.MYSQL],
   },
 ];

@@ -1,10 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsArray, IsString, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsArray,
+  IsString,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum ExportFormat {
   XLSX = 'xlsx',
-  CSV = 'csv'
+  CSV = 'csv',
 }
 
 export class ExportScenariosFiltersDto {
@@ -42,10 +49,17 @@ export class ExportScenariosDto {
   @Type(() => ExportScenariosFiltersDto)
   filters?: ExportScenariosFiltersDto;
 
-  @ApiPropertyOptional({ 
+  @ApiPropertyOptional({
     type: [String],
     description: 'Campos a incluir en la exportación',
-    example: ['id', 'name', 'address', 'active', 'neighborhood.name', 'createdAt']
+    example: [
+      'id',
+      'name',
+      'address',
+      'active',
+      'neighborhood.name',
+      'createdAt',
+    ],
   })
   @IsOptional()
   @IsArray()

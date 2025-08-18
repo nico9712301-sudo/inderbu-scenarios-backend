@@ -10,9 +10,9 @@ export class ModuleEntity {
   @Column({ length: 150 })
   name: string;
 
-  @OneToMany(() => MenuItemEntity, menuItem => menuItem.module)
+  @OneToMany(() => MenuItemEntity, (menuItem) => menuItem.module)
   menuItems: MenuItemEntity[];
 
-  @OneToMany(() => PermissionEntity, permission => permission.module)
+  @OneToMany(() => PermissionEntity, (permission) => permission.module)
   permissions: PermissionEntity[];
 }

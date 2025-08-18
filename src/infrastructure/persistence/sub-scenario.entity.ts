@@ -79,9 +79,6 @@ export class SubScenarioEntity {
   subScenarioPrices: SubScenarioPriceEntity[];
 
   // Relación con SubScenarioImageEntity
-  @OneToMany(
-    () => SubScenarioImageEntity,
-    (image) => image.subScenario,
-  )
+  @OneToMany(() => SubScenarioImageEntity, (image) => image.subScenario)
   images: SubScenarioImageEntity[];
 }

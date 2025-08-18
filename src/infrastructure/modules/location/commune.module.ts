@@ -8,7 +8,7 @@ import { CityModule } from './city.module';
 @Module({
   imports: [
     DatabaseModule,
-    CityModule  // Import CityModule para acceder a ICityRepositoryPort
+    CityModule, // Import CityModule para acceder a ICityRepositoryPort
   ],
   providers: [...communeProviders],
   controllers: [CommuneController],

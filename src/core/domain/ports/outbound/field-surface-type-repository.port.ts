@@ -3,11 +3,15 @@ import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/co
 
 export interface IFieldSurfaceTypeRepositoryPort {
   // Operaciones básicas CRUD
-  save(fieldSurfaceType: FieldSurfaceTypeDomainEntity): Promise<FieldSurfaceTypeDomainEntity>;
+  save(
+    fieldSurfaceType: FieldSurfaceTypeDomainEntity,
+  ): Promise<FieldSurfaceTypeDomainEntity>;
   findById(id: number): Promise<FieldSurfaceTypeDomainEntity | null>;
   findAll(): Promise<FieldSurfaceTypeDomainEntity[]>;
   findByIds(ids: number[]): Promise<FieldSurfaceTypeDomainEntity[]>;
   findByName(name: string): Promise<FieldSurfaceTypeDomainEntity | null>;
-  findPaged(options: PageOptionsDto): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number }>;
+  findPaged(
+    options: PageOptionsDto,
+  ): Promise<{ data: FieldSurfaceTypeDomainEntity[]; total: number }>;
   delete(id: number): Promise<boolean>;
 }

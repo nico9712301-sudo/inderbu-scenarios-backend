@@ -100,12 +100,12 @@ export class AggregatedAvailabilityResponseDto {
   @Expose()
   readonly subScenarioId: number;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: {
       initialDate: '2025-06-10',
       finalDate: '2025-06-20',
-      weekdays: [1, 3, 5]
-    }
+      weekdays: [1, 3, 5],
+    },
   })
   @Expose()
   readonly requestedConfiguration: {
@@ -114,7 +114,9 @@ export class AggregatedAvailabilityResponseDto {
     weekdays?: number[];
   };
 
-  @ApiProperty({ example: ['2025-06-10', '2025-06-12', '2025-06-16', '2025-06-19'] })
+  @ApiProperty({
+    example: ['2025-06-10', '2025-06-12', '2025-06-16', '2025-06-19'],
+  })
   @Expose()
   readonly calculatedDates: string[];
 
