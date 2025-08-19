@@ -22,6 +22,7 @@ import { DataSource } from 'typeorm';
  * - `activity_areas` with index `ft_area_name`
  * - `field_surface_types` with index `ft_fs_name`
  * - `neighborhoods` with index `ft_neighborhood_name`
+ * - `communes` with index `ft_commune_name`
  * - `roles` with index `ft_role_name`
  *
  * @see {@link https://mariadb.com/kb/en/full-text-indexes/} for more information on full-text indexes in MariaDB.
@@ -119,6 +120,18 @@ export class FulltextIndexProvider implements OnModuleInit {
       `,
       'neighborhoods',
       'ft_neighborhood_name',
+    );
+
+    await this.ensure(
+      `
+      ALTER TABLE communes
+      ENGINE = InnoDB,
+      MODIFY name VARCHAR(100)
+             CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+      ADD FULLTEXT ft_commune_name (name);
+      `,
+      'communes',
+      'ft_commune_name',
     );
 
     await this.ensure(
