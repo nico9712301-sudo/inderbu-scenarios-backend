@@ -47,7 +47,10 @@ async function createApp() {
   );
   // Configuración de CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+    origin: [
+      'http://localhost:3000',
+      'https://inderbu-scenarios-frontend.vercel.app'
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
