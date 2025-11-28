@@ -14,7 +14,7 @@ import { HttpExceptionFilter } from './infrastructure/common/filters/http-except
 function loadEnv() {
   dotenv.config();
 }
-async function bootstrap() {
+async function createApp() {
   loadEnv();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -74,7 +74,24 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+  return app;
+}
+
+async function bootstrap() {
+  const app = await createApp();
   await app.listen(process.env.PORT ?? 3001);
 }
 
-void bootstrap();
+// For Vercel serverless deployment
+export default async function handler(req: any, res: any) {
+  const app = await createApp();
+  await app.init();
+  const server = app.getHttpAdapter().getInstance();
+  return server(req, res);
+}
+
+// For traditional deployment
+if (require.main === module) {
+  void bootstrap();
+}
