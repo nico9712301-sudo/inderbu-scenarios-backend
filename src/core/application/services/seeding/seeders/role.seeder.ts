@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { RoleEntity } from '../../../../../infrastructure/persistence/role.entity';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { IRoleSeed } from '../interfaces/role-seed.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
@@ -27,11 +27,11 @@ export class RoleSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IRoleSeed[]> {
-    return this.jsonLoader.load<IRoleSeed>('role-seeds.json');
+  protected getSeeds(): Promise<IRoleSeed[]> {
+    return Promise.resolve(this.jsonLoader.load<IRoleSeed>('role-seeds.json'));
   }
 
-  protected async transform(seeds: IRoleSeed[]): Promise<RoleEntity[]> {
-    return seeds.map((seed) => this.repository.create(seed));
+  protected transform(seeds: IRoleSeed[]): Promise<RoleEntity[]> {
+    return Promise.resolve(seeds.map((seed) => this.repository.create(seed)));
   }
 }

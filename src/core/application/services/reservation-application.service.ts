@@ -6,7 +6,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
-import { DataSource, QueryRunner } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 import { IReservationApplicationPort } from '../ports/inbound/reservation-application.port';
 import { CreateReservationRequestDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/create-reservation-request.dto';
@@ -610,10 +610,7 @@ export class ReservationApplicationService
     reservationId: number,
     dto: { stateId: number; comments?: string },
   ): Promise<ReservationWithDetailsResponseDto> {
-    const updatedReservation = await this.reservationRepo.updateState(
-      reservationId,
-      dto.stateId,
-    );
+    await this.reservationRepo.updateState(reservationId, dto.stateId);
 
     // También actualizar las instancias
     await this.instanceRepo.updateStateByReservationId(
@@ -642,11 +639,11 @@ export class ReservationApplicationService
     reservationsByState: Record<string, number>;
     reservationsByType: Record<string, number>;
   }> {
-    return {
+    return Promise.resolve({
       totalReservations: 0,
       totalInstances: 0,
       reservationsByState: {},
       reservationsByType: {},
-    };
+    });
   }
 }

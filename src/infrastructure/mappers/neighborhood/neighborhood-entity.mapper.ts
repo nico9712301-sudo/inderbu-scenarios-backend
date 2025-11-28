@@ -1,12 +1,9 @@
 // src/infrastructure/mappers/neighborhood/neighborhood-entity.mapper.ts
-import { NeighborhoodEntity } from 'src/infrastructure/persistence/neighborhood.entity';
-import { CommuneEntity } from 'src/infrastructure/persistence/commune.entity';
-import {
-  NeighborhoodDomainEntity,
-  NeighborhoodDomainBuilder,
-} from 'src/core/domain/entities/neighborhood.domain-entity';
-import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-entity';
-import { CityDomainEntity } from 'src/core/domain/entities/city.domain-entity';
+import { NeighborhoodEntity } from '../../persistence/neighborhood.entity';
+import { CommuneEntity } from '../../persistence/commune.entity';
+import { NeighborhoodDomainEntity } from '../../../core/domain/entities/neighborhood.domain-entity';
+import { CommuneDomainEntity } from '../../../core/domain/entities/commune.domain-entity';
+import { CityDomainEntity } from '../../../core/domain/entities/city.domain-entity';
 
 export class NeighborhoodEntityMapper {
   static toDomain(e: NeighborhoodEntity): NeighborhoodDomainEntity {

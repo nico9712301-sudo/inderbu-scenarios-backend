@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { EntityEntity } from 'src/infrastructure/persistence/entity.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { ModuleEntity } from '../../../../persistence/module.entity';
+import { EntityEntity } from '../../../../persistence/entity.entity';
+import { MYSQL_REPOSITORY } from '../../../../tokens/repositories';
 
 @Controller('modules')
 export class ModulesController {

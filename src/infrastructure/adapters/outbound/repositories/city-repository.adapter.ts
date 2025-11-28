@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { ICityRepositoryPort } from 'src/core/domain/ports/outbound/city-repository.port';
-import { CityDomainEntity } from 'src/core/domain/entities/city.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { ICityRepositoryPort } from '../../../../core/domain/ports/outbound/city-repository.port';
+import { CityDomainEntity } from '../../../../core/domain/entities/city.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
-import { CityEntity } from 'src/infrastructure/persistence/city.entity';
+import { CityEntity } from '../../../persistence/city.entity';
 
 @Injectable()
 export class CityRepositoryAdapter

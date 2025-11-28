@@ -22,7 +22,7 @@ export class HybridExportJobService implements OnModuleInit {
       await this.redis.ping();
       this.isRedisAvailable = true;
       console.log('✅ Redis disponible - Usando persistencia Redis');
-    } catch (error) {
+    } catch {
       this.isRedisAvailable = false;
       console.log('⚠️ Redis no disponible - Usando fallback en memoria');
     }

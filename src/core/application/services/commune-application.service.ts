@@ -1,19 +1,19 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { CommuneResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/commune-response.dto';
-import { CreateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/create-commune.dto';
-import { UpdateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/update-commune.dto';
-import { CommuneResponseMapper } from 'src/infrastructure/mappers/commune/commune-response.mapper';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { CommuneResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/commune/commune-response.dto';
+import { CreateCommuneDto } from '../../../infrastructure/adapters/inbound/http/dtos/commune/create-commune.dto';
+import { UpdateCommuneDto } from '../../../infrastructure/adapters/inbound/http/dtos/commune/update-commune.dto';
+import { CommuneResponseMapper } from '../../../infrastructure/mappers/commune/commune-response.mapper';
 
-import { ICommuneRepositoryPort } from 'src/core/domain/ports/outbound/commune-repository.port';
-import { ICityRepositoryPort } from 'src/core/domain/ports/outbound/city-repository.port';
-import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-entity';
+import { ICommuneRepositoryPort } from '../../domain/ports/outbound/commune-repository.port';
+import { ICityRepositoryPort } from '../../domain/ports/outbound/city-repository.port';
+import { CommuneDomainEntity } from '../../domain/entities/commune.domain-entity';
 import { ICommuneApplicationPort } from '../ports/inbound/commune-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class CommuneApplicationService implements ICommuneApplicationPort {
@@ -26,12 +26,12 @@ export class CommuneApplicationService implements ICommuneApplicationPort {
 
   async listAll(): Promise<CommuneResponseDto[]> {
     const communes = await this.communeRepository.findAll();
-    return communes.map(CommuneResponseMapper.toDto);
+    return communes.map((item) => CommuneResponseMapper.toDto(item));
   }
 
   async listPaged(opts: PageOptionsDto): Promise<PageDto<CommuneResponseDto>> {
     const { data, total } = await this.communeRepository.findPaged(opts);
-    const dto = data.map(CommuneResponseMapper.toDto);
+    const dto = data.map((item) => CommuneResponseMapper.toDto(item));
 
     return new PageDto(
       dto,

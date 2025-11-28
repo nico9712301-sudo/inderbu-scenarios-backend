@@ -1,13 +1,6 @@
 // infrastructure/adapters/inbound/http/controllers/auth.controller.ts
 
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Request,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 
 @Controller('playground')

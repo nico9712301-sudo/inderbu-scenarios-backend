@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository, ILike, In } from 'typeorm';
 
-import { IFieldSurfaceTypeRepositoryPort } from 'src/core/domain/ports/outbound/field-surface-type-repository.port';
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
-import { FieldSurfaceTypeEntityMapper } from 'src/infrastructure/mappers/field-surface-type/field-surface-type-entity.mapper';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { IFieldSurfaceTypeRepositoryPort } from '../../../../core/domain/ports/outbound/field-surface-type-repository.port';
+import { FieldSurfaceTypeDomainEntity } from '../../../../core/domain/entities/field-surface-type.domain-entity';
+import { FieldSurfaceTypeEntity } from '../../../persistence/field-surface-type.entity';
+import { FieldSurfaceTypeEntityMapper } from '../../../mappers/field-surface-type/field-surface-type-entity.mapper';
+import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
 @Injectable()
 export class FieldSurfaceTypeRepositoryAdapter
@@ -47,7 +47,9 @@ export class FieldSurfaceTypeRepositoryAdapter
       const entities = await this.repository.find({
         order: { name: 'ASC' },
       });
-      return entities.map(FieldSurfaceTypeEntityMapper.toDomain);
+      return entities.map((entity) =>
+        FieldSurfaceTypeEntityMapper.toDomain(entity),
+      );
     } catch (error) {
       console.error('Error finding all field surface types:', error);
       return [];
@@ -65,7 +67,9 @@ export class FieldSurfaceTypeRepositoryAdapter
         order: { name: 'ASC' },
       });
 
-      return entities.map(FieldSurfaceTypeEntityMapper.toDomain);
+      return entities.map((entity) =>
+        FieldSurfaceTypeEntityMapper.toDomain(entity),
+      );
     } catch (error) {
       console.error(
         `Error finding field surface types with ids [${ids.join(', ')}]:`,
@@ -107,7 +111,9 @@ export class FieldSurfaceTypeRepositoryAdapter
       });
 
       return {
-        data: entities.map(FieldSurfaceTypeEntityMapper.toDomain),
+        data: entities.map((entity) =>
+          FieldSurfaceTypeEntityMapper.toDomain(entity),
+        ),
         total,
       };
     } catch (error) {

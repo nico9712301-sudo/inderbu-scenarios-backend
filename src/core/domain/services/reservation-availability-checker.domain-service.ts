@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common';
 import {
   AggregatedAvailabilityResponseDto,
   TimeslotAvailabilityDetailDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/reservation/aggregated-availability.dto';
+} from '../../../infrastructure/adapters/inbound/http/dtos/reservation/aggregated-availability.dto';
 import {
   SimplifiedAvailabilityResponseDto,
   TimeSlotBasicDto,
-  RequestedConfigurationDto,
-  AvailabilityStatsDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
+} from '../../../infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
 
 export interface TimeslotAvailability {
   timeslotId: number;

@@ -1,4 +1,4 @@
-import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-entity';
+import { CommuneDomainEntity } from '../../../core/domain/entities/commune.domain-entity';
 import { CommuneResponseDto } from '../../adapters/inbound/http/dtos/commune/commune-response.dto';
 
 export class CommuneResponseMapper {

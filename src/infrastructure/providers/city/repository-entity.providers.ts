@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { CityEntity } from 'src/infrastructure/persistence/city.entity';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { MYSQL_REPOSITORY } from '../../tokens/repositories';
+import { CityEntity } from '../../persistence/city.entity';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const repositoryEntityProviders = [
   {

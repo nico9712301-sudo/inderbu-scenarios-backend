@@ -7,11 +7,11 @@ import {
   SubScenarioFileExportService,
   SubScenarioExportData,
 } from './export/sub-scenario-file-export.service';
-import { ISubScenarioRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-repository.port';
-import { IScenarioRepositoryPort } from 'src/core/domain/ports/outbound/scenario-repository.port';
-import { IActivityAreaRepositoryPort } from 'src/core/domain/ports/outbound/activity-area-repository.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
-import { SubScenarioPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
+import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
+import { IScenarioRepositoryPort } from '../../domain/ports/outbound/scenario-repository.port';
+import { IActivityAreaRepositoryPort } from '../../domain/ports/outbound/activity-area-repository.port';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
+import { SubScenarioPageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
 
 export interface ExportSubScenariosOptions {
   format: 'xlsx' | 'csv';

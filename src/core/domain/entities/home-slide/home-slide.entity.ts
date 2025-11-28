@@ -40,7 +40,7 @@ export class HomeSlideEntity {
   ) {}
 
   // Business Logic Methods
-  
+
   /**
    * Checks if this slide is active and should be displayed
    */
@@ -70,7 +70,7 @@ export class HomeSlideEntity {
     if (this.isPlaceholder() && !newActiveStatus) {
       throw new Error('Placeholder slides cannot be deactivated');
     }
-    
+
     this.isActive = newActiveStatus;
     this.updatedAt = new Date();
   }
@@ -82,7 +82,7 @@ export class HomeSlideEntity {
     if (newOrder < 0) {
       throw new Error('Display order must be a positive number');
     }
-    
+
     this.displayOrder = newOrder;
     this.updatedAt = new Date();
   }
@@ -158,7 +158,7 @@ export class HomeSlideEntity {
       data.moduleId ?? null,
       data.entityId ?? null,
       new Date(),
-      new Date()
+      new Date(),
     );
   }
 

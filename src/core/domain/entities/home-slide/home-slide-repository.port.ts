@@ -27,7 +27,9 @@ export interface IHomeSlideRepositoryPort {
   /**
    * Create a new home slide
    */
-  create(slideData: Omit<HomeSlideEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<HomeSlideEntity>;
+  create(
+    slideData: Omit<HomeSlideEntity, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<HomeSlideEntity>;
 
   /**
    * Update an existing home slide
@@ -42,7 +44,9 @@ export interface IHomeSlideRepositoryPort {
   /**
    * Update display order for multiple slides
    */
-  updateDisplayOrders(updates: Array<{ id: number; displayOrder: number }>): Promise<void>;
+  updateDisplayOrders(
+    updates: Array<{ id: number; displayOrder: number }>,
+  ): Promise<void>;
 
   /**
    * Delete a home slide

@@ -1,6 +1,6 @@
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
-import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
-import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
+import { SubScenarioEntity } from '../../persistence/sub-scenario.entity';
+import { SubScenarioImageEntity } from '../../persistence/image.entity';
+import { SubScenarioImageDomainEntity } from '../../../core/domain/entities/sub-scenario-image.domain-entity';
 
 export class SubScenarioImageEntityMapper {
   static toDomain(

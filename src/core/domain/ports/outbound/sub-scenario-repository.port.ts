@@ -1,6 +1,5 @@
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
-import { SubScenarioPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
+import { SubScenarioDomainEntity } from '../../entities/sub-scenario.domain-entity';
+import { SubScenarioPageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
 
 export interface ISubScenarioRepositoryPort {
   findPaged(

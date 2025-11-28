@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
+import { UserDomainEntity } from '../../domain/entities/user.domain-entity';
 import { IUserApplicationPort } from '../ports/inbound/user-application.port';
 import { APPLICATION_PORTS } from '../tokens/ports';
 
@@ -19,18 +19,16 @@ export class AuthApplicationService {
     password: string,
   ): Promise<UserDomainEntity | null> {
     const user = await this.userApplicationService.findByEmail(email);
-    if (
-      user &&
-      (await bcrypt.compare(password, (user as any)['passwordHash']))
-    ) {
+    if (user && (await user.validatePassword(password, bcrypt))) {
       return user;
     }
     return null;
   }
 
-  async login(
-    user: UserDomainEntity,
-  ): Promise<{ access_token: string; refresh_token: string }> {
+  login(user: UserDomainEntity): {
+    access_token: string;
+    refresh_token: string;
+  } {
     const payload = { email: user.email, sub: user.id, role: user.roleId };
     const refreshPayload = { sub: user.id, type: 'refresh' };
 
@@ -59,7 +57,7 @@ export class AuthApplicationService {
       console.log('it got here');
       // Generar nuevos tokens
       return this.login(user);
-    } catch (error) {
+    } catch {
       throw new Error('Invalid refresh token');
     }
   }

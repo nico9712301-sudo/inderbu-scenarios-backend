@@ -17,7 +17,7 @@ export class SeedingService implements OnModuleInit {
       .filter(
         (wrapper) =>
           wrapper.instance &&
-          typeof wrapper.instance.seed === 'function' &&
+          typeof (wrapper.instance as { seed?: unknown }).seed === 'function' &&
           !(wrapper.instance instanceof SeedingService),
       )
       .map((wrapper) => wrapper.instance as ISeeder);

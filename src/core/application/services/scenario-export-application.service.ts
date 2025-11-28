@@ -4,10 +4,10 @@ import {
   ExportJob,
 } from './export/redis-export-job.service';
 import { FileExportService, ExportData } from './export/file-export.service';
-import { IScenarioRepositoryPort } from 'src/core/domain/ports/outbound/scenario-repository.port';
-import { INeighborhoodRepositoryPort } from 'src/core/domain/ports/outbound/neighborhood-repository.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { IScenarioRepositoryPort } from '../../domain/ports/outbound/scenario-repository.port';
+import { INeighborhoodRepositoryPort } from '../../domain/ports/outbound/neighborhood-repository.port';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 
 export interface ExportScenariosOptions {
   format: 'xlsx' | 'csv';

@@ -1,6 +1,6 @@
 import { plainToInstance } from 'class-transformer';
-import { ReservationWithDetailsResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/reservation.dto';
-import { ReservationDomainEntity } from 'src/core/domain/entities/reservation.domain-entity';
+import { ReservationWithDetailsResponseDto } from '../../adapters/inbound/http/dtos/reservation/reservation.dto';
+import { ReservationDomainEntity } from '../../../core/domain/entities/reservation.domain-entity';
 import { UserEntityMapper } from '../user/user-entity.mapper';
 
 export class ReservationResponseMapper {

@@ -1,7 +1,7 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
 
-import { ICityApplicationPort } from 'src/core/application/ports/inbound/city-application.port';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { ICityApplicationPort } from '../../../../../core/application/ports/inbound/city-application.port';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
 @Controller('cities')
 export class CityController {
   constructor(
@@ -10,12 +10,12 @@ export class CityController {
   ) {}
 
   @Get()
-  async getAll() {
+  getAll() {
     return this.cityApplicationService.getAll();
   }
 
   @Get('/:id')
-  async findById(@Query('id') id: number) {
+  findById(@Query('id') id: number) {
     return this.cityApplicationService.findById(id);
   }
 }

@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository, FindOptionsWhere, In, Between, Not } from 'typeorm';
 
-import { IReservationInstanceRepositoryPort } from 'src/core/domain/ports/outbound/reservation-instance-repository.port';
-import { ReservationInstanceEntityMapper } from 'src/infrastructure/mappers/reservation/reservation-instance-entity.mapper';
-import { ReservationInstanceDomainEntity } from 'src/core/domain/entities/reservation-instance.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { IReservationInstanceRepositoryPort } from '../../../../core/domain/ports/outbound/reservation-instance-repository.port';
+import { ReservationInstanceEntityMapper } from '../../../mappers/reservation/reservation-instance-entity.mapper';
+import { ReservationInstanceDomainEntity } from '../../../../core/domain/entities/reservation-instance.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { ReservationInstanceEntity } from '../../../persistence/reservation-instance.entity';
 

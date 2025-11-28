@@ -1,6 +1,14 @@
-import { IsString, IsOptional, IsUrl, IsEnum, IsInt, Min, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsUrl,
+  IsEnum,
+  IsInt,
+  Min,
+  IsBoolean,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { HomeSlideType } from 'src/core/domain/entities/home-slide/home-slide.entity';
+import { HomeSlideType } from '../../../../../../core/domain/entities/home-slide/home-slide.entity';
 
 export class UpdateHomeSlideDto {
   @ApiPropertyOptional({

@@ -1,5 +1,5 @@
-import { ScenarioApplicationService } from 'src/core/application/services/scenario-application.service';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { ScenarioApplicationService } from '../../../core/application/services/scenario-application.service';
+import { APPLICATION_PORTS } from '../../../core/application/tokens/ports';
 
 export const applicationProviders = [
   {

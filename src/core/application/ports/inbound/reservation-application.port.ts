@@ -1,12 +1,12 @@
-import { PageDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { SimplifiedAvailabilityResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
-import { AvailabilityQueryDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/availability-query.dto';
-import { CreateReservationRequestDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/create-reservation-request.dto';
-import { ReservationPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/reservation/reservation-page-options.dto';
+import { PageDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { SimplifiedAvailabilityResponseDto } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
+import { AvailabilityQueryDto } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/availability-query.dto';
+import { CreateReservationRequestDto } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/create-reservation-request.dto';
+import { ReservationPageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/reservation-page-options.dto';
 import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/reservation/reservation.dto';
+} from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/reservation.dto';
 
 export interface UpdateReservationStateDto {
   stateId: number;

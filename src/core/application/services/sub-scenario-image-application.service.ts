@@ -1,20 +1,14 @@
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 
-import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
-import { UpdateImagesOrderDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/update-images-order.dto';
-import { ISubScenarioImageRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-image-repository.port';
-import { FileStorageService } from 'src/infrastructure/adapters/outbound/file-storage/file-storage.service';
-import { ISubScenarioRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-repository.port';
-import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
-import { SubScenarioImageResponseMapper } from 'src/infrastructure/mappers/images/image-response.mapper';
+import { SubScenarioImageResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
+import { ISubScenarioImageRepositoryPort } from '../../domain/ports/outbound/sub-scenario-image-repository.port';
+import { FileStorageService } from '../../../infrastructure/adapters/outbound/file-storage/file-storage.service';
+import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
+import { SubScenarioImageDomainEntity } from '../../domain/entities/sub-scenario-image.domain-entity';
+import { SubScenarioImageResponseMapper } from '../../../infrastructure/mappers/images/image-response.mapper';
 import { ISubScenarioImageApplicationPort } from '../ports/inbound/sub-scenario-image-application.port';
-import { UpdateImageDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/update-image.dto';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { UpdateImageDto } from '../../../infrastructure/adapters/inbound/http/dtos/images/update-image.dto';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class SubScenarioImageApplicationService
@@ -92,7 +86,7 @@ export class SubScenarioImageApplicationService
       subScenarioId,
       includeHistorical,
     );
-    return images.map(SubScenarioImageResponseMapper.toDto);
+    return images.map((image) => SubScenarioImageResponseMapper.toDto(image));
   }
 
   async updateImage(

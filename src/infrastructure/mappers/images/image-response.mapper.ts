@@ -1,5 +1,5 @@
-import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
-import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
+import { SubScenarioImageDomainEntity } from '../../../core/domain/entities/sub-scenario-image.domain-entity';
+import { SubScenarioImageResponseDto } from '../../adapters/inbound/http/dtos/images/image-response.dto';
 
 export class SubScenarioImageResponseMapper {
   static toDto(

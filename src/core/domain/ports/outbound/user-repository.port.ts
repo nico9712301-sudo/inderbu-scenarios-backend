@@ -1,6 +1,5 @@
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
+import { UserPageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
+import { UserDomainEntity } from '../../entities/user.domain-entity';
 
 export interface IUserRepositoryPort {
   save(domain: UserDomainEntity): Promise<UserDomainEntity>;

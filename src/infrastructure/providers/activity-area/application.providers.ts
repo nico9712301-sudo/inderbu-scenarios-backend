@@ -1,5 +1,5 @@
-import { ActivityAreaApplicationService } from 'src/core/application/services/activity-area-application.service';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { ActivityAreaApplicationService } from '../../../core/application/services/activity-area-application.service';
+import { APPLICATION_PORTS } from '../../../core/application/tokens/ports';
 
 export const activityAreaApplicationProviders = [
   {

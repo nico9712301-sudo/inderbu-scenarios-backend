@@ -1,6 +1,5 @@
-import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
-import { UpdateImageDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/update-image.dto';
-import { UpdateImagesOrderDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/update-images-order.dto';
+import { SubScenarioImageResponseDto } from '../../../../infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
+import { UpdateImageDto } from '../../../../infrastructure/adapters/inbound/http/dtos/images/update-image.dto';
 
 export interface ISubScenarioImageApplicationPort {
   uploadImage(

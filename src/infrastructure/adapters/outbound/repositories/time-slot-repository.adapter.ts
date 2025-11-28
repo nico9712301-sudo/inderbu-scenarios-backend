@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { ITimeSlotRepositoryPort } from 'src/core/domain/ports/outbound/time-slot-repository.port';
-import { TimeSlotEntity } from 'src/infrastructure/persistence/time-slot.entity';
-import { TimeSlotDomainEntity } from 'src/core/domain/entities/time-slot.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { ITimeSlotRepositoryPort } from '../../../../core/domain/ports/outbound/time-slot-repository.port';
+import { TimeSlotEntity } from '../../../persistence/time-slot.entity';
+import { TimeSlotDomainEntity } from '../../../../core/domain/entities/time-slot.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 
 @Injectable()

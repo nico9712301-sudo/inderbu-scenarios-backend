@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { NeighborhoodEntity } from 'src/infrastructure/persistence/neighborhood.entity';
-import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { NeighborhoodEntity } from '../../../../../infrastructure/persistence/neighborhood.entity';
+import { ScenarioEntity } from '../../../../../infrastructure/persistence/scenario.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
 import { IScenarioSeed } from '../interfaces/scenario-seeds.interface';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -30,8 +30,10 @@ export class ScenarioSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IScenarioSeed[]> {
-    return this.jsonLoader.load<IScenarioSeed>('scenario-seeds.json');
+  protected getSeeds(): Promise<IScenarioSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IScenarioSeed>('scenario-seeds.json'),
+    );
   }
 
   protected async transform(seeds: IScenarioSeed[]): Promise<ScenarioEntity[]> {

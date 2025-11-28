@@ -1,7 +1,7 @@
-import { ReservationTimeslotEntity } from 'src/infrastructure/persistence/reservation-timeslot.entity';
-import { ReservationTimeslotDomainEntity } from 'src/core/domain/entities/reservation-timeslot.domain-entity';
-import { ReservationEntity } from 'src/infrastructure/persistence/reservation.entity';
-import { TimeSlotEntity } from 'src/infrastructure/persistence/time-slot.entity';
+import { ReservationTimeslotEntity } from '../../persistence/reservation-timeslot.entity';
+import { ReservationTimeslotDomainEntity } from '../../../core/domain/entities/reservation-timeslot.domain-entity';
+import { ReservationEntity } from '../../persistence/reservation.entity';
+import { TimeSlotEntity } from '../../persistence/time-slot.entity';
 
 export class ReservationTimeslotEntityMapper {
   static toDomain(

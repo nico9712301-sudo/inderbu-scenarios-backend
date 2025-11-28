@@ -1,9 +1,9 @@
 import { Injectable, Inject } from '@nestjs/common';
 
-import { IRoleRepositoryPort } from 'src/core/domain/ports/outbound/role.domain-entity';
-import { RoleDomainEntity } from 'src/core/domain/entities/role.domain-entity';
+import { IRoleRepositoryPort } from '../../domain/ports/outbound/role.domain-entity';
+import { RoleDomainEntity } from '../../domain/entities/role.domain-entity';
 import { IRoleApplicationPort } from '../ports/inbound/role-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class RoleApplicationService implements IRoleApplicationPort {

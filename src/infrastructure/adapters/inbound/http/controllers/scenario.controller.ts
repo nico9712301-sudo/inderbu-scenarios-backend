@@ -23,22 +23,22 @@ import {
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 
-import { IScenarioApplicationPort } from 'src/core/application/ports/inbound/scenario-application.port';
+import { IScenarioApplicationPort } from '../../../../../core/application/ports/inbound/scenario-application.port';
 import { ScenarioResponseDto } from '../dtos/scenario/scenario-response.dto';
 import { CreateScenarioDto } from '../dtos/scenario/create-scenario.dto';
 import { UpdateScenarioDto } from '../dtos/scenario/update-scenario.dto';
 import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
+import { ScenarioResponseMapper } from '../../../../mappers/scenario/scenario-response.mapper';
 import {
   ExportScenariosDto,
   ExportJobResponseDto,
   ExportDownloadResponseDto,
 } from '../dtos/scenario/export-scenarios.dto';
-import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
-import { ExportJob } from 'src/core/application/services/export/redis-export-job.service';
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
+import { ScenarioExportApplicationService } from '../../../../../core/application/services/scenario-export-application.service';
+import { ExportJob } from '../../../../../core/application/services/export/redis-export-job.service';
+import { ScenarioDomainEntity } from '../../../../../core/domain/entities/scenario.domain-entity';
 
 @ApiTags('Scenarios')
 @Controller('scenarios')

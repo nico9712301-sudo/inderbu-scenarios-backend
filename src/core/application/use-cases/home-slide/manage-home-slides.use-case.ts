@@ -1,15 +1,20 @@
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { IHomeSlideRepositoryPort } from 'src/core/domain/entities/home-slide/home-slide-repository.port';
-import { 
-  HomeSlideEntity, 
-  CreateHomeSlideData, 
-  UpdateHomeSlideData 
-} from 'src/core/domain/entities/home-slide/home-slide.entity';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { IHomeSlideRepositoryPort } from '../../../domain/entities/home-slide/home-slide-repository.port';
+import {
+  HomeSlideEntity,
+  CreateHomeSlideData,
+  UpdateHomeSlideData,
+} from '../../../domain/entities/home-slide/home-slide.entity';
+import { REPOSITORY_PORTS } from '../../../../infrastructure/tokens/ports';
 
-export interface CreateHomeSlideRequest extends CreateHomeSlideData {}
+export type CreateHomeSlideRequest = CreateHomeSlideData;
 
-export interface UpdateHomeSlideRequest extends UpdateHomeSlideData {}
+export type UpdateHomeSlideRequest = UpdateHomeSlideData;
 
 export interface ReorderSlidesRequest {
   slideOrders: Array<{ id: number; displayOrder: number }>;
@@ -29,7 +34,9 @@ export class ManageHomeSlidesUseCase {
 
       // Set display order if not provided
       if (slideData.displayOrder === 0) {
-        const nextOrder = await this.homeSlideRepository.getNextDisplayOrder(slideData.slideType);
+        const nextOrder = await this.homeSlideRepository.getNextDisplayOrder(
+          slideData.slideType,
+        );
         slideData.displayOrder = nextOrder;
       }
 
@@ -39,7 +46,10 @@ export class ManageHomeSlidesUseCase {
     }
   }
 
-  async updateSlide(id: number, request: UpdateHomeSlideRequest): Promise<HomeSlideEntity> {
+  async updateSlide(
+    id: number,
+    request: UpdateHomeSlideRequest,
+  ): Promise<HomeSlideEntity> {
     const existingSlide = await this.homeSlideRepository.findById(id);
     if (!existingSlide) {
       throw new NotFoundException(`Home slide with id ${id} not found`);
@@ -62,9 +72,13 @@ export class ManageHomeSlidesUseCase {
 
     // Business rule: prevent deletion of placeholder slides if it's the only one
     if (existingSlide.isPlaceholder()) {
-      const placeholderSlides = await this.homeSlideRepository.findActiveSlides(existingSlide.slideType);
+      const placeholderSlides = await this.homeSlideRepository.findActiveSlides(
+        existingSlide.slideType,
+      );
       if (placeholderSlides.length <= 1) {
-        throw new BadRequestException('Cannot delete the last placeholder slide');
+        throw new BadRequestException(
+          'Cannot delete the last placeholder slide',
+        );
       }
     }
 
@@ -78,7 +92,10 @@ export class ManageHomeSlidesUseCase {
     }
 
     try {
-      return await this.homeSlideRepository.updateActiveStatus(id, !slide.isActive);
+      return await this.homeSlideRepository.updateActiveStatus(
+        id,
+        !slide.isActive,
+      );
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -94,10 +111,14 @@ export class ManageHomeSlidesUseCase {
     }
 
     // Validate display orders are valid
-    const orders = request.slideOrders.map(item => item.displayOrder).sort((a, b) => a - b);
+    const orders = request.slideOrders
+      .map((item) => item.displayOrder)
+      .sort((a, b) => a - b);
     for (let i = 0; i < orders.length; i++) {
       if (orders[i] < 0) {
-        throw new BadRequestException('Display order must be a positive number');
+        throw new BadRequestException(
+          'Display order must be a positive number',
+        );
       }
     }
 

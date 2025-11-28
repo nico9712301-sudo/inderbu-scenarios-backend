@@ -1,12 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository, Like, FindOptionsWhere, Not, In } from 'typeorm';
 
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
-import { IUserRepositoryPort } from 'src/core/domain/ports/outbound/user-repository.port';
-import { UserEntityMapper } from 'src/infrastructure/mappers/user/user-entity.mapper';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { UserPageOptionsDto } from '../../inbound/http/dtos/user/user-page-options.dto';
+import { IUserRepositoryPort } from '../../../../core/domain/ports/outbound/user-repository.port';
+import { UserEntityMapper } from '../../../mappers/user/user-entity.mapper';
+import { UserDomainEntity } from '../../../../core/domain/entities/user.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { UserEntity } from '../../../persistence/user.entity';
 

@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Provider } from '@nestjs/common';
-import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { SubScenarioImageEntity } from '../../persistence/image.entity';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const repositoryEntitiesProviders: Provider[] = [
   {

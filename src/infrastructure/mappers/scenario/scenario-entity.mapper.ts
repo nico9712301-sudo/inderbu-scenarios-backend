@@ -1,5 +1,5 @@
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
-import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
+import { ScenarioDomainEntity } from '../../../core/domain/entities/scenario.domain-entity';
+import { ScenarioEntity } from '../../persistence/scenario.entity';
 
 export class ScenarioEntityMapper {
   static toDomain(e: ScenarioEntity): ScenarioDomainEntity {

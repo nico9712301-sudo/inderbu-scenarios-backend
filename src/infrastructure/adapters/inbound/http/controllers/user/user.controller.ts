@@ -20,16 +20,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 
-import { IUserApplicationPort } from 'src/core/application/ports/inbound/user-application.port';
-import { UserResponseMapper } from 'src/infrastructure/mappers/user/user-response.mapper';
+import { IUserApplicationPort } from '../../../../../../core/application/ports/inbound/user-application.port';
+import { UserResponseMapper } from '../../../../../mappers/user/user-response.mapper';
 import { ResendConfirmationDto } from '../../dtos/user/resend-confirmation-request.dto';
 import { UserWithRelationsDto } from '../../dtos/user/user-with-relations.dto';
 import { UserResponseDto } from '../../dtos/user/create-user-response.dto';
 import { CreateUserDto } from '../../dtos/user/create-user-request.dto';
 import { UpdateUserDto } from '../../dtos/user/update-user.dto';
 import { UserPageOptionsDto } from '../../dtos/user/user-page-options.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { PageOptionsDto } from '../../dtos/common/page-options.dto';
+import { APPLICATION_PORTS } from '../../../../../../core/application/tokens/ports';
 import { PageDto } from '../../dtos/common/page.dto';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -43,8 +42,8 @@ export class UserController {
   @Get('/:userId/reservations')
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get all reservations for a given user' })
-  async findByUser(
-    @Param('userId', ParseIntPipe) userId: number,
+  findByUser(
+    @Param('userId', ParseIntPipe) _userId: number,
   ): Promise<any /*ReservationResponseDto[]*/> {
     //   return this.reservationService.getReservationsByUser(userId);
     return null as unknown as any;
@@ -141,9 +140,9 @@ export class UserController {
   ): Promise<UserResponseDto> {
     const userDomain =
       await this.userApplicationService.createUser(createUserDto);
-      console.log('userDomain', userDomain);
-      
-    const userDto: UserResponseDto =  UserResponseMapper.toDto(userDomain);
+    console.log('userDomain', userDomain);
+
+    const userDto: UserResponseDto = UserResponseMapper.toDto(userDomain);
     console.log('userDto', userDto);
     return userDto;
   }
@@ -191,5 +190,4 @@ export class UserController {
   ): Promise<{ message: string }> {
     return this.userApplicationService.resendConfirmation(email);
   }
-
 }

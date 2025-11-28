@@ -1,5 +1,5 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
@@ -77,4 +77,4 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 3001);
 }
 
-bootstrap();
+void bootstrap();

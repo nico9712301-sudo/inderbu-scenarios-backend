@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
+import { FieldSurfaceTypeEntity } from '../../../../../infrastructure/persistence/field-surface-type.entity';
 import { IFieldSurfaceTypeSeed } from '../interfaces/field-surface-type-seed.interface';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -27,15 +27,19 @@ export class FieldSurfaceTypeSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IFieldSurfaceTypeSeed[]> {
-    return this.jsonLoader.load<IFieldSurfaceTypeSeed>(
-      'field-surface-type-seeds.json',
+  protected getSeeds(): Promise<IFieldSurfaceTypeSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IFieldSurfaceTypeSeed>(
+        'field-surface-type-seeds.json',
+      ),
     );
   }
 
-  protected async transform(
+  protected transform(
     seeds: IFieldSurfaceTypeSeed[],
   ): Promise<FieldSurfaceTypeEntity[]> {
-    return seeds.map((seed) => this.repository.create({ name: seed.name }));
+    return Promise.resolve(
+      seeds.map((seed) => this.repository.create({ name: seed.name })),
+    );
   }
 }

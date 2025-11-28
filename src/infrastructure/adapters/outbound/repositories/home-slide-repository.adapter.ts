@@ -1,15 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { 
-  IHomeSlideRepositoryPort, 
-  HomeSlideFilters 
-} from 'src/core/domain/entities/home-slide/home-slide-repository.port';
-import { 
-  HomeSlideEntity as DomainHomeSlideEntity, 
-  HomeSlideType 
-} from 'src/core/domain/entities/home-slide/home-slide.entity';
-import { HomeSlideEntity as PersistenceHomeSlideEntity } from 'src/infrastructure/persistence/home-slide.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import {
+  IHomeSlideRepositoryPort,
+  HomeSlideFilters,
+} from '../../../../core/domain/entities/home-slide/home-slide-repository.port';
+import {
+  HomeSlideEntity as DomainHomeSlideEntity,
+  HomeSlideType,
+} from '../../../../core/domain/entities/home-slide/home-slide.entity';
+import { HomeSlideEntity as PersistenceHomeSlideEntity } from '../../../persistence/home-slide.entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 
 @Injectable()
 export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
@@ -23,14 +23,14 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
 
     // Apply filters
     if (filters?.slideType) {
-      queryBuilder.andWhere('slide.slideType = :slideType', { 
-        slideType: filters.slideType 
+      queryBuilder.andWhere('slide.slideType = :slideType', {
+        slideType: filters.slideType,
       });
     }
 
     if (filters?.isActive !== undefined) {
-      queryBuilder.andWhere('slide.isActive = :isActive', { 
-        isActive: filters.isActive 
+      queryBuilder.andWhere('slide.isActive = :isActive', {
+        isActive: filters.isActive,
       });
     }
 
@@ -48,7 +48,9 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
     return slides.map(this.toDomain);
   }
 
-  async findActiveSlides(slideType?: HomeSlideType): Promise<DomainHomeSlideEntity[]> {
+  async findActiveSlides(
+    slideType?: HomeSlideType,
+  ): Promise<DomainHomeSlideEntity[]> {
     const filters: HomeSlideFilters = {
       isActive: true,
       orderBy: 'displayOrder',
@@ -67,7 +69,9 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
     return slide ? this.toDomain(slide) : null;
   }
 
-  async create(slideData: Omit<DomainHomeSlideEntity, 'id' | 'createdAt' | 'updatedAt'>): Promise<DomainHomeSlideEntity> {
+  async create(
+    slideData: Omit<DomainHomeSlideEntity, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<DomainHomeSlideEntity> {
     const slideEntity = {
       title: slideData.title,
       description: slideData.description,
@@ -81,7 +85,10 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
     return this.toDomain(savedSlide);
   }
 
-  async update(id: number, slide: DomainHomeSlideEntity): Promise<DomainHomeSlideEntity> {
+  async update(
+    id: number,
+    slide: DomainHomeSlideEntity,
+  ): Promise<DomainHomeSlideEntity> {
     await this.homeSlideRepository.update(id, {
       title: slide.title,
       description: slide.description,
@@ -92,7 +99,9 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
       updatedAt: slide.updatedAt,
     });
 
-    const updatedSlide = await this.homeSlideRepository.findOne({ where: { id } });
+    const updatedSlide = await this.homeSlideRepository.findOne({
+      where: { id },
+    });
     if (!updatedSlide) {
       throw new Error(`HomeSlide with id ${id} not found`);
     }
@@ -100,7 +109,10 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
     return this.toDomain(updatedSlide);
   }
 
-  async updateActiveStatus(id: number, isActive: boolean): Promise<DomainHomeSlideEntity> {
+  async updateActiveStatus(
+    id: number,
+    isActive: boolean,
+  ): Promise<DomainHomeSlideEntity> {
     const slide = await this.findById(id);
     if (!slide) {
       throw new Error(`HomeSlide with id ${id} not found`);
@@ -110,7 +122,9 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
     return this.update(id, slide);
   }
 
-  async updateDisplayOrders(updates: Array<{ id: number; displayOrder: number }>): Promise<void> {
+  async updateDisplayOrders(
+    updates: Array<{ id: number; displayOrder: number }>,
+  ): Promise<void> {
     for (const update of updates) {
       await this.homeSlideRepository.update(update.id, {
         displayOrder: update.displayOrder,
@@ -126,13 +140,13 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
 
   async getNextDisplayOrder(slideType?: HomeSlideType): Promise<number> {
     const queryBuilder = this.homeSlideRepository.createQueryBuilder('slide');
-    
+
     if (slideType) {
       queryBuilder.where('slide.slideType = :slideType', { slideType });
     }
-    
+
     queryBuilder.orderBy('slide.displayOrder', 'DESC').limit(1);
-    
+
     const lastSlide = await queryBuilder.getOne();
     return lastSlide ? lastSlide.displayOrder + 1 : 0;
   }
@@ -145,7 +159,9 @@ export class HomeSlideRepositoryAdapter implements IHomeSlideRepositoryPort {
   /**
    * Converts persistence entity to domain entity
    */
-  private toDomain(persistence: PersistenceHomeSlideEntity): DomainHomeSlideEntity {
+  private toDomain(
+    persistence: PersistenceHomeSlideEntity,
+  ): DomainHomeSlideEntity {
     return DomainHomeSlideEntity.fromPersistence({
       id: persistence.id,
       title: persistence.title,

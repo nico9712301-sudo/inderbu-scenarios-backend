@@ -1,5 +1,5 @@
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { FieldSurfaceTypeResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/field-surface-types/field-surface-type-response.dto';
+import { FieldSurfaceTypeDomainEntity } from '../../../core/domain/entities/field-surface-type.domain-entity';
+import { FieldSurfaceTypeResponseDto } from '../../adapters/inbound/http/dtos/field-surface-types/field-surface-type-response.dto';
 
 export class FieldSurfaceTypeResponseMapper {
   static toDto(

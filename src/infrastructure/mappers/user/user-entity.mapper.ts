@@ -1,6 +1,6 @@
-import { UserEntity } from 'src/infrastructure/persistence/user.entity';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
+import { UserEntity } from '../../persistence/user.entity';
+import { UserDomainEntity } from '../../../core/domain/entities/user.domain-entity';
+import { RoleEntity } from '../../persistence/role.entity';
 
 export class UserEntityMapper {
   static toDomain(entity: UserEntity): UserDomainEntity {

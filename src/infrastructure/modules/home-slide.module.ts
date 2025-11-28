@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 
-import { HomeSlideController } from 'src/infrastructure/adapters/inbound/http/controllers/home-slide.controller';
-import { ModulesController, EntitiesController } from 'src/infrastructure/adapters/inbound/http/controllers/modules.controller';
+import { HomeSlideController } from '../adapters/inbound/http/controllers/home-slide.controller';
+import {
+  ModulesController,
+  EntitiesController,
+} from '../adapters/inbound/http/controllers/modules.controller';
 import { homeSlideProviders } from '../providers/home-slide/home-slide.providers';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { APPLICATION_PORTS } from '../../core/application/tokens/ports';
+import { REPOSITORY_PORTS } from '../tokens/ports';
 import { DatabaseModule } from './database/database.module';
 
 @Module({

@@ -1,5 +1,5 @@
 import { FieldSurfaceTypeDomainEntity } from '../../entities/field-surface-type.domain-entity';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { PageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 
 export interface IFieldSurfaceTypeRepositoryPort {
   // Operaciones básicas CRUD

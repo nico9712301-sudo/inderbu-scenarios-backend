@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { ActivityAreaEntity } from 'src/infrastructure/persistence/activity-area.entity';
+import { ActivityAreaEntity } from '../../../../../infrastructure/persistence/activity-area.entity';
 import { IActivityAreaSeed } from '../interfaces/activity-area-seed.interface';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -27,13 +27,17 @@ export class ActivityAreaSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IActivityAreaSeed[]> {
-    return this.jsonLoader.load<IActivityAreaSeed>('activity-area-seeds.json');
+  protected getSeeds(): Promise<IActivityAreaSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IActivityAreaSeed>('activity-area-seeds.json'),
+    );
   }
 
-  protected async transform(
+  protected transform(
     seeds: IActivityAreaSeed[],
   ): Promise<ActivityAreaEntity[]> {
-    return seeds.map((seed) => this.repository.create({ name: seed.name }));
+    return Promise.resolve(
+      seeds.map((seed) => this.repository.create({ name: seed.name })),
+    );
   }
 }

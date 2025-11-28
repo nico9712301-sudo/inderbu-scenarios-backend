@@ -1,12 +1,12 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 
-import { SubScenarioEntityMapper } from 'src/infrastructure/mappers/sub-scenario/sub-scenario-entity.mapper';
-import { ISubScenarioRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-repository.port';
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
+import { SubScenarioEntityMapper } from '../../../mappers/sub-scenario/sub-scenario-entity.mapper';
+import { ISubScenarioRepositoryPort } from '../../../../core/domain/ports/outbound/sub-scenario-repository.port';
+import { SubScenarioDomainEntity } from '../../../../core/domain/entities/sub-scenario.domain-entity';
+import { SubScenarioEntity } from '../../../persistence/sub-scenario.entity';
 import { SubScenarioPageOptionsDto } from '../../inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { SearchQueryHelper } from './common/search-query.helper';
 
@@ -125,7 +125,10 @@ export class SubScenarioRepositoryAdapter
 
     const [entities, total] = await qb.getManyAndCount();
 
-    return { data: entities.map(SubScenarioEntityMapper.toDomain), total };
+    return {
+      data: entities.map((entity) => SubScenarioEntityMapper.toDomain(entity)),
+      total,
+    };
   }
 
   /**

@@ -1,5 +1,5 @@
-import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
-import { ReservationStateDomainEntity } from 'src/core/domain/entities/reservation-state.domain-entity';
+import { ReservationStateEntity } from '../../persistence/reservation-state.entity';
+import { ReservationStateDomainEntity } from '../../../core/domain/entities/reservation-state.domain-entity';
 
 export class ReservationStateEntityMapper {
   static toDomain(

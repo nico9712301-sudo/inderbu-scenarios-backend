@@ -5,21 +5,21 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import { ScenarioResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/scenario/scenario-response.dto';
-import { CreateScenarioDto } from 'src/infrastructure/adapters/inbound/http/dtos/scenario/create-scenario.dto';
-import { UpdateScenarioDto } from 'src/infrastructure/adapters/inbound/http/dtos/scenario/update-scenario.dto';
-import { INeighborhoodRepositoryPort } from 'src/core/domain/ports/outbound/neighborhood-repository.port';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { ScenarioResponseMapper } from 'src/infrastructure/mappers/scenario/scenario-response.mapper';
+import { ScenarioResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/scenario/scenario-response.dto';
+import { CreateScenarioDto } from '../../../infrastructure/adapters/inbound/http/dtos/scenario/create-scenario.dto';
+import { UpdateScenarioDto } from '../../../infrastructure/adapters/inbound/http/dtos/scenario/update-scenario.dto';
+import { INeighborhoodRepositoryPort } from '../../domain/ports/outbound/neighborhood-repository.port';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { ScenarioResponseMapper } from '../../../infrastructure/mappers/scenario/scenario-response.mapper';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { IScenarioRepositoryPort } from 'src/core/domain/ports/outbound/scenario-repository.port';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { IScenarioRepositoryPort } from '../../domain/ports/outbound/scenario-repository.port';
+import { NeighborhoodDomainEntity } from '../../domain/entities/neighborhood.domain-entity';
+import { ScenarioDomainEntity } from '../../domain/entities/scenario.domain-entity';
 import { IScenarioApplicationPort } from '../ports/inbound/scenario-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class ScenarioApplicationService implements IScenarioApplicationPort {
@@ -35,7 +35,7 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
   }
 
   async getById(id: number): Promise<ScenarioDomainEntity | null> {
-    const scenario = this.scenarioRepository.findById(id);
+    const scenario = await this.scenarioRepository.findById(id);
     if (!scenario) throw new NotFoundException(`Escenario ${id} no encontrado`);
     return scenario;
   }
@@ -189,7 +189,7 @@ export class ScenarioApplicationService implements IScenarioApplicationPort {
     try {
       // Intentar eliminar el escenario
       return await this.scenarioRepository.delete(id);
-    } catch (error) {
+    } catch {
       // Si hay sub-escenarios asociados, manejar el error
       throw new BadRequestException(
         'No se puede eliminar el escenario porque tiene sub-escenarios asociados. Elimine primero los sub-escenarios.',

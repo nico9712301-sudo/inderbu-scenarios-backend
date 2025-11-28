@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository, In, Not } from 'typeorm';
 
-import { SubScenarioImageEntity } from 'src/infrastructure/persistence/image.entity';
-import { ISubScenarioImageRepositoryPort } from 'src/core/domain/ports/outbound/sub-scenario-image-repository.port';
-import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
-import { SubScenarioImageEntityMapper } from 'src/infrastructure/mappers/images/image-entity.mapper';
+import { SubScenarioImageEntity } from '../../../persistence/image.entity';
+import { ISubScenarioImageRepositoryPort } from '../../../../core/domain/ports/outbound/sub-scenario-image-repository.port';
+import { SubScenarioImageDomainEntity } from '../../../../core/domain/entities/sub-scenario-image.domain-entity';
+import { SubScenarioImageEntityMapper } from '../../../mappers/images/image-entity.mapper';
 
 @Injectable()
 export class SubScenarioImageRepositoryAdapter
@@ -49,7 +49,9 @@ export class SubScenarioImageRepositoryAdapter
         relations: ['subScenario'],
         order: { isFeature: 'DESC', displayOrder: 'ASC' },
       });
-      return entities.map(SubScenarioImageEntityMapper.toDomain);
+      return entities.map((entity) =>
+        SubScenarioImageEntityMapper.toDomain(entity),
+      );
     } catch (error) {
       console.error(
         'Error fetching images for subScenarioId:',

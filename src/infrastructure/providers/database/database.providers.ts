@@ -1,7 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
-import { ENV_CONFIG } from 'src/infrastructure/config/env.constants';
+import { DATA_SOURCE } from '../../tokens/data_sources';
+import { ENV_CONFIG } from '../../config/env.constants';
 import { persistenceEntities } from './entities';
 import { Logger } from '@nestjs/common';
 

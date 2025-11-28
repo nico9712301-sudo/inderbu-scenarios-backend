@@ -24,8 +24,8 @@ import { CreateCommuneDto } from '../dtos/commune/create-commune.dto';
 import { UpdateCommuneDto } from '../dtos/commune/update-commune.dto';
 import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { ICommuneApplicationPort } from 'src/core/application/ports/inbound/commune-application.port';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
+import { ICommuneApplicationPort } from '../../../../../core/application/ports/inbound/commune-application.port';
 
 @ApiTags('Communes')
 @Controller('communes')

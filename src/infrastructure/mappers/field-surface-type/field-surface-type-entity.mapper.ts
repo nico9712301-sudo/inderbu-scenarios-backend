@@ -1,5 +1,5 @@
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
+import { FieldSurfaceTypeDomainEntity } from '../../../core/domain/entities/field-surface-type.domain-entity';
+import { FieldSurfaceTypeEntity } from '../../persistence/field-surface-type.entity';
 
 export class FieldSurfaceTypeEntityMapper {
   static toDomain(

@@ -19,14 +19,14 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 
-import { ActivityAreaResponseMapper } from 'src/infrastructure/mappers/activity-area/activity-area-response.mapper';
-import { IActivityAreaApplicationPort } from 'src/core/application/ports/inbound/activity-area-application.port';
+import { ActivityAreaResponseMapper } from '../../../../mappers/activity-area/activity-area-response.mapper';
+import { IActivityAreaApplicationPort } from '../../../../../core/application/ports/inbound/activity-area-application.port';
 import { ActivityAreaResponseDto } from '../dtos/activity-area/activity-area-response.dto';
 import { CreateActivityAreaDto } from '../dtos/activity-area/create-activity-area.dto';
 import { UpdateActivityAreaDto } from '../dtos/activity-area/update-activity-area.dto';
 import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
 
 @ApiTags('Activity Areas')
 @Controller('activity-areas')
@@ -73,7 +73,7 @@ export class ActivityAreaController {
     // Si no se especifica página o límite, retornar lista completa sin paginar
     if (!opts.page && !opts.limit && !opts.search) {
       const list = await this.service.listAll();
-      return list.map(ActivityAreaResponseMapper.toDto);
+      return list.map((item) => ActivityAreaResponseMapper.toDto(item));
     }
 
     // Si hay parámetros de paginación o búsqueda, usar listPaged

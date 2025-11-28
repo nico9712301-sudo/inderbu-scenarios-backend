@@ -14,10 +14,7 @@ import {
   Query,
   ParseBoolPipe,
 } from '@nestjs/common';
-import {
-  FilesInterceptor,
-  FileFieldsInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiOperation,
   ApiParam,
@@ -28,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import * as fs from 'fs';
 
-import { ISubScenarioImageApplicationPort } from 'src/core/application/ports/inbound/sub-scenario-image-application.port';
+import { ISubScenarioImageApplicationPort } from '../../../../../core/application/ports/inbound/sub-scenario-image-application.port';
 import { SubScenarioImageResponseDto } from '../dtos/images/image-response.dto';
 import { CreateImageDto } from '../dtos/images/create-image.dto';
 import { UpdateImageDto } from '../dtos/images/update-image.dto';

@@ -19,15 +19,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 
-import { NeighborhoodResponseMapper } from 'src/infrastructure/mappers/neighborhood/neighborhood-response.mapper';
-import { INeighborhoodApplicationPort } from 'src/core/application/ports/inbound/neighborhood-application.port';
+import { NeighborhoodResponseMapper } from '../../../../mappers/neighborhood/neighborhood-response.mapper';
+import { INeighborhoodApplicationPort } from '../../../../../core/application/ports/inbound/neighborhood-application.port';
 import { NeighborhoodResponseDto } from '../dtos/neighborhood/neighborhood-response.dto';
 import { CreateNeighborhoodDto } from '../dtos/neighborhood/create-neighborhood.dto';
 import { UpdateNeighborhoodDto } from '../dtos/neighborhood/update-neighborhood.dto';
 import { PageOptionsDto } from '../dtos/common/page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
+import { NeighborhoodDomainEntity } from '../../../../../core/domain/entities/neighborhood.domain-entity';
 
 @ApiTags('Neighborhoods')
 @Controller('neighborhoods')
@@ -74,7 +74,7 @@ export class NeighborhoodController {
     // Si no se especifica página o límite, retornar lista completa sin paginar
     if (!opts.page && !opts.limit && !opts.search) {
       const list: NeighborhoodDomainEntity[] = await this.service.listAll();
-      return list.map(NeighborhoodResponseMapper.toDto);
+      return list.map((item) => NeighborhoodResponseMapper.toDto(item));
     }
 
     // Si hay parámetros de paginación o búsqueda, usar listPaged

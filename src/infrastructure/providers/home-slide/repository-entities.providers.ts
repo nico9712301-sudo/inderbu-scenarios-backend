@@ -1,10 +1,10 @@
 import { DataSource } from 'typeorm';
 
-import { HomeSlideEntity } from 'src/infrastructure/persistence/home-slide.entity';
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { EntityEntity } from 'src/infrastructure/persistence/entity.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { HomeSlideEntity } from '../../persistence/home-slide.entity';
+import { ModuleEntity } from '../../persistence/module.entity';
+import { EntityEntity } from '../../persistence/entity.entity';
+import { MYSQL_REPOSITORY } from '../../tokens/repositories';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const repositoryEntitiesProviders = [
   {

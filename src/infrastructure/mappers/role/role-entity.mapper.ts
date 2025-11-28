@@ -1,5 +1,5 @@
-import { RoleDomainEntity } from 'src/core/domain/entities/role.domain-entity';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
+import { RoleDomainEntity } from '../../../core/domain/entities/role.domain-entity';
+import { RoleEntity } from '../../persistence/role.entity';
 
 export class RoleEntityMapper {
   /**

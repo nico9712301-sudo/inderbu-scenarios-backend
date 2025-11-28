@@ -1,5 +1,5 @@
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
+import { SubScenarioEntity } from '../../persistence/sub-scenario.entity';
+import { SubScenarioDomainEntity } from '../../../core/domain/entities/sub-scenario.domain-entity';
 
 export class SubScenarioEntityMapper {
   static toDomain(entity: SubScenarioEntity): SubScenarioDomainEntity {

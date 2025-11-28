@@ -1,19 +1,19 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { NeighborhoodResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/neighborhood-response.dto';
-import { CreateNeighborhoodDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/create-neighborhood.dto';
-import { UpdateNeighborhoodDto } from 'src/infrastructure/adapters/inbound/http/dtos/neighborhood/update-neighborhood.dto';
-import { NeighborhoodResponseMapper } from 'src/infrastructure/mappers/neighborhood/neighborhood-response.mapper';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { NeighborhoodResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/neighborhood/neighborhood-response.dto';
+import { CreateNeighborhoodDto } from '../../../infrastructure/adapters/inbound/http/dtos/neighborhood/create-neighborhood.dto';
+import { UpdateNeighborhoodDto } from '../../../infrastructure/adapters/inbound/http/dtos/neighborhood/update-neighborhood.dto';
+import { NeighborhoodResponseMapper } from '../../../infrastructure/mappers/neighborhood/neighborhood-response.mapper';
 
-import { INeighborhoodRepositoryPort } from 'src/core/domain/ports/outbound/neighborhood-repository.port';
-import { ICommuneRepositoryPort } from 'src/core/domain/ports/outbound/commune-repository.port';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
+import { INeighborhoodRepositoryPort } from '../../domain/ports/outbound/neighborhood-repository.port';
+import { ICommuneRepositoryPort } from '../../domain/ports/outbound/commune-repository.port';
+import { NeighborhoodDomainEntity } from '../../domain/entities/neighborhood.domain-entity';
 import { INeighborhoodApplicationPort } from '../ports/inbound/neighborhood-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class NeighborhoodApplicationService
@@ -34,7 +34,7 @@ export class NeighborhoodApplicationService
     opts: PageOptionsDto,
   ): Promise<PageDto<NeighborhoodResponseDto>> {
     const { data, total } = await this.neighborhoodRepository.findPaged(opts);
-    const dto = data.map(NeighborhoodResponseMapper.toDto);
+    const dto = data.map((item) => NeighborhoodResponseMapper.toDto(item));
 
     return new PageDto(
       dto,

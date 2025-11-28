@@ -1,5 +1,4 @@
 import { ScenarioDomainEntity } from '../../entities/scenario.domain-entity';
-import { SubScenarioDomainEntity } from '../../entities/sub-scenario.domain-entity';
 import { PageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 
 export interface IScenarioRepositoryPort {

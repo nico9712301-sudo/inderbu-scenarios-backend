@@ -1,5 +1,5 @@
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
-import { SubScenarioResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response.dto';
+import { SubScenarioDomainEntity } from '../../../core/domain/entities/sub-scenario.domain-entity';
+import { SubScenarioResponseDto } from '../../adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response.dto';
 
 export class SubScenarioResponseMapper {
   static toDto(domain: SubScenarioDomainEntity): SubScenarioResponseDto {

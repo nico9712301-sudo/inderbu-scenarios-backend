@@ -1,0 +1,25 @@
+# docker-compose.yml  ← copia y pega tal cual
+services:
+  mysql:
+    image: mysql:8.0                  # Nativo ARM64 en Macs Apple Silicon
+    container_name: mysql-inderbu
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: inderbu
+      MYSQL_USER: inderbu_user
+      MYSQL_PASSWORD: inderbu123
+    ports:
+      - "3306:3306"                    # ← expone el puerto al host (tu Mac)
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: >                       # plugin moderno y compatible con Workbench
+      --default-authentication-plugin=caching_sha2_password
+    healthcheck:                     # opcional pero muy útil
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql-data:                        # persiste los datos aunque hagas down

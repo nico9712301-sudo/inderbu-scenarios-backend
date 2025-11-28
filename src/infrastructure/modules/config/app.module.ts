@@ -2,7 +2,7 @@ import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { SeedingService } from '../../../core/application/services/seeding/seeding.service';
-import { ENV_CONFIG } from 'src/infrastructure/config/env.constants';
+import { ENV_CONFIG } from '../../config/env.constants';
 import { LocationModule } from '../location/location.module';
 import { DatabaseModule } from '../database/database.module';
 import { ActivityAreaModule } from '../activity-area.module';

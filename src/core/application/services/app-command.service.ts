@@ -1,7 +1,7 @@
 import { Command } from 'nestjs-command';
 import { DataSource } from 'typeorm';
 import { Inject } from '@nestjs/common';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { DATA_SOURCE } from '../../../infrastructure/tokens/data_sources';
 
 export class AppCommandService {
   constructor(
@@ -19,8 +19,8 @@ export class AppCommandService {
     try {
       await queryRunner.connect();
       console.log('Ejecutando seeders...');
-      await this.runSeeders(this.datasource);
-    } catch (error) {
+      this.runSeeders();
+    } catch {
       if (queryRunner.isTransactionActive) {
         console.log('Revirtiendo la transacción...');
         await queryRunner.rollbackTransaction();
@@ -28,7 +28,7 @@ export class AppCommandService {
     }
   }
 
-  private async runSeeders(datasource: DataSource): Promise<void> {
+  private runSeeders(): void {
     console.log('Ejecutando seeders...');
     // await seedCities(datasource);
     console.log('Seeders ejecutados correctamente.');

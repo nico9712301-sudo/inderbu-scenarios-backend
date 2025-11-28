@@ -1,11 +1,11 @@
 import { DataSource } from 'typeorm';
 
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { ReservationEntity } from 'src/infrastructure/persistence/reservation.entity';
-import { ReservationTimeslotEntity } from 'src/infrastructure/persistence/reservation-timeslot.entity';
-import { ReservationInstanceEntity } from 'src/infrastructure/persistence/reservation-instance.entity';
-import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { MYSQL_REPOSITORY } from '../../tokens/repositories';
+import { ReservationEntity } from '../../persistence/reservation.entity';
+import { ReservationTimeslotEntity } from '../../persistence/reservation-timeslot.entity';
+import { ReservationInstanceEntity } from '../../persistence/reservation-instance.entity';
+import { ReservationStateEntity } from '../../persistence/reservation-state.entity';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const repositoryEntityProviders = [
   {

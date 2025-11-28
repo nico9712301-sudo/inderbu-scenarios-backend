@@ -1,7 +1,7 @@
-import { CommuneEntity } from 'src/infrastructure/persistence/commune.entity';
-import { CityEntity } from 'src/infrastructure/persistence/city.entity';
-import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-entity';
-import { CityDomainEntity } from 'src/core/domain/entities/city.domain-entity';
+import { CommuneEntity } from '../../persistence/commune.entity';
+import { CityEntity } from '../../persistence/city.entity';
+import { CommuneDomainEntity } from '../../../core/domain/entities/commune.domain-entity';
+import { CityDomainEntity } from '../../../core/domain/entities/city.domain-entity';
 
 export class CommuneEntityMapper {
   static toDomain(e: CommuneEntity): CommuneDomainEntity {

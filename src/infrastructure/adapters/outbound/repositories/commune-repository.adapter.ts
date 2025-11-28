@@ -2,11 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
-import { CommuneEntityMapper } from 'src/infrastructure/mappers/commune/commune-entity.mapper';
-import { ICommuneRepositoryPort } from 'src/core/domain/ports/outbound/commune-repository.port';
-import { CommuneDomainEntity } from 'src/core/domain/entities/commune.domain-entity';
+import { CommuneEntityMapper } from '../../../mappers/commune/commune-entity.mapper';
+import { ICommuneRepositoryPort } from '../../../../core/domain/ports/outbound/commune-repository.port';
+import { CommuneDomainEntity } from '../../../../core/domain/entities/commune.domain-entity';
 import { CommuneEntity } from '../../../persistence/commune.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { SearchQueryHelper } from './common/search-query.helper';
 
@@ -39,7 +39,7 @@ export class CommuneRepositoryAdapter
       relations: ['city'],
       order: { name: 'ASC' },
     });
-    return list.map(CommuneEntityMapper.toDomain);
+    return list.map((item) => CommuneEntityMapper.toDomain(item));
   }
 
   async findByIds(ids: number[]): Promise<CommuneDomainEntity[]> {
@@ -48,7 +48,7 @@ export class CommuneRepositoryAdapter
       where: { id: In(ids) },
       relations: ['city'], // Cargar relaciones
     });
-    return list.map(CommuneEntityMapper.toDomain);
+    return list.map((item) => CommuneEntityMapper.toDomain(item));
   }
 
   async findPaged(
@@ -77,7 +77,10 @@ export class CommuneRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    return { data: entities.map(CommuneEntityMapper.toDomain), total };
+    return {
+      data: entities.map((entity) => CommuneEntityMapper.toDomain(entity)),
+      total,
+    };
   }
 
   /**

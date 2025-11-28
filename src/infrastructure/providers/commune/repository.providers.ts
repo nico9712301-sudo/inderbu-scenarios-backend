@@ -1,5 +1,5 @@
-import { CommuneRepositoryAdapter } from 'src/infrastructure/adapters/outbound/repositories/commune-repository.adapter';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { CommuneRepositoryAdapter } from '../../adapters/outbound/repositories/commune-repository.adapter';
+import { REPOSITORY_PORTS } from '../../tokens/ports';
 
 export const repositoryProviders = [
   {

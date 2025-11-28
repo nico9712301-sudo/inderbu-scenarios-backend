@@ -1,6 +1,6 @@
 import { Provider } from '@nestjs/common';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
-import { SubScenarioImageRepositoryAdapter } from 'src/infrastructure/adapters/outbound/repositories/sub-scenario-image-repository.adapter';
+import { REPOSITORY_PORTS } from '../../tokens/ports';
+import { SubScenarioImageRepositoryAdapter } from '../../adapters/outbound/repositories/sub-scenario-image-repository.adapter';
 
 export const repositoryProviders: Provider[] = [
   {

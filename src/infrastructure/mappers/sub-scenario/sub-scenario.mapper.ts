@@ -1,12 +1,12 @@
-import { SubScenarioWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
-import { SubScenarioImageResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/images/image-response.dto';
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { SubScenarioImageDomainEntity } from 'src/core/domain/entities/sub-scenario-image.domain-entity';
-import { SubScenarioImageResponseMapper } from 'src/infrastructure/mappers/images/image-response.mapper';
-import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
+import { SubScenarioWithRelationsDto } from '../../adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
+import { SubScenarioImageResponseDto } from '../../adapters/inbound/http/dtos/images/image-response.dto';
+import { FieldSurfaceTypeDomainEntity } from '../../../core/domain/entities/field-surface-type.domain-entity';
+import { SubScenarioImageDomainEntity } from '../../../core/domain/entities/sub-scenario-image.domain-entity';
+import { SubScenarioImageResponseMapper } from '../images/image-response.mapper';
+import { ActivityAreaDomainEntity } from '../../../core/domain/entities/activity-area.domain-entity';
+import { NeighborhoodDomainEntity } from '../../../core/domain/entities/neighborhood.domain-entity';
+import { SubScenarioDomainEntity } from '../../../core/domain/entities/sub-scenario.domain-entity';
+import { ScenarioDomainEntity } from '../../../core/domain/entities/scenario.domain-entity';
 
 export class SubScenarioMapper {
   static toDto(
@@ -18,7 +18,9 @@ export class SubScenarioMapper {
     images: SubScenarioImageDomainEntity[] = [],
   ): SubScenarioWithRelationsDto {
     // Convertir todas las imágenes a DTOs
-    const imageDtos = images.map(SubScenarioImageResponseMapper.toDto);
+    const imageDtos = images.map((image) =>
+      SubScenarioImageResponseMapper.toDto(image),
+    );
 
     // Ordenar imágenes por orden de visualización
     const sortedImages = [...imageDtos].sort(

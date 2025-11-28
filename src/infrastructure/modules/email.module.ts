@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { APPLICATION_PORTS } from '../../core/application/tokens/ports';
 import { EtherealNotificationService } from '../adapters/outbound/email/ethereal-notification.service';
 
 @Module({

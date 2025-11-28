@@ -1,5 +1,5 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 import { DataSource } from 'typeorm';
 
 /**
@@ -38,7 +38,7 @@ export class FulltextIndexProvider implements OnModuleInit {
 
   /* ─────────────── helpers ───────────── */
 
-  /** ¿Existe ya el índice? – funciona en MariaDB y no depende de collation */
+  /** ¿Existe ya el índice? - funciona en MariaDB y no depende de collation */
   private async hasIndex(table: string, index: string): Promise<boolean> {
     const rows = await this.ds.query(
       `SHOW INDEX FROM \`${table}\` WHERE Key_name = ?`,

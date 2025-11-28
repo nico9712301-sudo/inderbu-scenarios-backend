@@ -10,7 +10,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,13 +17,11 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
-  ApiBearerAuth,
 } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 
-import { GetHomeSlidesUseCase } from 'src/core/application/use-cases/home-slide/get-home-slides.use-case';
-import { ManageHomeSlidesUseCase } from 'src/core/application/use-cases/home-slide/manage-home-slides.use-case';
-import { HomeSlideType } from 'src/core/domain/entities/home-slide/home-slide.entity';
+import { GetHomeSlidesUseCase } from '../../../../../core/application/use-cases/home-slide/get-home-slides.use-case';
+import { ManageHomeSlidesUseCase } from '../../../../../core/application/use-cases/home-slide/manage-home-slides.use-case';
+import { HomeSlideType } from '../../../../../core/domain/entities/home-slide/home-slide.entity';
 
 import { CreateHomeSlideDto } from '../dtos/home-slide/create-home-slide.dto';
 import { UpdateHomeSlideDto } from '../dtos/home-slide/update-home-slide.dto';
@@ -75,7 +72,7 @@ export class HomeSlideController {
       limit,
     });
 
-    return result.slides.map(this.toResponseDto);
+    return result.slides.map((slide) => this.toResponseDto(slide));
   }
 
   @Get('banners')
@@ -87,7 +84,7 @@ export class HomeSlideController {
   })
   async getHomeBanners(): Promise<HomeSlideResponseDto[]> {
     const slides = await this.getHomeSlidesUseCase.getHomeBanners();
-    return slides.map(this.toResponseDto);
+    return slides.map((slide) => this.toResponseDto(slide));
   }
 
   @Get('placeholder')
@@ -135,7 +132,8 @@ export class HomeSlideController {
   async createHomeSlide(
     @Body() createSlideDto: CreateHomeSlideDto,
   ): Promise<HomeSlideResponseDto> {
-    const slide = await this.manageHomeSlidesUseCase.createSlide(createSlideDto);
+    const slide =
+      await this.manageHomeSlidesUseCase.createSlide(createSlideDto);
     return this.toResponseDto(slide);
   }
 
@@ -155,7 +153,10 @@ export class HomeSlideController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateSlideDto: UpdateHomeSlideDto,
   ): Promise<HomeSlideResponseDto> {
-    const slide = await this.manageHomeSlidesUseCase.updateSlide(id, updateSlideDto);
+    const slide = await this.manageHomeSlidesUseCase.updateSlide(
+      id,
+      updateSlideDto,
+    );
     return this.toResponseDto(slide);
   }
 

@@ -2,11 +2,11 @@ import { Inject, Injectable } from '@nestjs/common';
 import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
-import { ActivityAreaEntityMapper } from 'src/infrastructure/mappers/activity-area/activity-area-entity.mapper';
-import { IActivityAreaRepositoryPort } from 'src/core/domain/ports/outbound/activity-area-repository.port';
-import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
-import { ActivityAreaEntity } from 'src/infrastructure/persistence/activity-area.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { ActivityAreaEntityMapper } from '../../../mappers/activity-area/activity-area-entity.mapper';
+import { IActivityAreaRepositoryPort } from '../../../../core/domain/ports/outbound/activity-area-repository.port';
+import { ActivityAreaDomainEntity } from '../../../../core/domain/entities/activity-area.domain-entity';
+import { ActivityAreaEntity } from '../../../persistence/activity-area.entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
@@ -26,7 +26,7 @@ export class ActivityAreaRepositoryAdapter
   async findByIds(ids: number[]) {
     if (!ids.length) return [];
     const list = await this.repository.findBy({ id: In(ids) });
-    return list.map(ActivityAreaEntityMapper.toDomain);
+    return list.map((item) => ActivityAreaEntityMapper.toDomain(item));
   }
 
   async save(d: ActivityAreaDomainEntity): Promise<ActivityAreaDomainEntity> {
@@ -65,7 +65,10 @@ export class ActivityAreaRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    return { data: entities.map(ActivityAreaEntityMapper.toDomain), total };
+    return {
+      data: entities.map((entity) => ActivityAreaEntityMapper.toDomain(entity)),
+      total,
+    };
   }
 
   /**

@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository, In } from 'typeorm';
 
-import { FieldSurfaceTypeEntityMapper } from 'src/infrastructure/mappers/field-surface-type/field-surface-type-entity.mapper';
-import { IFieldSurfaceTypeRepositoryPort } from 'src/core/domain/ports/outbound/field-surface-type-repository.port';
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
+import { FieldSurfaceTypeEntityMapper } from '../../../mappers/field-surface-type/field-surface-type-entity.mapper';
+import { IFieldSurfaceTypeRepositoryPort } from '../../../../core/domain/ports/outbound/field-surface-type-repository.port';
+import { FieldSurfaceTypeDomainEntity } from '../../../../core/domain/entities/field-surface-type.domain-entity';
+import { FieldSurfaceTypeEntity } from '../../../persistence/field-surface-type.entity';
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 
 @Injectable()
@@ -38,7 +38,9 @@ export class FieldSurfaceTypeRepositoryAdapter
 
   async findAll(): Promise<FieldSurfaceTypeDomainEntity[]> {
     const entities = await this.repository.find();
-    return entities.map(FieldSurfaceTypeEntityMapper.toDomain);
+    return entities.map((entity) =>
+      FieldSurfaceTypeEntityMapper.toDomain(entity),
+    );
   }
 
   async findByName(name: string): Promise<FieldSurfaceTypeDomainEntity | null> {
@@ -53,7 +55,9 @@ export class FieldSurfaceTypeRepositoryAdapter
       take: options.limit,
     });
     return {
-      data: entities.map(FieldSurfaceTypeEntityMapper.toDomain),
+      data: entities.map((entity) =>
+        FieldSurfaceTypeEntityMapper.toDomain(entity),
+      ),
       total,
     };
   }
@@ -71,7 +75,7 @@ export class FieldSurfaceTypeRepositoryAdapter
   async findByIds(ids: number[]) {
     if (!ids.length) return [];
     const list = await this.repository.findBy({ id: In(ids) });
-    return list.map(FieldSurfaceTypeEntityMapper.toDomain);
+    return list.map((item) => FieldSurfaceTypeEntityMapper.toDomain(item));
   }
 
   async save(d: FieldSurfaceTypeDomainEntity) {

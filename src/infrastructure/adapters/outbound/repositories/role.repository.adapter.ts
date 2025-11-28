@@ -1,12 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { RoleDomainEntity } from 'src/core/domain/entities/role.domain-entity';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
-import { RoleEntityMapper } from 'src/infrastructure/mappers/role/role-entity.mapper';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { RoleDomainEntity } from '../../../../core/domain/entities/role.domain-entity';
+import { RoleEntity } from '../../../persistence/role.entity';
+import { RoleEntityMapper } from '../../../mappers/role/role-entity.mapper';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
-import { IRoleRepositoryPort } from 'src/core/domain/ports/outbound/role.domain-entity';
+import { IRoleRepositoryPort } from '../../../../core/domain/ports/outbound/role.domain-entity';
 
 @Injectable()
 export class RoleRepositoryAdapter

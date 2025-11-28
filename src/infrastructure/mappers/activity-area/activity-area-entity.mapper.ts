@@ -1,5 +1,5 @@
-import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
-import { ActivityAreaEntity } from 'src/infrastructure/persistence/activity-area.entity';
+import { ActivityAreaDomainEntity } from '../../../core/domain/entities/activity-area.domain-entity';
+import { ActivityAreaEntity } from '../../persistence/activity-area.entity';
 
 export class ActivityAreaEntityMapper {
   static toDomain(e: ActivityAreaEntity): ActivityAreaDomainEntity {

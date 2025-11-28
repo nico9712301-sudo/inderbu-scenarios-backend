@@ -2,11 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
-import { NeighborhoodEntityMapper } from 'src/infrastructure/mappers/neighborhood/neighborhood-entity.mapper';
-import { INeighborhoodRepositoryPort } from 'src/core/domain/ports/outbound/neighborhood-repository.port';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
+import { NeighborhoodEntityMapper } from '../../../mappers/neighborhood/neighborhood-entity.mapper';
+import { INeighborhoodRepositoryPort } from '../../../../core/domain/ports/outbound/neighborhood-repository.port';
+import { NeighborhoodDomainEntity } from '../../../../core/domain/entities/neighborhood.domain-entity';
 import { NeighborhoodEntity } from '../../../persistence/neighborhood.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { SearchQueryHelper } from './common/search-query.helper';
 
@@ -39,7 +39,7 @@ export class NeighborhoodRepositoryAdapter
       relations: ['commune', 'commune.city'], // Cargar relaciones
       order: { name: 'ASC' },
     });
-    return list.map(NeighborhoodEntityMapper.toDomain);
+    return list.map((item) => NeighborhoodEntityMapper.toDomain(item));
   }
 
   async findByIds(ids: number[]): Promise<NeighborhoodDomainEntity[]> {
@@ -48,7 +48,7 @@ export class NeighborhoodRepositoryAdapter
       where: { id: In(ids) },
       relations: ['commune', 'commune.city'], // Cargar relaciones
     });
-    return list.map(NeighborhoodEntityMapper.toDomain);
+    return list.map((item) => NeighborhoodEntityMapper.toDomain(item));
   }
 
   async findPaged(
@@ -78,7 +78,10 @@ export class NeighborhoodRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    return { data: entities.map(NeighborhoodEntityMapper.toDomain), total };
+    return {
+      data: entities.map((entity) => NeighborhoodEntityMapper.toDomain(entity)),
+      total,
+    };
   }
 
   /**

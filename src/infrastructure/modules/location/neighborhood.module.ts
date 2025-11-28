@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { NeighborhoodController } from 'src/infrastructure/adapters/inbound/http/controllers/neighborhood.controller';
-import { neighborhoodProviders } from 'src/infrastructure/providers/neighborhood/neighborhood.providers';
+import { NeighborhoodController } from '../../adapters/inbound/http/controllers/neighborhood.controller';
+import { neighborhoodProviders } from '../../providers/neighborhood/neighborhood.providers';
 import { DatabaseModule } from '../database/database.module';
 import { CommuneModule } from './commune.module'; // Import CommuneModule en lugar de providers directos
 

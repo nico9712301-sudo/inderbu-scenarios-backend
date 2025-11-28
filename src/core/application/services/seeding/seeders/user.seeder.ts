@@ -3,11 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
-import { NeighborhoodEntity } from 'src/infrastructure/persistence/neighborhood.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { UserEntity } from 'src/infrastructure/persistence/user.entity';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { NeighborhoodEntity } from '../../../../../infrastructure/persistence/neighborhood.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { UserEntity } from '../../../../../infrastructure/persistence/user.entity';
+import { RoleEntity } from '../../../../../infrastructure/persistence/role.entity';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { IUserSeed } from '../interfaces/user-seed.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
@@ -36,8 +36,8 @@ export class UserSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IUserSeed[]> {
-    return this.jsonLoader.load<IUserSeed>('user-seeds.json');
+  protected getSeeds(): Promise<IUserSeed[]> {
+    return Promise.resolve(this.jsonLoader.load<IUserSeed>('user-seeds.json'));
   }
 
   protected async transform(seeds: IUserSeed[]): Promise<UserEntity[]> {

@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { MenuItemEntity } from 'src/infrastructure/persistence/menu-item.entity';
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { MenuItemEntity } from '../../../../../infrastructure/persistence/menu-item.entity';
+import { ModuleEntity } from '../../../../../infrastructure/persistence/module.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
 import { IMenuItemSeed } from '../interfaces/menu-item-seed.interface';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -30,8 +30,10 @@ export class MenuItemSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IMenuItemSeed[]> {
-    return this.jsonLoader.load<IMenuItemSeed>('menu-item-seeds.json');
+  protected getSeeds(): Promise<IMenuItemSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IMenuItemSeed>('menu-item-seeds.json'),
+    );
   }
 
   protected async transform(seeds: IMenuItemSeed[]): Promise<MenuItemEntity[]> {

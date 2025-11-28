@@ -1,8 +1,8 @@
-import { SubScenarioPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
-import { PageDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { SubScenarioWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
-import { CreateSubScenarioDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/create-sub-scenario.dto';
-import { UpdateSubScenarioDto } from 'src/infrastructure/adapters/inbound/http/dtos/sub-scenarios/update-sub-scenario.dto';
+import { SubScenarioPageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-page-options.dto';
+import { PageDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { SubScenarioWithRelationsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
+import { CreateSubScenarioDto } from '../../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/create-sub-scenario.dto';
+import { UpdateSubScenarioDto } from '../../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/update-sub-scenario.dto';
 
 export interface ISubScenarioApplicationPort {
   listWithRelations(

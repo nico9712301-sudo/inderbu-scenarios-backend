@@ -1,12 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { HomeSlideEntity as PersistenceHomeSlideEntity, SlideType } from 'src/infrastructure/persistence/home-slide.entity';
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { EntityEntity } from 'src/infrastructure/persistence/entity.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import {
+  HomeSlideEntity as PersistenceHomeSlideEntity,
+  SlideType,
+} from '../../../../../infrastructure/persistence/home-slide.entity';
+import { ModuleEntity } from '../../../../../infrastructure/persistence/module.entity';
+import { EntityEntity } from '../../../../../infrastructure/persistence/entity.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
 import { IHomeSlideSeed } from '../interfaces/home-slide-seed.interface';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -33,15 +36,20 @@ export class HomeSlideSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IHomeSlideSeed[]> {
-    return this.jsonLoader.load<IHomeSlideSeed>('home-slide-seeds.json');
+  protected getSeeds(): Promise<IHomeSlideSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IHomeSlideSeed>('home-slide-seeds.json'),
+    );
   }
 
-  protected async transform(seeds: IHomeSlideSeed[]): Promise<PersistenceHomeSlideEntity[]> {
+  protected async transform(
+    seeds: IHomeSlideSeed[],
+  ): Promise<PersistenceHomeSlideEntity[]> {
     const entities: PersistenceHomeSlideEntity[] = [];
     for (const seed of seeds) {
-      const slideType = seed.slideType === 'banner' ? SlideType.BANNER : SlideType.PLACEHOLDER;
-      
+      const slideType =
+        seed.slideType === 'banner' ? SlideType.BANNER : SlideType.PLACEHOLDER;
+
       let module: ModuleEntity | null = null;
       let entity: EntityEntity | null = null;
 
@@ -51,7 +59,9 @@ export class HomeSlideSeeder
           name: seed.moduleName,
         });
         if (!module) {
-          this.logger.warn(`Module ${seed.moduleName} not found for slide ${seed.title}.`);
+          this.logger.warn(
+            `Module ${seed.moduleName} not found for slide ${seed.title}.`,
+          );
           continue;
         }
       }
@@ -62,7 +72,9 @@ export class HomeSlideSeeder
           name: seed.entity,
         });
         if (!entity) {
-          this.logger.warn(`Entity ${seed.entity} not found for slide ${seed.title}.`);
+          this.logger.warn(
+            `Entity ${seed.entity} not found for slide ${seed.title}.`,
+          );
           continue;
         }
       }

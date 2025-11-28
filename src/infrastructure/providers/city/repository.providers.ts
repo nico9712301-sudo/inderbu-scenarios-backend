@@ -1,5 +1,5 @@
-import { CityRepositoryAdapter } from 'src/infrastructure/adapters/outbound/repositories/city-repository.adapter';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { CityRepositoryAdapter } from '../../adapters/outbound/repositories/city-repository.adapter';
+import { REPOSITORY_PORTS } from '../../tokens/ports';
 
 export const repositoryProviders = [
   {

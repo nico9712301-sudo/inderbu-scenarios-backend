@@ -20,7 +20,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 
-import { IFieldSurfaceTypeApplicationPort } from 'src/core/application/ports/inbound/field-surface-type-application.port';
+import { IFieldSurfaceTypeApplicationPort } from '../../../../../core/application/ports/inbound/field-surface-type-application.port';
 import { FieldSurfaceTypeResponseDto } from '../dtos/field-surface-types/field-surface-type-response.dto';
 import { CreateFieldSurfaceTypeDto } from '../dtos/field-surface-types/create-field-surface-type.dto';
 import { UpdateFieldSurfaceTypeDto } from '../dtos/field-surface-types/update-field-surface-type.dto';

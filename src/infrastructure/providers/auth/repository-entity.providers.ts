@@ -1,13 +1,13 @@
 import { DataSource } from 'typeorm';
 
-import { NeighborhoodEntity } from 'src/infrastructure/persistence/neighborhood.entity';
-import { PermissionEntity } from 'src/infrastructure/persistence/permission.entity';
-import { MenuItemEntity } from 'src/infrastructure/persistence/menu-item.entity';
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { UserEntity } from 'src/infrastructure/persistence/user.entity';
-import { RoleEntity } from 'src/infrastructure/persistence/role.entity';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { NeighborhoodEntity } from '../../persistence/neighborhood.entity';
+import { PermissionEntity } from '../../persistence/permission.entity';
+import { MenuItemEntity } from '../../persistence/menu-item.entity';
+import { ModuleEntity } from '../../persistence/module.entity';
+import { MYSQL_REPOSITORY } from '../../tokens/repositories';
+import { UserEntity } from '../../persistence/user.entity';
+import { RoleEntity } from '../../persistence/role.entity';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const repositoryEntityProviders = [
   {

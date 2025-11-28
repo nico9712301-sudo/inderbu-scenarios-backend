@@ -1,13 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
-import { ActivityAreaEntity } from 'src/infrastructure/persistence/activity-area.entity';
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
-import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
+import { FieldSurfaceTypeEntity } from '../../../../../infrastructure/persistence/field-surface-type.entity';
+import { ActivityAreaEntity } from '../../../../../infrastructure/persistence/activity-area.entity';
+import { SubScenarioEntity } from '../../../../../infrastructure/persistence/sub-scenario.entity';
+import { ScenarioEntity } from '../../../../../infrastructure/persistence/scenario.entity';
 import { ISubScenarioSeed } from '../interfaces/sub-scenario-seed.interface';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -36,8 +36,10 @@ export class SubScenarioSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<ISubScenarioSeed[]> {
-    return this.jsonLoader.load<ISubScenarioSeed>('sub-scenario-seeds.json');
+  protected getSeeds(): Promise<ISubScenarioSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<ISubScenarioSeed>('sub-scenario-seeds.json'),
+    );
   }
 
   protected async transform(

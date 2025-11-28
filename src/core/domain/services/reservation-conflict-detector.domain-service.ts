@@ -24,15 +24,15 @@ export class ReservationConflictDetectorDomainService {
   /**
    * Método simplificado para detectar conflictos desde Application Service
    */
-  async detectConflictsForNewReservation(
-    subScenarioId: number,
-    timeslotIds: number[],
-    reservationDates: Date[],
+  detectConflictsForNewReservation(
+    _subScenarioId: number,
+    _timeslotIds: number[],
+    _reservationDates: Date[],
   ): Promise<ReservationConflict[]> {
     // Por ahora retornamos array vacío
     // En una implementación completa, aquí consultaríamos el repositorio
     // para obtener las instancias existentes
-    return [];
+    return Promise.resolve([]);
   }
 
   /**

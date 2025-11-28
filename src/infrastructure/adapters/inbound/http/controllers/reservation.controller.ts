@@ -24,19 +24,19 @@ import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
 } from '../dtos/reservation/reservation.dto';
-import { IReservationApplicationPort } from 'src/core/application/ports/inbound/reservation-application.port';
+import { IReservationApplicationPort } from '../../../../../core/application/ports/inbound/reservation-application.port';
 import { CreateReservationRequestDto } from '../dtos/reservation/create-reservation-request.dto';
 import { AvailabilityQueryDto } from '../dtos/reservation/availability-query.dto';
 import { ReservationPageOptionsDto } from '../dtos/reservation/reservation-page-options.dto';
 import { UpdateReservationStateDto } from '../dtos/reservation/update-reservation-state.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../../tokens/ports';
 import { PageDto } from '../dtos/common/page.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { SimplifiedAvailabilityResponseDto } from '../dtos/reservation/simplified-availability-response.dto';
 import { ReservationStateDto } from '../dtos/reservation/base-reservation.dto';
-import { IReservationStateRepositoryPort } from 'src/core/domain/ports/outbound/reservation-state-repository.port';
-import { ReservationStateResponseMapper } from 'src/infrastructure/mappers/reservation-state/reservation-state-response.mapper';
+import { IReservationStateRepositoryPort } from '../../../../../core/domain/ports/outbound/reservation-state-repository.port';
+import { ReservationStateResponseMapper } from '../../../../mappers/reservation-state/reservation-state-response.mapper';
 
 @ApiTags('Reservations')
 @Controller('reservations')

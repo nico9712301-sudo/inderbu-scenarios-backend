@@ -1,5 +1,5 @@
-import { TimeSlotDomainEntity } from 'src/core/domain/entities/time-slot.domain-entity';
-import { TimeslotResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/time-slot/timeslot-response.dto';
+import { TimeSlotDomainEntity } from '../../../core/domain/entities/time-slot.domain-entity';
+import { TimeslotResponseDto } from '../../adapters/inbound/http/dtos/time-slot/timeslot-response.dto';
 
 export class TimeSlotMapper {
   static toDto(

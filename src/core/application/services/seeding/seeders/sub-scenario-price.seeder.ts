@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { SubScenarioPriceEntity } from 'src/infrastructure/persistence/sub-scenario-price.entity';
+import { SubScenarioPriceEntity } from '../../../../../infrastructure/persistence/sub-scenario-price.entity';
 import { ISubScenarioPriceSeed } from '../interfaces/sub-scenario-price-seed.interface';
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { SubScenarioEntity } from '../../../../../infrastructure/persistence/sub-scenario.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -30,9 +30,11 @@ export class SubScenarioPriceSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<ISubScenarioPriceSeed[]> {
-    return this.jsonLoader.load<ISubScenarioPriceSeed>(
-      'sub-scenario-price-seeds.json',
+  protected getSeeds(): Promise<ISubScenarioPriceSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<ISubScenarioPriceSeed>(
+        'sub-scenario-price-seeds.json',
+      ),
     );
   }
 

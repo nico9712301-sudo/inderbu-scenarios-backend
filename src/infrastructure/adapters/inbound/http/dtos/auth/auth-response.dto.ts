@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsJWT, IsNotEmpty } from 'class-validator';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
+import { UserDomainEntity } from '../../../../../../core/domain/entities/user.domain-entity';
 
 export class AuthTokensDto {
   @ApiProperty({

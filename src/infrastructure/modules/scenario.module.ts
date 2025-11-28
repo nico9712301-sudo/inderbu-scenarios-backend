@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 
-import { ScenarioController } from 'src/infrastructure/adapters/inbound/http/controllers/scenario.controller';
+import { ScenarioController } from '../adapters/inbound/http/controllers/scenario.controller';
 import { scenarioProviders } from '../providers/scenario/scenario.providers';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { APPLICATION_PORTS } from '../../core/application/tokens/ports';
+import { REPOSITORY_PORTS } from '../tokens/ports';
 import { DatabaseModule } from './database/database.module';
 import { RedisModule } from './redis.module';
-import { ScenarioExportApplicationService } from 'src/core/application/services/scenario-export-application.service';
-import { RedisExportJobService } from 'src/core/application/services/export/redis-export-job.service';
-import { FileExportService } from 'src/core/application/services/export/file-export.service';
+import { ScenarioExportApplicationService } from '../../core/application/services/scenario-export-application.service';
+import { RedisExportJobService } from '../../core/application/services/export/redis-export-job.service';
+import { FileExportService } from '../../core/application/services/export/file-export.service';
 
 @Module({
   imports: [DatabaseModule, RedisModule],

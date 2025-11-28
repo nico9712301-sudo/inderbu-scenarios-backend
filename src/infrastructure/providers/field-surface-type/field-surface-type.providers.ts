@@ -1,13 +1,11 @@
 import { Provider } from '@nestjs/common';
 import { Connection } from 'typeorm';
 
-import { FieldSurfaceTypeEntity } from 'src/infrastructure/persistence/field-surface-type.entity';
-import { FieldSurfaceTypeRepositoryAdapter } from 'src/infrastructure/adapters/outbound/repositories/field-surface-type-repository.adapter';
-import { IFieldSurfaceTypeRepositoryPort } from 'src/core/domain/ports/outbound/field-surface-type-repository.port';
-import { FieldSurfaceTypeApplicationService } from 'src/core/application/services/field-surface-type-application.service';
-import { IFieldSurfaceTypeApplicationPort } from 'src/core/application/ports/inbound/field-surface-type-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
+import { FieldSurfaceTypeEntity } from '../../persistence/field-surface-type.entity';
+import { FieldSurfaceTypeRepositoryAdapter } from '../../adapters/outbound/repositories/field-surface-type-repository.adapter';
+import { FieldSurfaceTypeApplicationService } from '../../../core/application/services/field-surface-type-application.service';
+import { REPOSITORY_PORTS } from '../../tokens/ports';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const fieldSurfaceTypeProviders: Provider[] = [
   // Repositorio de TypeORM para FieldSurfaceTypeEntity

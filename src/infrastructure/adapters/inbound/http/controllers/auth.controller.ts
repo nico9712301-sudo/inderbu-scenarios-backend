@@ -20,8 +20,8 @@ import {
   UserDto,
   RefreshTokenDto,
 } from '../dtos/auth/auth-response.dto';
-import { AuthApplicationService } from 'src/core/application/services/auth.service';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
+import { AuthApplicationService } from '../../../../../core/application/services/auth.service';
+import { UserDomainEntity } from '../../../../../core/domain/entities/user.domain-entity';
 import { LoginDto } from '../dtos/auth/login.dto';
 
 @Controller('auth')

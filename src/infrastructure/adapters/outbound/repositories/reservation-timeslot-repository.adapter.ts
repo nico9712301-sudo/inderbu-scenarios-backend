@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository, FindOptionsWhere, In } from 'typeorm';
+import { Repository, In } from 'typeorm';
 
-import { IReservationTimeslotRepositoryPort } from 'src/core/domain/ports/outbound/reservation-timeslot-repository.port';
-import { ReservationTimeslotEntityMapper } from 'src/infrastructure/mappers/reservation/reservation-timeslot-entity.mapper';
-import { ReservationTimeslotDomainEntity } from 'src/core/domain/entities/reservation-timeslot.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { IReservationTimeslotRepositoryPort } from '../../../../core/domain/ports/outbound/reservation-timeslot-repository.port';
+import { ReservationTimeslotEntityMapper } from '../../../mappers/reservation/reservation-timeslot-entity.mapper';
+import { ReservationTimeslotDomainEntity } from '../../../../core/domain/entities/reservation-timeslot.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { ReservationTimeslotEntity } from '../../../persistence/reservation-timeslot.entity';
 
@@ -76,7 +76,7 @@ export class ReservationTimeslotRepositoryAdapter
       }),
     );
 
-    const savedEntities = await this.repository.save(entities);
+    await this.repository.save(entities);
 
     // Recargar con relaciones
     const entitiesWithRelations = await this.repository.find({

@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 
 import { IFieldSurfaceTypeApplicationPort } from '../ports/inbound/field-surface-type-application.port';
-import { IFieldSurfaceTypeRepositoryPort } from 'src/core/domain/ports/outbound/field-surface-type-repository.port';
-import { FieldSurfaceTypeDomainEntity } from 'src/core/domain/entities/field-surface-type.domain-entity';
-import { FieldSurfaceTypeResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/field-surface-types/field-surface-type-response.dto';
-import { FieldSurfaceTypeResponseMapper } from 'src/infrastructure/mappers/field-surface-type/field-surface-type-response.mapper';
+import { IFieldSurfaceTypeRepositoryPort } from '../../domain/ports/outbound/field-surface-type-repository.port';
+import { FieldSurfaceTypeDomainEntity } from '../../domain/entities/field-surface-type.domain-entity';
+import { FieldSurfaceTypeResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/field-surface-types/field-surface-type-response.dto';
+import { FieldSurfaceTypeResponseMapper } from '../../../infrastructure/mappers/field-surface-type/field-surface-type-response.mapper';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { CreateFieldSurfaceTypeDto } from 'src/infrastructure/adapters/inbound/http/dtos/field-surface-types/create-field-surface-type.dto';
-import { UpdateFieldSurfaceTypeDto } from 'src/infrastructure/adapters/inbound/http/dtos/field-surface-types/update-field-surface-type.dto';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { CreateFieldSurfaceTypeDto } from '../../../infrastructure/adapters/inbound/http/dtos/field-surface-types/create-field-surface-type.dto';
+import { UpdateFieldSurfaceTypeDto } from '../../../infrastructure/adapters/inbound/http/dtos/field-surface-types/update-field-surface-type.dto';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class FieldSurfaceTypeApplicationService
@@ -30,7 +30,9 @@ export class FieldSurfaceTypeApplicationService
 
   async getAll(): Promise<FieldSurfaceTypeResponseDto[]> {
     const fieldSurfaceTypes = await this.fieldSurfaceTypeRepository.findAll();
-    return fieldSurfaceTypes.map(FieldSurfaceTypeResponseMapper.toDto);
+    return fieldSurfaceTypes.map((item) =>
+      FieldSurfaceTypeResponseMapper.toDto(item),
+    );
   }
 
   async getPaged(
@@ -39,7 +41,9 @@ export class FieldSurfaceTypeApplicationService
     const { data, total } =
       await this.fieldSurfaceTypeRepository.findPaged(options);
 
-    const dtoItems = data.map(FieldSurfaceTypeResponseMapper.toDto);
+    const dtoItems = data.map((item) =>
+      FieldSurfaceTypeResponseMapper.toDto(item),
+    );
 
     return new PageDto(
       dtoItems,

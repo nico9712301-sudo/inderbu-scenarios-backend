@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { RoleApplicationService } from 'src/core/application/services/role-application.service';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { RoleApplicationService } from '../../core/application/services/role-application.service';
+import { APPLICATION_PORTS } from '../../core/application/tokens/ports';
+import { REPOSITORY_PORTS } from '../tokens/ports';
 import { DatabaseModule } from './database/database.module';
 import { RoleController } from '../adapters/inbound/http/controllers/role.controller';
 import { RoleRepositoryAdapter } from '../adapters/outbound/repositories/role.repository.adapter';

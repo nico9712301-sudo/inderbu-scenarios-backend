@@ -1,10 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { ModuleEntity } from 'src/infrastructure/persistence/module.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { ModuleEntity } from '../../../../../infrastructure/persistence/module.entity';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
 import { IModuleSeed } from '../interfaces/module-seed.interface';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -27,13 +27,19 @@ export class ModuleSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<IModuleSeed[]> {
-    return this.jsonLoader.load<IModuleSeed>('module-seeds.json');
+  protected getSeeds(): Promise<IModuleSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<IModuleSeed>('module-seeds.json'),
+    );
   }
 
-  protected async transform(seeds: IModuleSeed[]): Promise<ModuleEntity[]> {
-    return seeds.map(seed => this.repository.create({
-      name: seed.name,
-    }));
+  protected transform(seeds: IModuleSeed[]): Promise<ModuleEntity[]> {
+    return Promise.resolve(
+      seeds.map((seed) =>
+        this.repository.create({
+          name: seed.name,
+        }),
+      ),
+    );
   }
 }

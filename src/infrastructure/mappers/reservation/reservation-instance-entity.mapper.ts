@@ -1,10 +1,10 @@
-import { ReservationInstanceEntity } from 'src/infrastructure/persistence/reservation-instance.entity';
-import { ReservationInstanceDomainEntity } from 'src/core/domain/entities/reservation-instance.domain-entity';
-import { ReservationEntity } from 'src/infrastructure/persistence/reservation.entity';
-import { TimeSlotEntity } from 'src/infrastructure/persistence/time-slot.entity';
-import { SubScenarioEntity } from 'src/infrastructure/persistence/sub-scenario.entity';
-import { UserEntity } from 'src/infrastructure/persistence/user.entity';
-import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
+import { ReservationInstanceEntity } from '../../persistence/reservation-instance.entity';
+import { ReservationInstanceDomainEntity } from '../../../core/domain/entities/reservation-instance.domain-entity';
+import { ReservationEntity } from '../../persistence/reservation.entity';
+import { TimeSlotEntity } from '../../persistence/time-slot.entity';
+import { SubScenarioEntity } from '../../persistence/sub-scenario.entity';
+import { UserEntity } from '../../persistence/user.entity';
+import { ReservationStateEntity } from '../../persistence/reservation-state.entity';
 
 export class ReservationInstanceEntityMapper {
   static toDomain(

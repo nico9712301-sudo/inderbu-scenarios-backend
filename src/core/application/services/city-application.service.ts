@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 
-import { ICityRepositoryPort } from 'src/core/domain/ports/outbound/city-repository.port';
+import { ICityRepositoryPort } from '../../domain/ports/outbound/city-repository.port';
 import { ICityApplicationPort } from '../ports/inbound/city-application.port';
-import { CityEntity } from 'src/infrastructure/persistence/city.entity';
-import { DATA_SOURCE } from 'src/infrastructure/tokens/data_sources';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { CityEntity } from '../../../infrastructure/persistence/city.entity';
+import { DATA_SOURCE } from '../../../infrastructure/tokens/data_sources';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class CityApplicationService implements ICityApplicationPort {

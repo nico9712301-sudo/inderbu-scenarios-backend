@@ -23,7 +23,7 @@ import {
 import { Response } from 'express';
 import { createReadStream } from 'fs';
 
-import { ISubScenarioApplicationPort } from 'src/core/application/ports/inbound/sub-scenario-application.port';
+import { ISubScenarioApplicationPort } from '../../../../../core/application/ports/inbound/sub-scenario-application.port';
 import { SubScenarioWithRelationsDto } from '../dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
 import { SubScenarioPageOptionsDto } from '../dtos/sub-scenarios/sub-scenario-page-options.dto';
 import { PageDto } from '../dtos/common/page.dto';
@@ -34,9 +34,9 @@ import {
   SubScenarioExportJobResponseDto,
   SubScenarioExportDownloadResponseDto,
 } from '../dtos/sub-scenarios/export-sub-scenarios.dto';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { SubScenarioExportApplicationService } from 'src/core/application/services/sub-scenario-export-application.service';
-import { ExportJob } from 'src/core/application/services/export/redis-export-job.service';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
+import { SubScenarioExportApplicationService } from '../../../../../core/application/services/sub-scenario-export-application.service';
+import { ExportJob } from '../../../../../core/application/services/export/redis-export-job.service';
 
 @ApiTags('Sub-escenarios')
 @Controller('sub-scenarios')

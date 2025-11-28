@@ -1,6 +1,6 @@
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
-import { ScenarioResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/scenario/scenario-response.dto';
+import { ScenarioDomainEntity } from '../../../core/domain/entities/scenario.domain-entity';
+import { NeighborhoodDomainEntity } from '../../../core/domain/entities/neighborhood.domain-entity';
+import { ScenarioResponseDto } from '../../adapters/inbound/http/dtos/scenario/scenario-response.dto';
 import { NeighborhoodResponseMapper } from '../neighborhood/neighborhood-response.mapper';
 
 export class ScenarioResponseMapper {

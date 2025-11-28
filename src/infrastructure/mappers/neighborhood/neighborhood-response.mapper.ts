@@ -1,4 +1,4 @@
-import { NeighborhoodDomainEntity } from 'src/core/domain/entities/neighborhood.domain-entity';
+import { NeighborhoodDomainEntity } from '../../../core/domain/entities/neighborhood.domain-entity';
 import { NeighborhoodResponseDto } from '../../adapters/inbound/http/dtos/neighborhood/neighborhood-response.dto';
 import { CommuneResponseDto } from '../../adapters/inbound/http/dtos/commune/commune-response.dto';
 import { CityResponseDto } from '../../adapters/inbound/http/dtos/city/city-response.dto';

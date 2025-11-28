@@ -2,8 +2,8 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-import { IRoleApplicationPort } from 'src/core/application/ports/inbound/role-application.port';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
+import { IRoleApplicationPort } from '../../../../../core/application/ports/inbound/role-application.port';
+import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
 import { RoleResponseDto } from '../dtos/role/role-response.dto';
 
 @Controller('roles')

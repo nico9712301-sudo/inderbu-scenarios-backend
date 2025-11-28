@@ -1,8 +1,8 @@
 import { plainToInstance } from 'class-transformer';
 
-import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
-import { UserResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-response.dto';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
+import { UserWithRelationsDto } from '../../adapters/inbound/http/dtos/user/user-with-relations.dto';
+import { UserResponseDto } from '../../adapters/inbound/http/dtos/user/create-user-response.dto';
+import { UserDomainEntity } from '../../../core/domain/entities/user.domain-entity';
 
 export class UserResponseMapper {
   static toDto(domain: UserDomainEntity): UserResponseDto {

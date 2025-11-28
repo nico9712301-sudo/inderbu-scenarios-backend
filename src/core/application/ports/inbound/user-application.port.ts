@@ -1,10 +1,9 @@
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
-import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
-import { UpdateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
-import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { PageDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
+import { UserDomainEntity } from '../../../domain/entities/user.domain-entity';
+import { CreateUserDto } from '../../../../infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
+import { UpdateUserDto } from '../../../../infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
+import { UserPageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
+import { PageDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { UserWithRelationsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
 
 export interface IUserApplicationPort {
   createUser(createUserDto: CreateUserDto): Promise<UserDomainEntity>;

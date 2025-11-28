@@ -1,8 +1,8 @@
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
-import { PageDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { CommuneResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/commune-response.dto';
-import { CreateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/create-commune.dto';
-import { UpdateCommuneDto } from 'src/infrastructure/adapters/inbound/http/dtos/commune/update-commune.dto';
+import { PageOptionsDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { PageDto } from '../../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { CommuneResponseDto } from '../../../../infrastructure/adapters/inbound/http/dtos/commune/commune-response.dto';
+import { CreateCommuneDto } from '../../../../infrastructure/adapters/inbound/http/dtos/commune/create-commune.dto';
+import { UpdateCommuneDto } from '../../../../infrastructure/adapters/inbound/http/dtos/commune/update-commune.dto';
 
 export interface ICommuneApplicationPort {
   listAll(): Promise<CommuneResponseDto[]>;

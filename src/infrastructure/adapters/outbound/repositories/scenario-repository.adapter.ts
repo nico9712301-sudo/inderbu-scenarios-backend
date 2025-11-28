@@ -2,11 +2,11 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Repository, In, SelectQueryBuilder } from 'typeorm';
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
-import { IScenarioRepositoryPort } from 'src/core/domain/ports/outbound/scenario-repository.port';
-import { ScenarioEntityMapper } from 'src/infrastructure/mappers/scenario/scenario-entity.mapper';
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
-import { ScenarioEntity } from 'src/infrastructure/persistence/scenario.entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { IScenarioRepositoryPort } from '../../../../core/domain/ports/outbound/scenario-repository.port';
+import { ScenarioEntityMapper } from '../../../mappers/scenario/scenario-entity.mapper';
+import { ScenarioDomainEntity } from '../../../../core/domain/entities/scenario.domain-entity';
+import { ScenarioEntity } from '../../../persistence/scenario.entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 import { SearchQueryHelper } from './common/search-query.helper';
 
@@ -101,7 +101,7 @@ export class ScenarioRepositoryAdapter
       .take(limit);
 
     const [entities, total] = await qb.getManyAndCount();
-    return { data: entities.map(this.toDomain), total };
+    return { data: entities.map((entity) => this.toDomain(entity)), total };
   }
 
   /**

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { SubScenarioDomainEntity } from 'src/core/domain/entities/sub-scenario.domain-entity';
-import { ScenarioDomainEntity } from 'src/core/domain/entities/scenario.domain-entity';
-import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
+import { SubScenarioDomainEntity } from '../../../domain/entities/sub-scenario.domain-entity';
+import { ScenarioDomainEntity } from '../../../domain/entities/scenario.domain-entity';
+import { ActivityAreaDomainEntity } from '../../../domain/entities/activity-area.domain-entity';
 import * as XLSX from 'xlsx';
 import { writeFileSync, mkdirSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
@@ -33,7 +33,7 @@ export class SubScenarioFileExportService {
     }
   }
 
-  async exportToExcel(data: SubScenarioExportData): Promise<ExportResult> {
+  exportToExcel(data: SubScenarioExportData): Promise<ExportResult> {
     const { subScenarios, scenarios, activityAreas, includeFields } = data;
 
     // Preparar datos para Excel
@@ -71,14 +71,14 @@ export class SubScenarioFileExportService {
 
     const fileSize = statSync(filePath).size;
 
-    return {
+    return Promise.resolve({
       fileName,
       filePath,
       fileSize,
-    };
+    });
   }
 
-  async exportToCsv(data: SubScenarioExportData): Promise<ExportResult> {
+  exportToCsv(data: SubScenarioExportData): Promise<ExportResult> {
     const { subScenarios, scenarios, activityAreas, includeFields } = data;
 
     // Preparar datos para CSV
@@ -102,11 +102,11 @@ export class SubScenarioFileExportService {
 
     const fileSize = statSync(filePath).size;
 
-    return {
+    return Promise.resolve({
       fileName,
       filePath,
       fileSize,
-    };
+    });
   }
 
   private prepareDataForExport(
@@ -193,7 +193,7 @@ export class SubScenarioFileExportService {
     return statSync(filePath).size;
   }
 
-  cleanupOldFiles(olderThanHours = 24): number {
+  cleanupOldFiles(_olderThanHours = 24): number {
     // Esta funcionalidad se puede implementar como una tarea cron
     // Por ahora dejamos la estructura básica
     return 0;

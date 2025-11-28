@@ -1,10 +1,7 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetHomeSlidesUseCase } from '../use-cases/home-slide/get-home-slides.use-case';
 import { ManageHomeSlidesUseCase } from '../use-cases/home-slide/manage-home-slides.use-case';
-import { 
-  HomeSlideEntity, 
-  HomeSlideType 
-} from 'src/core/domain/entities/home-slide/home-slide.entity';
+import { HomeSlideEntity } from '../../domain/entities/home-slide/home-slide.entity';
 
 export interface IHomeSlideApplicationPort {
   getHomeSlides(filters?: any): Promise<{ slides: HomeSlideEntity[] }>;
@@ -46,7 +43,7 @@ export class HomeSlideApplicationService implements IHomeSlideApplicationPort {
   }
 
   async deleteSlide(id: number): Promise<void> {
-    this.manageHomeSlidesUseCase.deleteSlide(id);
+    await this.manageHomeSlidesUseCase.deleteSlide(id);
   }
 
   async toggleSlideStatus(id: number): Promise<HomeSlideEntity> {

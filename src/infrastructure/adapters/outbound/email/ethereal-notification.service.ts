@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
+import { INotificationService } from '../../../../core/application/ports/outbound/notification-service.port';
 import * as nodemailer from 'nodemailer';
 import { SentMessageInfo } from 'nodemailer';
 

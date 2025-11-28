@@ -1,13 +1,13 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { 
-  IHomeSlideRepositoryPort, 
-  HomeSlideFilters 
-} from 'src/core/domain/entities/home-slide/home-slide-repository.port';
-import { 
-  HomeSlideEntity, 
-  HomeSlideType 
-} from 'src/core/domain/entities/home-slide/home-slide.entity';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import {
+  IHomeSlideRepositoryPort,
+  HomeSlideFilters,
+} from '../../../domain/entities/home-slide/home-slide-repository.port';
+import {
+  HomeSlideEntity,
+  HomeSlideType,
+} from '../../../domain/entities/home-slide/home-slide.entity';
+import { REPOSITORY_PORTS } from '../../../../infrastructure/tokens/ports';
 
 export interface GetHomeSlidesRequest {
   slideType?: HomeSlideType;
@@ -28,7 +28,9 @@ export class GetHomeSlidesUseCase {
     private readonly homeSlideRepository: IHomeSlideRepositoryPort,
   ) {}
 
-  async execute(request: GetHomeSlidesRequest = {}): Promise<GetHomeSlidesResponse> {
+  async execute(
+    request: GetHomeSlidesRequest = {},
+  ): Promise<GetHomeSlidesResponse> {
     const filters: HomeSlideFilters = {
       slideType: request.slideType,
       isActive: request.includeInactive,

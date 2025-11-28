@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
-import { NeighborhoodEntity } from 'src/infrastructure/persistence/neighborhood.entity';
-import { CommuneEntity } from 'src/infrastructure/persistence/commune.entity';
+import { NeighborhoodEntity } from '../../../../../infrastructure/persistence/neighborhood.entity';
+import { CommuneEntity } from '../../../../../infrastructure/persistence/commune.entity';
 import { INeighborhoodSeed } from '../interfaces/neighborhood-seed.interface';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
-import { DATA_LOADER } from 'src/infrastructure/tokens/data-loader';
+import { MYSQL_REPOSITORY } from '../../../../../infrastructure/tokens/repositories';
+import { DATA_LOADER } from '../../../../../infrastructure/tokens/data-loader';
 import { IDataLoader } from '../interfaces/data-loader.interface';
 import { ISeeder } from '../interfaces/seeder.interface';
 import { AbstractSeeder } from './abstract.seeder';
@@ -30,8 +30,10 @@ export class NeighborhoodSeeder
     return (await this.repository.count()) > 0;
   }
 
-  protected async getSeeds(): Promise<INeighborhoodSeed[]> {
-    return this.jsonLoader.load<INeighborhoodSeed>('neighborhood-seeds.json');
+  protected getSeeds(): Promise<INeighborhoodSeed[]> {
+    return Promise.resolve(
+      this.jsonLoader.load<INeighborhoodSeed>('neighborhood-seeds.json'),
+    );
   }
 
   protected async transform(

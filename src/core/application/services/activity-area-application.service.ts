@@ -4,20 +4,20 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { PageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
+import { PageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/common/page-options.dto';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { ActivityAreaResponseDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/activity-area-response.dto';
-import { CreateActivityAreaDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/create-activity-area.dto';
-import { UpdateActivityAreaDto } from 'src/infrastructure/adapters/inbound/http/dtos/activity-area/update-activity-area.dto';
-import { ActivityAreaResponseMapper } from 'src/infrastructure/mappers/activity-area/activity-area-response.mapper';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { ActivityAreaResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/activity-area/activity-area-response.dto';
+import { CreateActivityAreaDto } from '../../../infrastructure/adapters/inbound/http/dtos/activity-area/create-activity-area.dto';
+import { UpdateActivityAreaDto } from '../../../infrastructure/adapters/inbound/http/dtos/activity-area/update-activity-area.dto';
+import { ActivityAreaResponseMapper } from '../../../infrastructure/mappers/activity-area/activity-area-response.mapper';
 
-import { IActivityAreaRepositoryPort } from 'src/core/domain/ports/outbound/activity-area-repository.port';
-import { ActivityAreaDomainEntity } from 'src/core/domain/entities/activity-area.domain-entity';
+import { IActivityAreaRepositoryPort } from '../../domain/ports/outbound/activity-area-repository.port';
+import { ActivityAreaDomainEntity } from '../../domain/entities/activity-area.domain-entity';
 import { IActivityAreaApplicationPort } from '../ports/inbound/activity-area-application.port';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class ActivityAreaApplicationService
@@ -36,7 +36,7 @@ export class ActivityAreaApplicationService
     opts: PageOptionsDto,
   ): Promise<PageDto<ActivityAreaResponseDto>> {
     const { data, total } = await this.repo.findPaged(opts);
-    const dto = data.map(ActivityAreaResponseMapper.toDto);
+    const dto = data.map((item) => ActivityAreaResponseMapper.toDto(item));
 
     return new PageDto(
       dto,
@@ -103,7 +103,7 @@ export class ActivityAreaApplicationService
     try {
       // Intentar eliminar el área de actividad
       return await this.repo.delete(id);
-    } catch (error) {
+    } catch {
       // Si hay sub-escenarios asociados, manejar el error
       throw new BadRequestException(
         'No se puede eliminar el área de actividad porque tiene sub-escenarios asociados. Elimine primero los sub-escenarios.',

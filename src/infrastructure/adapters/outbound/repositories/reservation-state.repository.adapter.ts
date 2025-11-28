@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { IReservationStateRepositoryPort } from 'src/core/domain/ports/outbound/reservation-state-repository.port';
-import { ReservationStateEntity } from 'src/infrastructure/persistence/reservation-state.entity';
-import { ReservationStateDomainEntity } from 'src/core/domain/entities/reservation-state.domain-entity';
-import { MYSQL_REPOSITORY } from 'src/infrastructure/tokens/repositories';
+import { IReservationStateRepositoryPort } from '../../../../core/domain/ports/outbound/reservation-state-repository.port';
+import { ReservationStateEntity } from '../../../persistence/reservation-state.entity';
+import { ReservationStateDomainEntity } from '../../../../core/domain/entities/reservation-state.domain-entity';
+import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { BaseRepositoryAdapter } from './common/base-repository.adapter';
 
 @Injectable()

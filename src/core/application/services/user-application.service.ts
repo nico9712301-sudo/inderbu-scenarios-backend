@@ -11,18 +11,18 @@ import * as bcrypt from 'bcryptjs';
 import {
   PageDto,
   PageMetaDto,
-} from 'src/infrastructure/adapters/inbound/http/dtos/common/page.dto';
-import { UserWithRelationsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
-import { CreateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
-import { UpdateUserDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
-import { UserPageOptionsDto } from 'src/infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
-import { INotificationService } from 'src/core/application/ports/outbound/notification-service.port';
-import { IUserApplicationPort } from 'src/core/application/ports/inbound/user-application.port';
-import { IUserRepositoryPort } from 'src/core/domain/ports/outbound/user-repository.port';
-import { UserResponseMapper } from 'src/infrastructure/mappers/user/user-response.mapper';
-import { UserDomainEntity } from 'src/core/domain/entities/user.domain-entity';
-import { APPLICATION_PORTS } from 'src/core/application/tokens/ports';
-import { REPOSITORY_PORTS } from 'src/infrastructure/tokens/ports';
+} from '../../../infrastructure/adapters/inbound/http/dtos/common/page.dto';
+import { UserWithRelationsDto } from '../../../infrastructure/adapters/inbound/http/dtos/user/user-with-relations.dto';
+import { CreateUserDto } from '../../../infrastructure/adapters/inbound/http/dtos/user/create-user-request.dto';
+import { UpdateUserDto } from '../../../infrastructure/adapters/inbound/http/dtos/user/update-user.dto';
+import { UserPageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/user/user-page-options.dto';
+import { INotificationService } from '../ports/outbound/notification-service.port';
+import { IUserApplicationPort } from '../ports/inbound/user-application.port';
+import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository.port';
+import { UserResponseMapper } from '../../../infrastructure/mappers/user/user-response.mapper';
+import { UserDomainEntity } from '../../domain/entities/user.domain-entity';
+import { APPLICATION_PORTS } from '../tokens/ports';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
 export class UserApplicationService implements IUserApplicationPort {
@@ -124,7 +124,7 @@ export class UserApplicationService implements IUserApplicationPort {
     return { message: 'Enlace de confirmación reenviado con éxito' };
   }
 
-    /**
+  /**
    * PRIVADO: genera nuevo token + expiración, guarda y envía el correo
    */
   private async issueConfirmation(
