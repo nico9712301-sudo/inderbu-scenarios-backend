@@ -51,29 +51,38 @@ async function createApp() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
-  // Registro de swagger
-  const swaggerConfigDocument = new DocumentBuilder()
-    .setTitle('inderbu API')
-    .setDescription('API para inderbu')
-    .setVersion('1.0.0')
-    .addTag('inderbu')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        in: 'header',
+  // Registro de swagger - solo en desarrollo o si se especifica explícitamente
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const enableSwagger = process.env.ENABLE_SWAGGER === 'true' || nodeEnv === 'development';
+
+  if (enableSwagger) {
+    const swaggerConfigDocument = new DocumentBuilder()
+      .setTitle('inderbu API')
+      .setDescription('API para inderbu')
+      .setVersion('1.0.0')
+      .addTag('inderbu')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          in: 'header',
+        },
+        'jwt-auth', // nombre arbitrario de la seguridad
+      )
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfigDocument);
+    SwaggerModule.setup('api-docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
       },
-      'jwt-auth', // nombre arbitrario de la seguridad
-    )
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfigDocument);
-  SwaggerModule.setup('api-docs', app, document);
-  SwaggerModule.setup('api', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-    },
-  });
+    });
+    SwaggerModule.setup('api', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+  }
 
   return app;
 }
