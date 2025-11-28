@@ -51,8 +51,10 @@ export class AppModule implements OnApplicationBootstrap {
       this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'development';
     const shouldSeedDb =
       this.configService.get(ENV_CONFIG.APP.SEED_DB) === 'true';
+    const isProductionEnvironment =
+      this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'production';
 
-    if (isDevEnvironment || shouldSeedDb) {
+    if (isDevEnvironment || shouldSeedDb || isProductionEnvironment) {
       await this.seedingService.seed();
     }
   }
