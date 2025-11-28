@@ -24,8 +24,7 @@ export const databaseProviders = [
         password: configService.get(ENV_CONFIG.DATABASE.PASSWORD),
         database: configService.get(ENV_CONFIG.DATABASE.NAME),
         entities: [...persistenceEntities],
-        synchronize:
-          configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE) === 'true',
+        synchronize: true, // Forzar sincronización para crear tablas en producción
       });
 
       try {
