@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { Module, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { SeedingService } from '../../../core/application/services/seeding/seeding.service';
@@ -41,6 +41,8 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
   providers: [],
 })
 export class AppModule implements OnApplicationBootstrap {
+  private readonly logger = new Logger(AppModule.name);
+
   constructor(
     private readonly seedingService: SeedingService,
     private readonly configService: ConfigService,
@@ -49,11 +51,19 @@ export class AppModule implements OnApplicationBootstrap {
   async onApplicationBootstrap(): Promise<void> {
     const isDevEnvironment =
       this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'development';
-    const shouldSeedDb =
-      this.configService.get(ENV_CONFIG.APP.SEED_DB) === 'true';
 
-    if (isDevEnvironment || shouldSeedDb) {
+    // Seeding solo en desarrollo - nunca en producción
+    // En producción se deben usar migraciones para cambios de esquema
+    // y datos iniciales deben estar en la base de datos
+    if (isDevEnvironment) {
+      this.logger.log(
+        '🌱 Modo desarrollo detectado - Ejecutando seeding automático',
+      );
       await this.seedingService.seed();
+    } else {
+      this.logger.log(
+        '🚫 Modo producción - Seeding deshabilitado. Use migraciones para cambios de esquema.',
+      );
     }
   }
 }

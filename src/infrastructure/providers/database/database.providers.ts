@@ -12,6 +12,16 @@ export const databaseProviders = [
       const logger = new Logger('DatabaseProvider');
       logger.log('Desde database providers' + ENV_CONFIG.STORAGE.BUCKET_HOST);
       logger.log('Desde database providers' + ENV_CONFIG.DATABASE.USER);
+      
+      const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
+      const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
+      
+      // Synchronize solo en desarrollo y si está explícitamente habilitado
+      // En producción siempre debe ser false para usar migraciones
+      const shouldSynchronize = 
+        nodeEnv === 'development' && 
+        synchronizeEnv === 'true';
+      
       const dataSource = new DataSource({
         type: 'mysql',
         // fuerza UTC−5 (Bogotá) en lugar de UTC puro
@@ -24,9 +34,9 @@ export const databaseProviders = [
         password: configService.get(ENV_CONFIG.DATABASE.PASSWORD),
         database: configService.get(ENV_CONFIG.DATABASE.NAME),
         entities: [...persistenceEntities],
-        synchronize: true,
-          //configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE) === 'true' ||
-          //!configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE), // Default true si no está configurado
+        migrations: ['dist/infrastructure/migrations/**/*.js'],
+        migrationsTableName: 'migrations',
+        synchronize: shouldSynchronize,
       });
 
       try {
