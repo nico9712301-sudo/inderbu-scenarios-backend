@@ -24,9 +24,9 @@ export const databaseProviders = [
         password: configService.get(ENV_CONFIG.DATABASE.PASSWORD),
         database: configService.get(ENV_CONFIG.DATABASE.NAME),
         entities: [...persistenceEntities],
-        synchronize:
-          configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE) === 'true' ||
-          !configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE), // Default true si no está configurado
+        synchronize: true,
+          //configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE) === 'true' ||
+          //!configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE), // Default true si no está configurado
       });
 
       try {
