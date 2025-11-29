@@ -39,16 +39,30 @@ npm run cli -- migration:show
 
 ## 🔄 Flujo de Trabajo
 
-1. **Desarrollo Local:**
+### Desarrollo Local
+
+1. **Modificar entidades:**
    - Modifica las entidades en `src/infrastructure/persistence/`
    - Genera la migración: `npm run migration:generate -- NombreDescriptivo`
    - Revisa el archivo generado en `src/infrastructure/migrations/`
    - Prueba la migración: `npm run migration:run`
 
-2. **Producción:**
+2. **Seeding automático:**
+   - En desarrollo, los seeders se ejecutan automáticamente al iniciar la app
+   - O ejecuta manualmente: `npm run cli -- start:seeds`
+
+### Producción
+
+1. **Migraciones (obligatorio):**
    - Las migraciones se ejecutan manualmente o en el proceso de deployment
    - **NUNCA** uses `synchronize: true` en producción
    - Ejecuta migraciones antes de desplegar el código nuevo
+   - Comando: `npm run migration:run` o `npm run cli -- migration:run`
+
+2. **Seeders (opcional):**
+   - Los seeders NO se ejecutan automáticamente en producción
+   - Si necesitas datos iniciales, ejecuta manualmente: `npm run cli -- start:seeds`
+   - ⚠️ **Usa con precaución** - solo si realmente necesitas datos iniciales
 
 ## ⚠️ Importante
 

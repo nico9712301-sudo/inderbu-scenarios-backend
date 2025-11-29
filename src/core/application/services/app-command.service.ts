@@ -2,6 +2,7 @@ import { Command } from 'nestjs-command';
 import { DataSource } from 'typeorm';
 import { Inject, Logger } from '@nestjs/common';
 import { DATA_SOURCE } from '../../../infrastructure/tokens/data_sources';
+import { SeedingService } from './seeding/seeding.service';
 
 export class AppCommandService {
   private readonly logger = new Logger(AppCommandService.name);
@@ -9,24 +10,26 @@ export class AppCommandService {
   constructor(
     @Inject(DATA_SOURCE.MYSQL)
     private readonly datasource: DataSource,
+    private readonly seedingService: SeedingService,
   ) {}
 
   @Command({
     command: 'start:seeds',
-    describe: 'Inicia todos los seeds',
+    describe: 'Ejecuta todos los seeders manualmente (disponible en cualquier entorno)',
   })
-  async create() {
-    const queryRunner = this.datasource.createQueryRunner();
-
+  async runSeeds() {
     try {
-      await queryRunner.connect();
-      this.logger.log('Ejecutando seeders...');
-      this.runSeeders();
-    } catch {
-      if (queryRunner.isTransactionActive) {
-        this.logger.log('Revirtiendo la transacción...');
-        await queryRunner.rollbackTransaction();
-      }
+      this.logger.log('🌱 Iniciando proceso de seeding manual...');
+      this.logger.warn(
+        '⚠️  Este comando ejecutará seeders incluso en producción. Úsalo con precaución.',
+      );
+      
+      await this.seedingService.seed();
+      
+      this.logger.log('✅ Seeders ejecutados exitosamente.');
+    } catch (error) {
+      this.logger.error('❌ Error ejecutando seeders:', error);
+      throw error;
     }
   }
 
