@@ -87,21 +87,28 @@ export class AppModule implements OnApplicationBootstrap {
    * @returns true si se deben ejecutar seeders
    */
   private async shouldRunSeeding(seedDbEnv: string | undefined): Promise<boolean> {
+    this.logger.log(`🔍 Verificando si se deben ejecutar seeders. SEED_DB=${seedDbEnv}`);
+    
     // Si SEED_DB está explícitamente en 'true', ejecutar siempre
     if (seedDbEnv === 'true') {
+      this.logger.log('✅ SEED_DB=true - Ejecutando seeders forzadamente');
       return true;
     }
 
     // Si SEED_DB está explícitamente en 'false', no ejecutar
     if (seedDbEnv === 'false') {
+      this.logger.log('🚫 SEED_DB=false - Seeders deshabilitados');
       return false;
     }
 
     // Si no está configurado, verificar si las tablas están vacías
+    this.logger.log('🔍 SEED_DB no configurado - Verificando si las tablas están vacías...');
+    
     try {
       // Verificar algunas tablas clave para determinar si hay datos
       const keyTables = ['roles', 'cities', 'communes', 'neighborhoods'];
       let hasData = false;
+      const tableStatus: Record<string, number> = {};
 
       for (const table of keyTables) {
         try {
@@ -109,24 +116,34 @@ export class AppModule implements OnApplicationBootstrap {
             `SELECT COUNT(*) as count FROM \`${table}\``,
           );
           const count = parseInt(result[0]?.count || '0', 10);
+          tableStatus[table] = count;
+          this.logger.log(`  📊 Tabla ${table}: ${count} registros`);
+          
           if (count > 0) {
             hasData = true;
-            break;
           }
         } catch (error: any) {
           // Si la tabla no existe, asumir que está vacía
           if (error?.code === 'ER_NO_SUCH_TABLE') {
+            this.logger.log(`  ⚠️  Tabla ${table} no existe aún`);
+            tableStatus[table] = 0;
             continue;
           }
+          this.logger.error(`  ❌ Error verificando tabla ${table}: ${error.message}`);
           throw error;
         }
       }
 
       // Si no hay datos, ejecutar seeders automáticamente
-      return !hasData;
-    } catch (error) {
-      this.logger.warn(
-        `⚠️  Error verificando datos en tablas: ${error.message}. No se ejecutarán seeders automáticamente.`,
+      const shouldRun = !hasData;
+      this.logger.log(
+        `📋 Resumen: ${hasData ? 'Hay datos' : 'No hay datos'} en tablas clave. ${shouldRun ? '✅ Ejecutando seeders' : '🚫 No ejecutando seeders'}`,
+      );
+      
+      return shouldRun;
+    } catch (error: any) {
+      this.logger.error(
+        `❌ Error verificando datos en tablas: ${error.message}. No se ejecutarán seeders automáticamente.`,
       );
       return false;
     }
