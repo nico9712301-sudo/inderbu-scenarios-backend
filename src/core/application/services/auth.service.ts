@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 
@@ -17,12 +22,22 @@ export class AuthApplicationService {
   async validateUser(
     email: string,
     password: string,
-  ): Promise<UserDomainEntity | null> {
+  ): Promise<UserDomainEntity> {
     const user = await this.userApplicationService.findByEmail(email);
-    if (user && (await user.validatePassword(password, bcrypt))) {
-      return user;
+    
+    // Verificar que el usuario existe y las credenciales son válidas
+    if (!user || !(await user.validatePassword(password, bcrypt))) {
+      throw new UnauthorizedException('Credenciales inválidas');
     }
-    return null;
+
+    // Verificar que la cuenta esté activa
+    if (!user.active) {
+      throw new ForbiddenException(
+        'Su cuenta no ha sido activada. Por favor, verifique su correo electrónico para activar su cuenta.',
+      );
+    }
+
+    return user;
   }
 
   login(user: UserDomainEntity): {

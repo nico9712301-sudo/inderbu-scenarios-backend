@@ -42,13 +42,10 @@ export class AuthController {
     type: LoginDto,
   })
   async login(@Body() body: LoginDto): Promise<AuthTokensDto> {
-    const user: UserDomainEntity | null = await this.authService.validateUser(
+    const user = await this.authService.validateUser(
       body.email,
       body.password,
     );
-    if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
-    }
     return this.authService.login(user);
   }
 
