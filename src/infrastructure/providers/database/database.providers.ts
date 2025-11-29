@@ -17,10 +17,15 @@ export const databaseProviders = [
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
       
       // Synchronize:
-      // - En desarrollo: solo si DB_SYNCHRONIZE=true explícitamente
-      // - En producción: solo si DB_SYNCHRONIZE=true (temporal, para crear tablas iniciales)
-      // Después de crear tablas, desactivar DB_SYNCHRONIZE y usar migraciones
-      const shouldSynchronize = synchronizeEnv === 'true';
+      // - Si DB_SYNCHRONIZE está explícitamente en 'false', usar false
+      // - Si DB_SYNCHRONIZE está en 'true', usar true
+      // - Si no está configurado, usar true por defecto (para crear tablas iniciales)
+      // Después de crear tablas, configurar DB_SYNCHRONIZE=false y usar migraciones
+      const shouldSynchronize = synchronizeEnv !== 'false';
+      
+      logger.log(
+        `🔧 Configuración de sincronización: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}`,
+      );
       
       const dataSource = new DataSource({
         type: 'mysql',
@@ -41,7 +46,9 @@ export const databaseProviders = [
 
       try {
         await dataSource.initialize();
-        logger.log('MySQL Data Source has been initialized!');
+        logger.log(
+          `✅ MySQL Data Source inicializado! Synchronize: ${shouldSynchronize}`,
+        );
       } catch (error) {
         logger.error('Error initializing MySQL Data Source:', error);
         throw new Error(`Database connection failed: ${error.message}`);
