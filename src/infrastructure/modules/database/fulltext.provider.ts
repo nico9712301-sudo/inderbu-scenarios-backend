@@ -40,11 +40,19 @@ export class FulltextIndexProvider implements OnModuleInit {
 
   /** ¿Existe ya el índice? - funciona en MariaDB y no depende de collation */
   private async hasIndex(table: string, index: string): Promise<boolean> {
-    const rows = await this.ds.query(
-      `SHOW INDEX FROM \`${table}\` WHERE Key_name = ?`,
-      [index],
-    );
-    return (rows as any[]).length > 0;
+    try {
+      const rows = await this.ds.query(
+        `SHOW INDEX FROM \`${table}\` WHERE Key_name = ?`,
+        [index],
+      );
+      return (rows as any[]).length > 0;
+    } catch (error: any) {
+      // Si la tabla no existe, retornar false (se creará con synchronize o migraciones)
+      if (error?.code === 'ER_NO_SUCH_TABLE') {
+        return false;
+      }
+      throw error;
+    }
   }
 
   /** Ejecuta el ALTER TABLE solo si falta; ignora duplicado en carrera */
@@ -55,7 +63,15 @@ export class FulltextIndexProvider implements OnModuleInit {
       await this.ds.query(sql);
     } catch (e: any) {
       /* Otro proceso lo creó entre medias */
-      if (e?.code !== 'ER_DUP_KEYNAME') throw e;
+      if (e?.code === 'ER_DUP_KEYNAME') return;
+      /* Si la tabla no existe, esperar a que se cree con synchronize o migraciones */
+      if (e?.code === 'ER_NO_SUCH_TABLE') {
+        console.warn(
+          `⚠️  Tabla ${table} no existe aún. El índice se creará cuando la tabla exista.`,
+        );
+        return;
+      }
+      throw e;
     }
   }
 

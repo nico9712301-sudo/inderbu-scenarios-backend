@@ -16,11 +16,11 @@ export const databaseProviders = [
       const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
       
-      // Synchronize solo en desarrollo y si está explícitamente habilitado
-      // En producción siempre debe ser false para usar migraciones
-      const shouldSynchronize = 
-        nodeEnv === 'development' && 
-        synchronizeEnv === 'true';
+      // Synchronize:
+      // - En desarrollo: solo si DB_SYNCHRONIZE=true explícitamente
+      // - En producción: solo si DB_SYNCHRONIZE=true (temporal, para crear tablas iniciales)
+      // Después de crear tablas, desactivar DB_SYNCHRONIZE y usar migraciones
+      const shouldSynchronize = synchronizeEnv === 'true';
       
       const dataSource = new DataSource({
         type: 'mysql',
