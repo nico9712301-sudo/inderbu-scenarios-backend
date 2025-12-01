@@ -10,23 +10,13 @@ export const databaseProviders = [
     provide: DATA_SOURCE.MYSQL,
     useFactory: async (configService: ConfigService) => {
       const logger = new Logger('DatabaseProvider');
-      logger.log(`🔍 Variables de entorno DB:
-        HOST: ${configService.get(ENV_CONFIG.DATABASE.HOST)}
-        PORT: ${configService.get(ENV_CONFIG.DATABASE.PORT)}
-        USER: ${configService.get(ENV_CONFIG.DATABASE.USER)}
-        DATABASE: ${configService.get(ENV_CONFIG.DATABASE.NAME)}
-        POOL_SIZE: ${configService.get(ENV_CONFIG.DATABASE.POOL_SIZE) || '1'}
-      `);
+      logger.log('Desde database providers' + ENV_CONFIG.STORAGE.BUCKET_HOST);
+      logger.log('Desde database providers' + ENV_CONFIG.DATABASE.USER);
       
       const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
       
-      // Configuración optimizada para serverless
-      const poolSize = parseInt(configService.get(ENV_CONFIG.DATABASE.POOL_SIZE) || '1', 10);
-      const acquireTimeout = parseInt(configService.get(ENV_CONFIG.DATABASE.ACQUIRE_TIMEOUT) || '10000', 10);
-      const timeout = parseInt(configService.get(ENV_CONFIG.DATABASE.TIMEOUT) || '10000', 10);
-
-      // Crear DataSource optimizado para verificar si hay tablas
+      // Crear DataSource primero para verificar si hay tablas
       const tempDataSource = new DataSource({
         type: 'mysql',
         timezone: '-05:00',
@@ -40,15 +30,6 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: false, // Temporal, lo ajustaremos después
-        // Configuración TypeORM válida para serverless
-        poolSize: poolSize,
-        connectTimeout: timeout,
-        maxQueryExecutionTime: 5000,
-        // Configuración MySQL2 válida
-        extra: {
-          enableKeepAlive: true,
-          keepAliveInitialDelay: 0,
-        },
       });
 
       let shouldSynchronize = false;
@@ -102,7 +83,7 @@ export const databaseProviders = [
       }
       
       logger.log(
-        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}, poolSize=${poolSize}, connectTimeout=${timeout}ms`,
+        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}`,
       );
       
       // Crear DataSource final con synchronize configurado y pool optimizado
@@ -119,15 +100,6 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: shouldSynchronize,
-        // Configuración TypeORM válida para serverless
-        poolSize: poolSize,
-        connectTimeout: timeout,
-        maxQueryExecutionTime: 5000,
-        // Configuración MySQL2 válida
-        extra: {
-          enableKeepAlive: true,
-          keepAliveInitialDelay: 0,
-        },
       });
 
       try {
