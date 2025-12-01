@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap, Logger, Inject } from '@nestjs/common';
+import { Module, OnApplicationBootstrap, OnApplicationShutdown, Logger, Inject } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
@@ -42,7 +42,7 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
   ],
   providers: [],
 })
-export class AppModule implements OnApplicationBootstrap {
+export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown {
   private readonly logger = new Logger(AppModule.name);
 
   constructor(
@@ -167,6 +167,19 @@ export class AppModule implements OnApplicationBootstrap {
         `❌ Error verificando datos en tablas: ${error.message}. No se ejecutarán seeders automáticamente.`,
       );
       return false;
+    }
+  }
+
+  async onApplicationShutdown(signal?: string): Promise<void> {
+    this.logger.log(`🛑 [AppModule] Cerrando aplicación (${signal})`);
+
+    try {
+      if (this.dataSource?.isInitialized) {
+        await this.dataSource.destroy();
+        this.logger.log('✅ [AppModule] DataSource cerrado correctamente');
+      }
+    } catch (error: any) {
+      this.logger.error(`❌ [AppModule] Error cerrando DataSource: ${error.message}`);
     }
   }
 }

@@ -16,7 +16,12 @@ export const databaseProviders = [
       const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
       
-      // Crear DataSource primero para verificar si hay tablas
+      // Configuración optimizada para serverless
+      const poolSize = parseInt(configService.get(ENV_CONFIG.DATABASE.POOL_SIZE) || '1', 10);
+      const acquireTimeout = parseInt(configService.get(ENV_CONFIG.DATABASE.ACQUIRE_TIMEOUT) || '10000', 10);
+      const timeout = parseInt(configService.get(ENV_CONFIG.DATABASE.TIMEOUT) || '10000', 10);
+
+      // Crear DataSource optimizado para verificar si hay tablas
       const tempDataSource = new DataSource({
         type: 'mysql',
         timezone: '-05:00',
@@ -30,6 +35,15 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: false, // Temporal, lo ajustaremos después
+        // Configuración de pool optimizada para serverless
+        poolSize: poolSize,
+        acquireTimeout: acquireTimeout,
+        maxQueryExecutionTime: 5000,
+        // Configuración adicional para MySQL
+        extra: {
+          acquireTimeout: acquireTimeout,
+          timeout: timeout,
+        },
       });
 
       let shouldSynchronize = false;
@@ -66,7 +80,9 @@ export const databaseProviders = [
           shouldSynchronize = false;
         }
         
-        await tempDataSource.destroy();
+        await tempDataSource.destroy().catch((err) => {
+          logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
+        });
       } catch (error: any) {
         // Si falla la conexión o la consulta, asumir que no hay tablas
         logger.warn(
@@ -74,15 +90,17 @@ export const databaseProviders = [
         );
         shouldSynchronize = synchronizeEnv !== 'false';
         if (tempDataSource.isInitialized) {
-          await tempDataSource.destroy();
+          await tempDataSource.destroy().catch((err) => {
+          logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
+        });
         }
       }
       
       logger.log(
-        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}`,
+        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}, poolSize=${poolSize}, timeout=${timeout}ms`,
       );
       
-      // Crear DataSource final con synchronize configurado
+      // Crear DataSource final con synchronize configurado y pool optimizado
       const dataSource = new DataSource({
         type: 'mysql',
         timezone: '-05:00',
@@ -96,6 +114,17 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: shouldSynchronize,
+        // Configuración de pool optimizada para serverless
+        poolSize: poolSize,
+        acquireTimeout: acquireTimeout,
+        maxQueryExecutionTime: 5000,
+        // Configuración adicional para evitar conexiones colgantes
+        extra: {
+          acquireTimeout: acquireTimeout,
+          timeout: timeout,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 0,
+        },
       });
 
       try {
