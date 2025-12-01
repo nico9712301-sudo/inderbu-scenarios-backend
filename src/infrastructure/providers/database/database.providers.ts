@@ -42,7 +42,6 @@ export const databaseProviders = [
         synchronize: false, // Temporal, lo ajustaremos después
         // Configuración TypeORM válida para serverless
         poolSize: poolSize,
-        acquireTimeout: acquireTimeout,
         connectTimeout: timeout,
         maxQueryExecutionTime: 5000,
         // Configuración MySQL2 válida
@@ -103,7 +102,7 @@ export const databaseProviders = [
       }
       
       logger.log(
-        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}, poolSize=${poolSize}, timeout=${timeout}ms`,
+        `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}, poolSize=${poolSize}, connectTimeout=${timeout}ms`,
       );
       
       // Crear DataSource final con synchronize configurado y pool optimizado
@@ -122,7 +121,6 @@ export const databaseProviders = [
         synchronize: shouldSynchronize,
         // Configuración TypeORM válida para serverless
         poolSize: poolSize,
-        acquireTimeout: acquireTimeout,
         connectTimeout: timeout,
         maxQueryExecutionTime: 5000,
         // Configuración MySQL2 válida
