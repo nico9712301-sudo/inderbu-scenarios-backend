@@ -10,8 +10,13 @@ export const databaseProviders = [
     provide: DATA_SOURCE.MYSQL,
     useFactory: async (configService: ConfigService) => {
       const logger = new Logger('DatabaseProvider');
-      logger.log('Desde database providers' + ENV_CONFIG.STORAGE.BUCKET_HOST);
-      logger.log('Desde database providers' + ENV_CONFIG.DATABASE.USER);
+      logger.log(`🔍 Variables de entorno DB:
+        HOST: ${configService.get(ENV_CONFIG.DATABASE.HOST)}
+        PORT: ${configService.get(ENV_CONFIG.DATABASE.PORT)}
+        USER: ${configService.get(ENV_CONFIG.DATABASE.USER)}
+        DATABASE: ${configService.get(ENV_CONFIG.DATABASE.NAME)}
+        POOL_SIZE: ${configService.get(ENV_CONFIG.DATABASE.POOL_SIZE) || '1'}
+      `);
       
       const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
@@ -35,14 +40,15 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: false, // Temporal, lo ajustaremos después
-        // Configuración de pool optimizada para serverless
+        // Configuración TypeORM válida para serverless
         poolSize: poolSize,
         acquireTimeout: acquireTimeout,
+        connectTimeout: timeout,
         maxQueryExecutionTime: 5000,
-        // Configuración adicional para MySQL
+        // Configuración MySQL2 válida
         extra: {
-          acquireTimeout: acquireTimeout,
-          timeout: timeout,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 0,
         },
       });
 
@@ -114,14 +120,13 @@ export const databaseProviders = [
         migrations: ['dist/infrastructure/migrations/**/*.js'],
         migrationsTableName: 'migrations',
         synchronize: shouldSynchronize,
-        // Configuración de pool optimizada para serverless
+        // Configuración TypeORM válida para serverless
         poolSize: poolSize,
         acquireTimeout: acquireTimeout,
+        connectTimeout: timeout,
         maxQueryExecutionTime: 5000,
-        // Configuración adicional para evitar conexiones colgantes
+        // Configuración MySQL2 válida
         extra: {
-          acquireTimeout: acquireTimeout,
-          timeout: timeout,
           enableKeepAlive: true,
           keepAliveInitialDelay: 0,
         },
