@@ -19,8 +19,7 @@ export const databaseProviders = [
       // Crear DataSource primero para verificar si hay tablas
       const tempDataSource = new DataSource({
         type: 'mysql',
-        timezone: '-05:00',
-        dateStrings: true,
+        timezone: 'Z', // UTC - usar 'Z' en lugar de '+00:00' para evitar conversiones
         host: configService.get(ENV_CONFIG.DATABASE.HOST),
         port: configService.get<number>(ENV_CONFIG.DATABASE.PORT),
         username: configService.get(ENV_CONFIG.DATABASE.USER),
@@ -89,8 +88,7 @@ export const databaseProviders = [
       // Crear DataSource final con synchronize configurado y pool optimizado
       const dataSource = new DataSource({
         type: 'mysql',
-        timezone: '-05:00',
-        dateStrings: true,
+        timezone: 'Z', // UTC - usar 'Z' en lugar de '+00:00' para evitar conversiones
         host: configService.get(ENV_CONFIG.DATABASE.HOST),
         port: configService.get<number>(ENV_CONFIG.DATABASE.PORT),
         username: configService.get(ENV_CONFIG.DATABASE.USER),

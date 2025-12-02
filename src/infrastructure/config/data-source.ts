@@ -11,8 +11,7 @@ config();
  */
 export const AppDataSource = new DataSource({
   type: 'mysql',
-  timezone: '-05:00', // UTC-5 (Bogotá)
-  dateStrings: true,
+  timezone: 'Z', // UTC - usar 'Z' en lugar de '+00:00' para evitar conversiones
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306', 10),
   username: process.env.DB_USER || 'root',
