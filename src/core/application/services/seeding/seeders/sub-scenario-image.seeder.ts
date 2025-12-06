@@ -41,8 +41,8 @@ export class SubScenarioImageSeeder
   protected async transform(
     seeds: ISubScenarioSeed[],
   ): Promise<SubScenarioImageEntity[]> {
-    // const bucket_host = this.configService.get<string>('BUCKET_HOST');
-    const path_folder = '/temp/images/sub-scenarios/';
+    // Usar path R2 sin dominio - solo la clave relativa
+    const path_folder = 'sub-scenarios/';
 
     const entities: SubScenarioImageEntity[] = [];
     for (const seed of seeds) {

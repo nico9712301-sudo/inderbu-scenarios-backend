@@ -1,7 +1,7 @@
 [
   {
     "title": "Escenarios deportivos para todos",
-    "imageUrl": "/temp/images/home/slide-1.jpg",
+    "imageUrl": "home/slide-1.jpg",
     "displayOrder": 1,
     "isActive": true,
     "slideType": "banner",
@@ -9,7 +9,7 @@
   },
   {
     "title": "Actividades para toda la familia",
-    "imageUrl": "/temp/images/home/slide-2.jpg",
+    "imageUrl": "home/slide-2.jpg",
     "displayOrder": 2,
     "isActive": true,
     "slideType": "banner",
@@ -17,7 +17,7 @@
   },
   {
     "title": "Cómo reservar préstamos de escenarios deportivos y recreativos",
-    "imageUrl": "/temp/images/home/slide-3.jpg",
+    "imageUrl": "home/slide-3.jpg",
     "displayOrder": 3,
     "isActive": true,
     "slideType": "banner",
@@ -25,7 +25,7 @@
   },
   {
     "title": "Actualización, renovación y obteción",
-    "imageUrl": "/temp/images/home/slide-4.jpg",
+    "imageUrl": "home/slide-4.jpg",
     "displayOrder": 4,
     "isActive": true,
     "slideType": "banner",
@@ -33,7 +33,7 @@
   },
   {
     "title": "Ventanilla unica del inderbú",
-    "imageUrl": "/temp/images/home/slide-5.jpg",
+    "imageUrl": "home/slide-5.jpg",
     "displayOrder": 5,
     "isActive": true,
     "slideType": "banner",

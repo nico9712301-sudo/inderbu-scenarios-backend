@@ -579,6 +579,8 @@ export class ReservationApplicationService
   ): Promise<PageDto<ReservationWithDetailsResponseDto>> {
     const { data, total } = await this.reservationRepo.findPaged(options);
 
+    console.log('data', data[0]);
+    
     // Usar el mapper para convertir domain entities a DTOs
     const dtos: ReservationWithDetailsResponseDto[] = data.map((reservation) =>
       ReservationResponseMapper.toDetailsDto(reservation),

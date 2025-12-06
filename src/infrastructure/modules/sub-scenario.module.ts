@@ -8,6 +8,9 @@ import { SubScenarioImageController } from '../adapters/inbound/http/controllers
 import { subScenarioImageProviders } from '../providers/sub-scenario-image/sub-scenario-image.providers';
 import { SubScenarioController } from '../adapters/inbound/http/controllers/sub-scenario.controller';
 import { FileStorageService } from '../adapters/outbound/file-storage/file-storage.service';
+import { CloudflareR2Service } from '../adapters/outbound/file-storage/cloudflare-r2.service';
+import { ImageUrlService } from '../adapters/outbound/file-storage/image-url.service';
+import { SubScenarioImageResponseMapper } from '../mappers/images/image-response.mapper';
 import { subScenarioProviders } from '../providers/sub-scenario/sub-scenario.providers';
 import { DatabaseModule } from './database/database.module';
 import { SubScenarioExportApplicationService } from '../../core/application/services/sub-scenario-export-application.service';
@@ -54,6 +57,9 @@ import { RedisModule } from './redis.module';
     ...subScenarioProviders,
     ...subScenarioImageProviders,
     FileStorageService,
+    CloudflareR2Service,
+    ImageUrlService,
+    SubScenarioImageResponseMapper,
     SubScenarioExportApplicationService,
     SubScenarioFileExportService,
     RedisExportJobService,

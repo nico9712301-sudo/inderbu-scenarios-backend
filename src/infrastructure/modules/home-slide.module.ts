@@ -9,11 +9,13 @@ import { homeSlideProviders } from '../providers/home-slide/home-slide.providers
 import { APPLICATION_PORTS } from '../../core/application/tokens/ports';
 import { REPOSITORY_PORTS } from '../tokens/ports';
 import { DatabaseModule } from './database/database.module';
+import { ImageUrlService } from '../adapters/outbound/file-storage/image-url.service';
+import { HomeSlideResponseMapper } from '../mappers/home-slide/home-slide-response.mapper';
 
 @Module({
   imports: [DatabaseModule],
   controllers: [HomeSlideController, ModulesController, EntitiesController],
-  providers: [...homeSlideProviders],
+  providers: [...homeSlideProviders, ImageUrlService, HomeSlideResponseMapper],
   exports: [APPLICATION_PORTS.HOME_SLIDE, REPOSITORY_PORTS.HOME_SLIDE],
 })
 export class HomeSlideModule {}

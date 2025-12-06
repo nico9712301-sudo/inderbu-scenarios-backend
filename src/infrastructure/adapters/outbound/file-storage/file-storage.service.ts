@@ -2,14 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { CloudflareR2Service } from './cloudflare-r2.service';
 
 @Injectable()
 export class FileStorageService {
   private readonly uploadDir = join(process.cwd(), 'temp/images/sub-scenarios');
   private readonly tempDir = join(process.cwd(), 'temp/images/sub-scenarios');
 
-  constructor() {
-    // Asegurar que los directorios existan
+  constructor(private readonly r2Service: CloudflareR2Service) {
+    // Asegurar que los directorios existan para backward compatibility
     if (!existsSync(this.uploadDir)) {
       mkdirSync(this.uploadDir, { recursive: true });
     }
@@ -19,66 +20,19 @@ export class FileStorageService {
   }
 
   /**
-   * Guarda un archivo en el sistema de archivos
+   * Guarda un archivo en Cloudflare R2
    * @param file Archivo a guardar
-   * @returns Ruta relativa del archivo guardado
+   * @returns Clave relativa del archivo en R2 (sin dominio)
    */
   async saveFile(file: Express.Multer.File): Promise<string> {
-    // Validar que el archivo exista
-    if (!file) {
-      throw new Error('Archivo inválido: no se proporcionó archivo');
-    }
-
-    // Obtener la extensión del archivo
-    let fileExtension = '';
-    if (file.originalname && file.originalname.includes('.')) {
-      fileExtension = file.originalname.split('.').pop() || '';
-    } else if (file.mimetype) {
-      // Fallback: usar mimetype para determinar la extensión
-      const mimeToExt = {
-        'image/jpeg': 'jpg',
-        'image/jpg': 'jpg',
-        'image/png': 'png',
-        'image/gif': 'gif',
-        'image/webp': 'webp',
-      };
-      fileExtension = mimeToExt[file.mimetype] || 'jpg';
-    } else {
-      fileExtension = 'jpg'; // Default fallback
-    }
-
-    const fileName = `${uuidv4()}.${fileExtension}`;
-    const relativePath = `/temp/images/sub-scenarios/${fileName}`;
-    const fullPath = join(this.uploadDir, fileName);
-
-    // Guardar el archivo usando writeFileSync
     try {
-      let fileData: Buffer;
-      let tempFilePath: string | null = null;
-
-      if (file.buffer) {
-        // Si tiene buffer, usarlo directamente
-        fileData = file.buffer;
-      } else if (file.path) {
-        // Si tiene path, leer el archivo temporal
-        const fs = require('fs');
-        tempFilePath = file.path; // Guardar referencia para limpiar después
-        fileData = fs.readFileSync(file.path);
-      } else {
-        throw new Error('Archivo inválido: no tiene buffer ni path');
-      }
-
-      if (!fileData || fileData.length === 0) {
-        throw new Error('Archivo inválido: datos vacíos');
-      }
-
-      // Guardar el archivo en la ubicación final
-      writeFileSync(fullPath, fileData);
+      // Subir archivo a R2 - carpeta sub-scenarios
+      const r2Key = await this.r2Service.uploadFile(file, 'sub-scenarios');
 
       // Limpiar archivo temporal si existe
-      if (tempFilePath && existsSync(tempFilePath)) {
+      if (file.path && existsSync(file.path)) {
         try {
-          unlinkSync(tempFilePath);
+          unlinkSync(file.path);
         } catch (cleanupError) {
           console.warn(
             'No se pudo limpiar archivo temporal:',
@@ -87,7 +41,8 @@ export class FileStorageService {
         }
       }
 
-      return relativePath;
+      // Retornar solo la clave (sin dominio): "sub-scenarios/uuid.ext"
+      return r2Key;
     } catch (error) {
       console.error(`Error al guardar archivo: ${error.message}`);
       throw new Error(`No se pudo guardar el archivo: ${error.message}`);
@@ -95,15 +50,34 @@ export class FileStorageService {
   }
 
   /**
-   * Elimina un archivo del sistema de archivos
-   * @param relativePath Ruta relativa del archivo a eliminar
+   * Elimina un archivo de Cloudflare R2
+   * @param r2Key Clave del archivo en R2
    * @returns true si se eliminó correctamente, false si no existía
    */
-  async deleteFile(relativePath: string): Promise<boolean> {
+  async deleteFile(r2Key: string): Promise<boolean> {
+    if (!r2Key) return false;
+
+    try {
+      // Si es un path legacy, convertir a key R2
+      let keyToDelete = r2Key;
+      if (r2Key.startsWith('/temp/images/')) {
+        keyToDelete = r2Key.replace('/temp/images/', '');
+      }
+
+      return await this.r2Service.deleteFile(keyToDelete);
+    } catch (error) {
+      console.error(`Error al eliminar el archivo ${r2Key}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Método legacy para mantener compatibilidad con archivos locales durante migración
+   */
+  async deleteLocalFile(relativePath: string): Promise<boolean> {
     if (!relativePath) return false;
 
     try {
-      // Ajustar la ruta si no incluye 'uploads'
       let fullPath = '';
       if (relativePath.startsWith('/temp/')) {
         fullPath = join(process.cwd(), relativePath);
@@ -117,7 +91,7 @@ export class FileStorageService {
       }
       return false;
     } catch (error) {
-      console.error(`Error al eliminar el archivo ${relativePath}:`, error);
+      console.error(`Error al eliminar el archivo local ${relativePath}:`, error);
       return false;
     }
   }
