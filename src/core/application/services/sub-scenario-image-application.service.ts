@@ -20,6 +20,7 @@ export class SubScenarioImageApplicationService
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
     private readonly fileStorageService: FileStorageService,
+    private readonly imageResponseMapper: SubScenarioImageResponseMapper,
   ) {}
 
   async uploadImage(
@@ -75,7 +76,7 @@ export class SubScenarioImageApplicationService
       .build();
 
     const savedImage = await this.imageRepository.save(imageDomain);
-    return SubScenarioImageResponseMapper.toDto(savedImage);
+    return this.imageResponseMapper.toDto(savedImage);
   }
 
   async getImagesBySubScenarioId(
@@ -86,7 +87,7 @@ export class SubScenarioImageApplicationService
       subScenarioId,
       includeHistorical,
     );
-    return images.map((image) => SubScenarioImageResponseMapper.toDto(image));
+    return images.map((image) => this.imageResponseMapper.toDto(image));
   }
 
   async updateImage(
@@ -117,7 +118,7 @@ export class SubScenarioImageApplicationService
       .build();
 
     const savedImage = await this.imageRepository.save(updatedImage);
-    return SubScenarioImageResponseMapper.toDto(savedImage);
+    return this.imageResponseMapper.toDto(savedImage);
   }
 
   async manageImages(

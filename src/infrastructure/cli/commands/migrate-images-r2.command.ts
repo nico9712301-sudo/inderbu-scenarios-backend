@@ -40,12 +40,15 @@ export class MigrateImagesToR2Command {
 
       for (const imageEntity of subScenarioImages) {
         try {
-          if (!this.imageUrlService.isLegacyPath(imageEntity.path)) {
-            console.log(`⏭️  Imagen ${imageEntity.id} ya migrada: ${imageEntity.path}`);
-            continue;
+          // Determinar ruta local basada en si es legacy o R2 path
+          let localPath: string;
+          if (this.imageUrlService.isLegacyPath(imageEntity.path)) {
+            // Path legacy: /temp/images/sub-scenarios/image2.jpeg
+            localPath = this.getLocalFilePath(imageEntity.path);
+          } else {
+            // Path R2: sub-scenarios/image2.jpeg → buscar en /temp/images/sub-scenarios/image2.jpeg
+            localPath = path.join(process.cwd(), 'temp', 'images', imageEntity.path);
           }
-
-          const localPath = this.getLocalFilePath(imageEntity.path);
 
           if (!fs.existsSync(localPath)) {
             console.log(`⚠️  Archivo no encontrado: ${localPath}`);
@@ -75,10 +78,12 @@ export class MigrateImagesToR2Command {
           // Subir a R2
           const r2Key = await this.r2Service.uploadFile(mockFile, 'sub-scenarios');
 
-          // Actualizar BD
-          await this.imageRepository.update(imageEntity.id, { path: r2Key });
+          // Solo actualizar BD si cambió el path
+          if (imageEntity.path !== r2Key) {
+            await this.imageRepository.update(imageEntity.id, { path: r2Key });
+          }
 
-          console.log(`✅ Migrada imagen ${imageEntity.id}: ${imageEntity.path} → ${r2Key}`);
+          console.log(`✅ Subida imagen ${imageEntity.id}: ${imageEntity.path} → R2 (${r2Key})`);
           totalMigrated++;
 
           // Opcional: eliminar archivo local tras migración exitosa
@@ -99,12 +104,15 @@ export class MigrateImagesToR2Command {
 
       for (const slideEntity of homeSlides) {
         try {
-          if (!this.imageUrlService.isLegacyPath(slideEntity.imageUrl)) {
-            console.log(`⏭️  Home slide ${slideEntity.id} ya migrado: ${slideEntity.imageUrl}`);
-            continue;
+          // Determinar ruta local basada en si es legacy o R2 path
+          let localPath: string;
+          if (this.imageUrlService.isLegacyPath(slideEntity.imageUrl)) {
+            // Path legacy: /temp/images/home/slide-1.jpg
+            localPath = this.getLocalFilePath(slideEntity.imageUrl);
+          } else {
+            // Path R2: home/slide-1.jpg → buscar en /temp/images/home/slide-1.jpg
+            localPath = path.join(process.cwd(), 'temp', 'images', slideEntity.imageUrl);
           }
-
-          const localPath = this.getLocalFilePath(slideEntity.imageUrl);
 
           if (!fs.existsSync(localPath)) {
             console.log(`⚠️  Archivo no encontrado: ${localPath}`);
@@ -134,10 +142,12 @@ export class MigrateImagesToR2Command {
           // Subir a R2
           const r2Key = await this.r2Service.uploadFile(mockFile, 'home');
 
-          // Actualizar BD
-          await this.homeSlideRepository.update(slideEntity.id, { imageUrl: r2Key });
+          // Solo actualizar BD si cambió el path
+          if (slideEntity.imageUrl !== r2Key) {
+            await this.homeSlideRepository.update(slideEntity.id, { imageUrl: r2Key });
+          }
 
-          console.log(`✅ Migrado home slide ${slideEntity.id}: ${slideEntity.imageUrl} → ${r2Key}`);
+          console.log(`✅ Subida home slide ${slideEntity.id}: ${slideEntity.imageUrl} → R2 (${r2Key})`);
           totalMigrated++;
 
         } catch (error) {

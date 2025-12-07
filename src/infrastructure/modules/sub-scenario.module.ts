@@ -11,6 +11,7 @@ import { FileStorageService } from '../adapters/outbound/file-storage/file-stora
 import { CloudflareR2Service } from '../adapters/outbound/file-storage/cloudflare-r2.service';
 import { ImageUrlService } from '../adapters/outbound/file-storage/image-url.service';
 import { SubScenarioImageResponseMapper } from '../mappers/images/image-response.mapper';
+import { SubScenarioMapper } from '../mappers/sub-scenario/sub-scenario.mapper';
 import { subScenarioProviders } from '../providers/sub-scenario/sub-scenario.providers';
 import { DatabaseModule } from './database/database.module';
 import { SubScenarioExportApplicationService } from '../../core/application/services/sub-scenario-export-application.service';
@@ -60,6 +61,7 @@ import { RedisModule } from './redis.module';
     CloudflareR2Service,
     ImageUrlService,
     SubScenarioImageResponseMapper,
+    SubScenarioMapper,
     SubScenarioExportApplicationService,
     SubScenarioFileExportService,
     RedisExportJobService,

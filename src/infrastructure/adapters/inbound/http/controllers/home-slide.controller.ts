@@ -27,6 +27,7 @@ import { CreateHomeSlideDto } from '../dtos/home-slide/create-home-slide.dto';
 import { UpdateHomeSlideDto } from '../dtos/home-slide/update-home-slide.dto';
 import { HomeSlideResponseDto } from '../dtos/home-slide/home-slide-response.dto';
 import { ReorderSlidesDto } from '../dtos/home-slide/reorder-slides.dto';
+import { ImageUrlService } from '../../../../adapters/outbound/file-storage/image-url.service';
 
 @ApiTags('Home Slides')
 @Controller('home-slides')
@@ -34,6 +35,7 @@ export class HomeSlideController {
   constructor(
     private readonly getHomeSlidesUseCase: GetHomeSlidesUseCase,
     private readonly manageHomeSlidesUseCase: ManageHomeSlidesUseCase,
+    private readonly imageUrlService: ImageUrlService,
   ) {}
 
   @Get()
@@ -216,7 +218,7 @@ export class HomeSlideController {
       id: slide.id,
       title: slide.title,
       description: slide.description,
-      imageUrl: slide.imageUrl,
+      imageUrl: this.imageUrlService.getPublicUrl(slide.imageUrl),
       linkUrl: slide.linkUrl,
       displayOrder: slide.displayOrder,
       isActive: slide.isActive,

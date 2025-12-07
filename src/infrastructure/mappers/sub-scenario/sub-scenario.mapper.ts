@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { SubScenarioWithRelationsDto } from '../../adapters/inbound/http/dtos/sub-scenarios/sub-scenario-response-with-relations.dto';
 import { SubScenarioImageResponseDto } from '../../adapters/inbound/http/dtos/images/image-response.dto';
 import { FieldSurfaceTypeDomainEntity } from '../../../core/domain/entities/field-surface-type.domain-entity';
@@ -8,8 +9,12 @@ import { NeighborhoodDomainEntity } from '../../../core/domain/entities/neighbor
 import { SubScenarioDomainEntity } from '../../../core/domain/entities/sub-scenario.domain-entity';
 import { ScenarioDomainEntity } from '../../../core/domain/entities/scenario.domain-entity';
 
+@Injectable()
 export class SubScenarioMapper {
-  static toDto(
+  constructor(
+    private readonly imageResponseMapper: SubScenarioImageResponseMapper,
+  ) {}
+  toDto(
     s: SubScenarioDomainEntity,
     scenMap: Map<number, ScenarioDomainEntity>,
     areaMap: Map<number, ActivityAreaDomainEntity>,
@@ -19,8 +24,39 @@ export class SubScenarioMapper {
   ): SubScenarioWithRelationsDto {
     // Convertir todas las imágenes a DTOs
     const imageDtos = images.map((image) =>
+      this.imageResponseMapper.toDto(image),
+    );
+
+    // Resto de la lógica...
+    return this.buildDto(s, scenMap, areaMap, surfMap, neighMap, imageDtos);
+  }
+
+  // Mantener método estático por compatibilidad (para casos sin URL correctas)
+  static toDto(
+    s: SubScenarioDomainEntity,
+    scenMap: Map<number, ScenarioDomainEntity>,
+    areaMap: Map<number, ActivityAreaDomainEntity>,
+    surfMap: Map<number, FieldSurfaceTypeDomainEntity>,
+    neighMap: Map<number, NeighborhoodDomainEntity>,
+    images: SubScenarioImageDomainEntity[] = [],
+  ): SubScenarioWithRelationsDto {
+    // Convertir todas las imágenes a DTOs usando el método estático
+    const imageDtos = images.map((image) =>
       SubScenarioImageResponseMapper.toDto(image),
     );
+
+    const mapper = new SubScenarioMapper(null as any);
+    return mapper.buildDto(s, scenMap, areaMap, surfMap, neighMap, imageDtos);
+  }
+
+  private buildDto(
+    s: SubScenarioDomainEntity,
+    scenMap: Map<number, ScenarioDomainEntity>,
+    areaMap: Map<number, ActivityAreaDomainEntity>,
+    surfMap: Map<number, FieldSurfaceTypeDomainEntity>,
+    neighMap: Map<number, NeighborhoodDomainEntity>,
+    imageDtos: SubScenarioImageResponseDto[],
+  ): SubScenarioWithRelationsDto {
 
     // Ordenar imágenes por orden de visualización
     const sortedImages = [...imageDtos].sort(

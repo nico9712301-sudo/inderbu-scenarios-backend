@@ -43,6 +43,7 @@ export class SubScenarioApplicationService
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_IMAGE)
     private readonly subScenarioImageRepository: ISubScenarioImageRepositoryPort,
     private readonly fileStorageService: FileStorageService,
+    private readonly subScenarioMapper: SubScenarioMapper,
   ) {}
 
   async listWithRelations(
@@ -79,11 +80,11 @@ export class SubScenarioApplicationService
     // Mapear sub-escenarios con sus imágenes
     const dto = subs.map((sub) => {
       if (sub.id === null) {
-        return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, []);
+        return this.subScenarioMapper.toDto(sub, scen, area, surf, neigh, []);
       }
 
       const subImages = imagesBySubScenarioId.get(sub.id) || [];
-      return SubScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
+      return this.subScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
     });
 
     return new PageDto(
@@ -107,7 +108,7 @@ export class SubScenarioApplicationService
     // Obtener las imágenes del sub-escenario
     const images =
       await this.subScenarioImageRepository.findBySubScenarioId(id);
-    return SubScenarioMapper.toDto(
+    return this.subScenarioMapper.toDto(
       sub,
       scenMap,
       areaMap,

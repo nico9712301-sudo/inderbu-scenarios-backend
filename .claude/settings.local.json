@@ -14,7 +14,13 @@
       "WebFetch(domain:typeorm.biunav.com)",
       "Bash(pnpm start:dev:*)",
       "Bash(pnpm list:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm run cli migrate:images-r2:*)",
+      "Bash(curl:*)",
+      "Bash(npm run start:dev:*)",
+      "Bash(pkill:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"
