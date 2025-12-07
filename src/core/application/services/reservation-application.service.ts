@@ -38,7 +38,7 @@ import {
   ReservationConflict,
   ReservationConflictDetectorDomainService,
 } from '../../domain/services/reservation-conflict-detector.domain-service';
-import { ReservationInstanceGeneratorDomainService } from '../../domain/services/reservation-instance-generator.domain-service';
+import { ReservationInstanceData, ReservationInstanceGeneratorDomainService } from '../../domain/services/reservation-instance-generator.domain-service';
 import { ReservationAvailabilityCheckerDomainService } from '../../domain/services/reservation-availability-checker.domain-service';
 
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
@@ -82,6 +82,14 @@ export class ReservationApplicationService
     dto: CreateReservationRequestDto,
     userId: number,
   ): Promise<CreateReservationResponseDto> {
+    // 🐛 DEBUG: Console log del payload completo de la nueva reserva
+    console.log('🔥 NEW RESERVATION PAYLOAD:', {
+      dto: JSON.stringify(dto, null, 2),
+      userId,
+      timestamp: new Date().toISOString(),
+      raw_dto: dto,
+    });
+
     this.logger.log(`Creating reservation for user ${userId}`, {
       subScenarioId: dto.subScenarioId,
       timeSlotIds: dto.timeSlotIds,
@@ -203,7 +211,7 @@ export class ReservationApplicationService
       );
 
       // 5. Generar y guardar instancias
-      const instancesData = this.instanceGenerator.generateInstances(
+      const instancesData: ReservationInstanceData[] = this.instanceGenerator.generateInstances(
         savedReservation.id!,
         dto.subScenarioId,
         userId,

@@ -31,17 +31,16 @@ export class ReservationInstanceEntity {
   timeslotId: number;
 
   @Column({
-    type: 'date',
+    type: 'datetime',
     name: 'reservation_date',
     transformer: {
       to: (value: Date) => {
-        // ✅ MANTENER original - funciona bien para escribir
-        return value.toISOString().split('T')[0];
+        const dateStr = value.toISOString().split('T')[0];
+        return dateStr + 'T00:00:00Z';
       },
       from: (value: string) => {
-        // ✅ Crear fecha local sin zona horaria UTC
-        const [year, month, day] = value.split('-').map(Number);
-        return new Date(year, month - 1, day);
+        // Si viene como YYYY-MM-DD HH:mm:ss, extraer solo la fecha y forzar UTC 00:00:00
+        return value;
       },
     },
   })

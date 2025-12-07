@@ -33,13 +33,16 @@ export class ReservationInstanceGeneratorDomainService {
         instances.push({
           reservationId,
           timeslotId,
-          reservationDate: new Date(date),
+          reservationDate: new Date(date.toISOString().split('T')[0] + 'T00:00:00Z'),
           subScenarioId,
           userId,
           reservationStateId,
         });
       }
     }
+
+    console.log('🔥 GENERATED INSTANCES:', instances);
+    
 
     return instances;
   }
