@@ -289,6 +289,10 @@ export class SubScenarioApplicationService
     return this.subScenarioRepository.delete(id);
   }
 
+  async countWithFilters(opts: SubScenarioPageOptionsDto): Promise<number> {
+    return this.subScenarioRepository.count(opts);
+  }
+
   private async loadReferenceMaps(subs: SubScenarioDomainEntity[]) {
     // 1. Extraer listados de IDs (numbers), filtrando nulos
     const scenarioIds = uniq(subs.map((s) => s.scenarioId));

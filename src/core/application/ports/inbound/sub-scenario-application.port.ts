@@ -22,4 +22,6 @@ export interface ISubScenarioApplicationPort {
   ): Promise<SubScenarioWithRelationsDto>;
 
   delete(id: number): Promise<boolean>;
+
+  countWithFilters(opts: SubScenarioPageOptionsDto): Promise<number>;
 }

@@ -37,30 +37,34 @@ export class ReservationEntity {
   type: string;
 
   @Column({
-    type: 'date',
+    type: 'datetime',
     name: 'initial_date',
     transformer: {
       to: (value: Date) => {
-        // Fuerza la fecha YYYY-MM-DD evitando conversiones
-        return value.toISOString().split('T')[0];
+        const dateStr = value.toISOString().split('T')[0];
+        return dateStr + 'T00:00:00Z';
       },
-      from: (value: string) => new Date(value + 'T00:00:00Z'),
+      from: (value: string) => {
+        // Si viene como YYYY-MM-DD HH:mm:ss, extraer solo la fecha y forzar UTC 00:00:00
+        return value;
+      },
     },
   })
   initialDate: Date;
 
   @Column({
-    type: 'date',
+    type: 'datetime',
     name: 'final_date',
     nullable: true,
     transformer: {
       to: (value: Date | null) => {
         if (!value) return null;
-        return value.toISOString().split('T')[0];
+        const dateStr = value.toISOString().split('T')[0];
+        return dateStr + 'T00:00:00Z';
       },
       from: (value: string | null) => {
-        if (!value) return null;
-        return new Date(value + 'T00:00:00Z');
+        // Si viene como YYYY-MM-DD HH:mm:ss, extraer solo la fecha y forzar UTC 00:00:00
+        return value;
       },
     },
   })

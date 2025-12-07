@@ -594,6 +594,8 @@ export class ReservationApplicationService
       ReservationResponseMapper.toDetailsDto(reservation),
     );
 
+    console.log('dtos', dtos);
+
     const meta = new PageMetaDto({
       page: options.page || 1,
       limit: options.limit || 20,

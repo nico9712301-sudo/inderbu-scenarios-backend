@@ -9,4 +9,5 @@ export interface ISubScenarioRepositoryPort {
   findById(id: number): Promise<SubScenarioDomainEntity | null>;
   save(subScenario: SubScenarioDomainEntity): Promise<SubScenarioDomainEntity>;
   delete(id: number): Promise<boolean>;
+  count(opts: SubScenarioPageOptionsDto): Promise<number>;
 }

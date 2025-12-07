@@ -206,4 +206,83 @@ export class SubScenarioRepositoryAdapter
       )
       .orderBy('score', 'DESC');
   }
+
+  async count(opts: SubScenarioPageOptionsDto): Promise<number> {
+    const {
+      search,
+      scenarioId,
+      activityAreaId,
+      neighborhoodId,
+      hasCost,
+      active,
+    } = opts;
+
+    const qb: SelectQueryBuilder<SubScenarioEntity> = this.repository
+      .createQueryBuilder('s')
+      .leftJoin('s.scenario', 'sc')
+      .leftJoin('sc.neighborhood', 'n')
+      .leftJoin('s.activityArea', 'aa')
+      .leftJoin('s.fieldSurfaceType', 'fs');
+
+    /* ───── filtros ───── */
+    if (scenarioId) qb.andWhere('sc.id = :scenarioId', { scenarioId });
+    if (activityAreaId)
+      qb.andWhere('aa.id = :activityAreaId', { activityAreaId });
+    if (neighborhoodId)
+      qb.andWhere('n.id = :neighborhoodId', { neighborhoodId });
+    if (typeof hasCost === 'boolean')
+      qb.andWhere('s.hasCost = :hasCost', { hasCost });
+    if (typeof active === 'boolean')
+      qb.andWhere('s.active = :active', { active });
+
+    /* ───── búsqueda ───── */
+    if (search?.trim()) {
+      const term = search.trim();
+
+      if (SearchQueryHelper.shouldUseLikeSearch(term)) {
+        this.applyLikeSearchForCount(qb, term);
+      } else {
+        this.applyFulltextSearchForCount(qb, term);
+      }
+    }
+
+    return qb.getCount();
+  }
+
+  private applyLikeSearchForCount(
+    qb: SelectQueryBuilder<SubScenarioEntity>,
+    term: string,
+  ): void {
+    const { contains } = SearchQueryHelper.generateLikePatterns(term);
+
+    qb.andWhere(
+      `(
+        s.name LIKE :any OR sc.name LIKE :any OR
+        aa.name LIKE :any OR fs.name LIKE :any
+      )`,
+      { any: contains },
+    );
+  }
+
+  private applyFulltextSearchForCount(
+    qb: SelectQueryBuilder<SubScenarioEntity>,
+    term: string,
+  ): void {
+    const sanitizedTerm = SearchQueryHelper.sanitizeSearchTerm(term);
+
+    if (!SearchQueryHelper.isValidForFulltext(sanitizedTerm)) {
+      this.applyLikeSearchForCount(qb, term);
+      return;
+    }
+
+    qb.andWhere(
+      `(
+        MATCH(s.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(sc.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(aa.name) AGAINST (:q IN BOOLEAN MODE) OR
+        MATCH(fs.name) AGAINST (:q IN BOOLEAN MODE)
+      )`,
+      { q: sanitizedTerm },
+    );
+  }
 }

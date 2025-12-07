@@ -21,4 +21,5 @@ export interface IUserApplicationPort {
     pageOptionsDto: UserPageOptionsDto,
   ): Promise<PageDto<UserWithRelationsDto>>;
   getUserById(id: number): Promise<UserWithRelationsDto>;
+  countWithFilters(opts: UserPageOptionsDto): Promise<number>;
 }

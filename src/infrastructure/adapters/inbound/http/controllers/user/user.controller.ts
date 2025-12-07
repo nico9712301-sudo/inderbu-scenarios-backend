@@ -31,6 +31,7 @@ import { UserPageOptionsDto } from '../../dtos/user/user-page-options.dto';
 import { APPLICATION_PORTS } from '../../../../../../core/application/tokens/ports';
 import { PageDto } from '../../dtos/common/page.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { UserStatsDto } from '../../dtos/user/user-stats.dto';
 
 @Controller('users')
 export class UserController {
@@ -102,6 +103,40 @@ export class UserController {
     @Query() pageOptionsDto: UserPageOptionsDto,
   ): Promise<PageDto<UserWithRelationsDto>> {
     return this.userApplicationService.getAllUsers(pageOptionsDto);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Obtiene estadísticas de usuarios' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    type: String,
+    description: 'Búsqueda por nombre, email o dni',
+  })
+  @ApiQuery({
+    name: 'roleId',
+    required: false,
+    type: [Number],
+    description: 'Filtrar por ID de rol',
+  })
+  @ApiQuery({
+    name: 'neighborhoodId',
+    required: false,
+    type: Number,
+    description: 'Filtrar por ID de barrio',
+  })
+  @ApiQuery({
+    name: 'isActive',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar por estado activo/inactivo',
+  })
+  @ApiResponse({ status: 200, type: UserStatsDto })
+  async getUserStats(
+    @Query() opts: UserPageOptionsDto,
+  ): Promise<UserStatsDto> {
+    const count = await this.userApplicationService.countWithFilters(opts);
+    return { count };
   }
 
   @Get(':id')

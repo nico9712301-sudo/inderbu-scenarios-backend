@@ -34,6 +34,7 @@ import {
   SubScenarioExportJobResponseDto,
   SubScenarioExportDownloadResponseDto,
 } from '../dtos/sub-scenarios/export-sub-scenarios.dto';
+import { SubScenarioStatsDto } from '../dtos/sub-scenarios/sub-scenario-stats.dto';
 import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
 import { SubScenarioExportApplicationService } from '../../../../../core/application/services/sub-scenario-export-application.service';
 import { ExportJob } from '../../../../../core/application/services/export/redis-export-job.service';
@@ -101,9 +102,47 @@ export class SubScenarioController {
   async getSubScenarios(
     @Query() opts: SubScenarioPageOptionsDto,
   ): Promise<PageDto<SubScenarioWithRelationsDto>> {
-    console.log('hi');
-
     return this.subScenarioApplicationService.listWithRelations(opts);
+  }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Obtiene estadísticas de sub-escenarios' })
+  @ApiQuery({
+    name: 'scenarioId',
+    required: false,
+    type: Number,
+    description: 'Filtra por escenario',
+  })
+  @ApiQuery({
+    name: 'activityAreaId',
+    required: false,
+    type: Number,
+    description: 'Filtra por área de actividad',
+  })
+  @ApiQuery({
+    name: 'neighborhoodId',
+    required: false,
+    type: Number,
+    description: 'Filtra por barrio (id)',
+  })
+  @ApiQuery({
+    name: 'hasCost',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar por costo: true=pagos, false=gratuitos',
+  })
+  @ApiQuery({
+    name: 'active',
+    required: false,
+    type: Boolean,
+    description: 'Filtrar por estado activo: true=activos, false=inactivos',
+  })
+  @ApiResponse({ status: 200, type: SubScenarioStatsDto })
+  async getSubScenarioStats(
+    @Query() opts: SubScenarioPageOptionsDto,
+  ): Promise<SubScenarioStatsDto> {
+    const count = await this.subScenarioApplicationService.countWithFilters(opts);
+    return { count };
   }
 
   @Get(':id')

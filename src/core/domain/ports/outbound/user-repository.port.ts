@@ -12,4 +12,5 @@ export interface IUserRepositoryPort {
     pageOptionsDto: UserPageOptionsDto,
   ): Promise<{ users: UserDomainEntity[]; totalItems: number }>;
   findByIdWithRelations(id: number): Promise<UserDomainEntity | null>;
+  count(opts: UserPageOptionsDto): Promise<number>;
 }

@@ -221,4 +221,8 @@ export class UserApplicationService implements IUserApplicationPort {
 
     return UserResponseMapper.toDtoWithRelations(user);
   }
+
+  async countWithFilters(opts: UserPageOptionsDto): Promise<number> {
+    return this.userRepository.count(opts);
+  }
 }

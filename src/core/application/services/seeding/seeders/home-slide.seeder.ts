@@ -45,6 +45,15 @@ export class HomeSlideSeeder
   protected async transform(
     seeds: IHomeSlideSeed[],
   ): Promise<PersistenceHomeSlideEntity[]> {
+    // Mapeo estático de UUIDs exactos del dump.sql para home_slides por display_order
+    const DUMP_HOME_SLIDE_UUIDS = {
+      1: 'ba9f7f21-41e2-48d2-842b-0ed349001af6.jpg',
+      2: 'd29f4ccd-d58d-46d4-bc1c-3ce3cda5c492.jpg',
+      3: 'c2adb1da-2ed7-4526-8871-0e090d2b2e59.jpg',
+      4: '6e833c6a-2f0d-42bc-92be-fc69a699200a.jpg',
+      5: 'd1a529c1-54a4-4503-bae3-b22b7c9fa094.jpg',
+    };
+
     const entities: PersistenceHomeSlideEntity[] = [];
     for (const seed of seeds) {
       const slideType =
@@ -79,11 +88,23 @@ export class HomeSlideSeeder
         }
       }
 
+      // Usar UUID exacto del dump.sql según displayOrder
+      const uuidFilename = DUMP_HOME_SLIDE_UUIDS[seed.displayOrder];
+      if (!uuidFilename) {
+        this.logger.error(`UUID no encontrado para home slide displayOrder: ${seed.displayOrder}`);
+        continue;
+      }
+
+      // Construir URL con el UUID exacto del dump
+      const imageUrl = `home/${uuidFilename}`;
+
+      this.logger.log(`Creating home slide: "${seed.title}" with UUID: ${uuidFilename}`);
+
       entities.push(
         this.repository.create({
           title: seed.title,
           description: seed.description,
-          imageUrl: seed.imageUrl,
+          imageUrl: imageUrl,
           displayOrder: seed.displayOrder,
           isActive: seed.isActive,
           slideType: slideType,

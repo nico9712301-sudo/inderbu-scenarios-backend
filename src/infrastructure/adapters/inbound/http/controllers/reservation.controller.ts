@@ -220,9 +220,11 @@ export class ReservationController {
   async listReservations(
     @Query() pageOptionsDto: ReservationPageOptionsDto,
   ): Promise<PageDto<ReservationWithDetailsResponseDto>> {
-    return await this.reservationApplicationService.listReservations(
+    const resp = await this.reservationApplicationService.listReservations(
       pageOptionsDto,
     );
+    console.log('resp', resp);
+    return resp;
   }
 
   @Get('states')

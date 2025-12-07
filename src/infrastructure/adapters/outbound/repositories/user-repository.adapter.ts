@@ -127,4 +127,59 @@ export class UserRepositoryAdapter
 
     return entity ? this.toDomain(entity) : null;
   }
+
+  async count(opts: UserPageOptionsDto): Promise<number> {
+    const { search, roleId, neighborhoodId, isActive } = opts;
+
+    let whereCondition: FindOptionsWhere<UserEntity>[] = [];
+
+    // Base condition: exclude users with role 'super-admin'
+    const baseCondition: FindOptionsWhere<UserEntity> = {
+      role: {
+        name: Not('super-admin'),
+      },
+    };
+
+    // Add roleId filter if provided
+    if (roleId && roleId.length > 0) {
+      baseCondition.role = {
+        name: Not('super-admin'),
+        id: In(roleId),
+      };
+    }
+
+    // Add neighborhoodId filter if provided
+    if (neighborhoodId) {
+      baseCondition.neighborhood = {
+        id: neighborhoodId,
+      };
+    }
+
+    // Add isActive filter if provided
+    if (isActive !== undefined) {
+      baseCondition.active = isActive;
+    }
+
+    if (search) {
+      const like = Like(`%${search}%`);
+      whereCondition = [
+        { first_name: like, ...baseCondition },
+        { last_name: like, ...baseCondition },
+        { email: like, ...baseCondition },
+      ];
+
+      // If search is numeric, also search by DNI
+      if (!isNaN(Number(search))) {
+        whereCondition.push({ dni: Number(search), ...baseCondition } as any);
+      }
+    } else {
+      // If no search term, just use the base condition with filters
+      whereCondition = [baseCondition];
+    }
+
+    return this.repository.count({
+      where: whereCondition,
+      relations: [...DEFAULT_RELATIONS],
+    });
+  }
 }
