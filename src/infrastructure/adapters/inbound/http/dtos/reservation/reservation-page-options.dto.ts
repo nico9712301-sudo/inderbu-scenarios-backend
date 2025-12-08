@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   IsOptional,
   IsNumber,
@@ -27,8 +27,22 @@ export class ReservationPageOptionsDto extends PageOptionsDto {
     type: [Number],
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      // Parse comma-separated string to array of numbers
+      return value.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+    }
+    if (Array.isArray(value)) {
+      // Already an array, ensure all are numbers
+      return value.map(id => parseInt(id)).filter(id => !isNaN(id));
+    }
+    if (typeof value === 'number') {
+      // Single number, convert to array
+      return [value];
+    }
+    return value;
+  })
   @IsArray()
-  @Type(() => Number)
   @IsNumber({}, { each: true })
   @IsPositive({ each: true })
   reservationStateIds?: number[];
