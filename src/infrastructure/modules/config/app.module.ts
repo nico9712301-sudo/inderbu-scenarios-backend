@@ -1,4 +1,10 @@
-import { Module, OnApplicationBootstrap, OnApplicationShutdown, Logger, Inject } from '@nestjs/common';
+import {
+  Module,
+  OnApplicationBootstrap,
+  OnApplicationShutdown,
+  Logger,
+  Inject,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
@@ -42,7 +48,9 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
   ],
   providers: [],
 })
-export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown {
+export class AppModule
+  implements OnApplicationBootstrap, OnApplicationShutdown
+{
   private readonly logger = new Logger(AppModule.name);
 
   constructor(
@@ -55,17 +63,23 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
   async onApplicationBootstrap(): Promise<void> {
     console.log('🚀 [AppModule] onApplicationBootstrap iniciado');
     this.logger.log('🚀 [AppModule] onApplicationBootstrap iniciado');
-    
+
     const isDevEnvironment =
       this.configService.get(ENV_CONFIG.APP.NODE_ENV) === 'development';
     const seedDbEnv = this.configService.get(ENV_CONFIG.APP.SEED_DB);
-    
-    console.log(`🔍 [AppModule] NODE_ENV=${isDevEnvironment ? 'development' : 'production'}, SEED_DB=${seedDbEnv}`);
-    this.logger.log(`🔍 NODE_ENV=${isDevEnvironment ? 'development' : 'production'}, SEED_DB=${seedDbEnv}`);
+
+    console.log(
+      `🔍 [AppModule] NODE_ENV=${isDevEnvironment ? 'development' : 'production'}, SEED_DB=${seedDbEnv}`,
+    );
+    this.logger.log(
+      `🔍 NODE_ENV=${isDevEnvironment ? 'development' : 'production'}, SEED_DB=${seedDbEnv}`,
+    );
 
     // En desarrollo: siempre ejecutar seeders
     if (isDevEnvironment) {
-      console.log('🌱 [AppModule] Modo desarrollo - Ejecutando seeding automático');
+      console.log(
+        '🌱 [AppModule] Modo desarrollo - Ejecutando seeding automático',
+      );
       this.logger.log(
         '🌱 Modo desarrollo detectado - Ejecutando seeding automático',
       );
@@ -74,9 +88,11 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
     }
 
     // En producción: verificar si hay datos antes de ejecutar seeders
-    console.log('🔍 [AppModule] Modo producción - Verificando si se deben ejecutar seeders...');
+    console.log(
+      '🔍 [AppModule] Modo producción - Verificando si se deben ejecutar seeders...',
+    );
     const shouldSeed = await this.shouldRunSeeding(seedDbEnv);
-    
+
     if (shouldSeed) {
       console.log('🌱 [AppModule] Ejecutando seeders en producción');
       this.logger.log(
@@ -97,13 +113,19 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
    * @param seedDbEnv Valor de SEED_DB
    * @returns true si se deben ejecutar seeders
    */
-  private async shouldRunSeeding(seedDbEnv: string | undefined): Promise<boolean> {
+  private async shouldRunSeeding(
+    seedDbEnv: string | undefined,
+  ): Promise<boolean> {
     console.log(`🔍 [AppModule] shouldRunSeeding - SEED_DB=${seedDbEnv}`);
-    this.logger.log(`🔍 Verificando si se deben ejecutar seeders. SEED_DB=${seedDbEnv}`);
-    
+    this.logger.log(
+      `🔍 Verificando si se deben ejecutar seeders. SEED_DB=${seedDbEnv}`,
+    );
+
     // Si SEED_DB está explícitamente en 'true', ejecutar siempre
     if (seedDbEnv === 'true') {
-      console.log('✅ [AppModule] SEED_DB=true - Ejecutando seeders forzadamente');
+      console.log(
+        '✅ [AppModule] SEED_DB=true - Ejecutando seeders forzadamente',
+      );
       this.logger.log('✅ SEED_DB=true - Ejecutando seeders forzadamente');
       return true;
     }
@@ -116,9 +138,13 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
     }
 
     // Si no está configurado, verificar si las tablas están vacías
-    console.log('🔍 [AppModule] SEED_DB no configurado - Verificando tablas...');
-    this.logger.log('🔍 SEED_DB no configurado - Verificando si las tablas están vacías...');
-    
+    console.log(
+      '🔍 [AppModule] SEED_DB no configurado - Verificando tablas...',
+    );
+    this.logger.log(
+      '🔍 SEED_DB no configurado - Verificando si las tablas están vacías...',
+    );
+
     try {
       // Verificar algunas tablas clave para determinar si hay datos
       const keyTables = ['roles', 'cities', 'communes', 'neighborhoods'];
@@ -135,7 +161,7 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
           tableStatus[table] = count;
           console.log(`  📊 [AppModule] Tabla ${table}: ${count} registros`);
           this.logger.log(`  📊 Tabla ${table}: ${count} registros`);
-          
+
           if (count > 0) {
             hasData = true;
           }
@@ -147,19 +173,25 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
             tableStatus[table] = 0;
             continue;
           }
-          console.error(`  ❌ [AppModule] Error verificando tabla ${table}: ${error.message}`);
-          this.logger.error(`  ❌ Error verificando tabla ${table}: ${error.message}`);
+          console.error(
+            `  ❌ [AppModule] Error verificando tabla ${table}: ${error.message}`,
+          );
+          this.logger.error(
+            `  ❌ Error verificando tabla ${table}: ${error.message}`,
+          );
           throw error;
         }
       }
 
       // Si no hay datos, ejecutar seeders automáticamente
       const shouldRun = !hasData;
-      console.log(`📋 [AppModule] Resumen: ${hasData ? 'Hay datos' : 'No hay datos'}. ${shouldRun ? '✅ Ejecutando seeders' : '🚫 No ejecutando seeders'}`);
+      console.log(
+        `📋 [AppModule] Resumen: ${hasData ? 'Hay datos' : 'No hay datos'}. ${shouldRun ? '✅ Ejecutando seeders' : '🚫 No ejecutando seeders'}`,
+      );
       this.logger.log(
         `📋 Resumen: ${hasData ? 'Hay datos' : 'No hay datos'} en tablas clave. ${shouldRun ? '✅ Ejecutando seeders' : '🚫 No ejecutando seeders'}`,
       );
-      
+
       return shouldRun;
     } catch (error: any) {
       console.error(`❌ [AppModule] Error verificando datos: ${error.message}`);
@@ -179,7 +211,9 @@ export class AppModule implements OnApplicationBootstrap, OnApplicationShutdown 
         this.logger.log('✅ [AppModule] DataSource cerrado correctamente');
       }
     } catch (error: any) {
-      this.logger.error(`❌ [AppModule] Error cerrando DataSource: ${error.message}`);
+      this.logger.error(
+        `❌ [AppModule] Error cerrando DataSource: ${error.message}`,
+      );
     }
   }
 }

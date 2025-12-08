@@ -20,9 +20,7 @@ import { UpdateFieldSurfaceTypeDto } from '../../../infrastructure/adapters/inbo
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
-export class FieldSurfaceTypeApplicationService
-  implements IFieldSurfaceTypeApplicationPort
-{
+export class FieldSurfaceTypeApplicationService implements IFieldSurfaceTypeApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.FIELD_SURFACE)
     private readonly fieldSurfaceTypeRepository: IFieldSurfaceTypeRepositoryPort,

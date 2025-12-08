@@ -15,7 +15,8 @@ export class AppCommandService {
 
   @Command({
     command: 'start:seeds',
-    describe: 'Ejecuta todos los seeders manualmente (disponible en cualquier entorno)',
+    describe:
+      'Ejecuta todos los seeders manualmente (disponible en cualquier entorno)',
   })
   async runSeeds() {
     try {
@@ -23,9 +24,9 @@ export class AppCommandService {
       this.logger.warn(
         '⚠️  Este comando ejecutará seeders incluso en producción. Úsalo con precaución.',
       );
-      
+
       await this.seedingService.seed();
-      
+
       this.logger.log('✅ Seeders ejecutados exitosamente.');
     } catch (error) {
       this.logger.error('❌ Error ejecutando seeders:', error);
@@ -41,7 +42,7 @@ export class AppCommandService {
     try {
       this.logger.log('Ejecutando migraciones pendientes...');
       const migrations = await this.datasource.runMigrations();
-      
+
       if (migrations.length === 0) {
         this.logger.log('✅ No hay migraciones pendientes.');
       } else {

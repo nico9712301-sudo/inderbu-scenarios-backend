@@ -7,8 +7,15 @@ import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
 } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/reservation.dto';
+import { BulkUpdateReservationStateResponseDto } from '../../../../infrastructure/adapters/inbound/http/dtos/reservation/bulk-update-reservation-state-response.dto';
 
 export interface UpdateReservationStateDto {
+  stateId: number;
+  comments?: string;
+}
+
+export interface UpdateMultipleReservationStatesDto {
+  reservationIds: number[];
   stateId: number;
   comments?: string;
 }
@@ -48,6 +55,13 @@ export interface IReservationApplicationPort {
     reservationId: number,
     dto: UpdateReservationStateDto,
   ): Promise<ReservationWithDetailsResponseDto>;
+
+  /**
+   * Actualiza el estado de múltiples reservas
+   */
+  updateMultipleReservationStates(
+    dto: UpdateMultipleReservationStatesDto,
+  ): Promise<BulkUpdateReservationStateResponseDto>;
 
   /**
    * Cancela una reserva

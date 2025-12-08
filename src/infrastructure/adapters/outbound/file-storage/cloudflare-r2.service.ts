@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -11,7 +15,9 @@ export class CloudflareR2Service {
   constructor(private readonly configService: ConfigService) {
     const endpoint = this.configService.get<string>('R2_ENDPOINT');
     const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
+    const secretAccessKey = this.configService.get<string>(
+      'R2_SECRET_ACCESS_KEY',
+    );
     const bucketName = this.configService.get<string>('R2_BUCKET_NAME');
 
     if (!endpoint) {
@@ -39,7 +45,10 @@ export class CloudflareR2Service {
     });
   }
 
-  async uploadFile(file: Express.Multer.File, folderPath?: string): Promise<string> {
+  async uploadFile(
+    file: Express.Multer.File,
+    folderPath?: string,
+  ): Promise<string> {
     if (!file) {
       throw new Error('Archivo inválido: no se proporcionó archivo');
     }

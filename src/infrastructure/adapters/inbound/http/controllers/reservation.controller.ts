@@ -7,6 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -29,6 +30,7 @@ import { CreateReservationRequestDto } from '../dtos/reservation/create-reservat
 import { AvailabilityQueryDto } from '../dtos/reservation/availability-query.dto';
 import { ReservationPageOptionsDto } from '../dtos/reservation/reservation-page-options.dto';
 import { UpdateReservationStateDto } from '../dtos/reservation/update-reservation-state.dto';
+import { BulkUpdateReservationStateResponseDto } from '../dtos/reservation/bulk-update-reservation-state-response.dto';
 import { APPLICATION_PORTS } from '../../../../../core/application/tokens/ports';
 import { REPOSITORY_PORTS } from '../../../../tokens/ports';
 import { PageDto } from '../dtos/common/page.dto';
@@ -220,9 +222,8 @@ export class ReservationController {
   async listReservations(
     @Query() pageOptionsDto: ReservationPageOptionsDto,
   ): Promise<PageDto<ReservationWithDetailsResponseDto>> {
-    const resp = await this.reservationApplicationService.listReservations(
-      pageOptionsDto,
-    );
+    const resp =
+      await this.reservationApplicationService.listReservations(pageOptionsDto);
     console.log('resp', resp);
     return resp;
   }
@@ -280,43 +281,89 @@ export class ReservationController {
   @Patch(':id/state')
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({
-    summary: 'Actualizar estado de una reserva',
+    summary: 'Actualizar estado de una o múltiples reservas',
     description:
-      'Permite cambiar el estado de una reserva (PENDIENTE → CONFIRMADA → CANCELADA)',
+      'Permite cambiar el estado de una reserva individual o múltiples reservas en lote. ' +
+      'Para operaciones múltiples, usar additionalReservationIds junto con el ID del path. ' +
+      'Soporta transiciones: PENDIENTE → CONFIRMADA → CANCELADA',
   })
   @ApiParam({
     name: 'id',
     type: Number,
-    description: 'ID de la reserva',
+    description: 'ID de la reserva principal',
     example: 1,
   })
   @ApiResponse({
     status: 200,
     type: ReservationWithDetailsResponseDto,
-    description: 'Estado actualizado exitosamente',
+    description: 'Estado actualizado exitosamente (operación individual)',
+    schema: {
+      oneOf: [
+        { $ref: '#/components/schemas/ReservationWithDetailsResponseDto' },
+        { $ref: '#/components/schemas/BulkUpdateReservationStateResponseDto' },
+      ],
+    },
   })
   @ApiResponse({
     status: 404,
-    description: 'Reserva no encontrada',
+    description: 'Reserva(s) no encontrada(s)',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos o transición de estado no permitida',
   })
   @ApiBody({
-    description: 'Nuevo estado de la reserva',
+    description:
+      'Nuevo estado y opcionales IDs adicionales para operación múltiple',
     type: UpdateReservationStateDto,
   })
   async updateReservationState(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateStateDto: UpdateReservationStateDto,
-  ): Promise<ReservationWithDetailsResponseDto> {
+  ): Promise<
+    ReservationWithDetailsResponseDto | BulkUpdateReservationStateResponseDto
+  > {
     try {
-      return await this.reservationApplicationService.updateReservationState(
-        id,
-        { stateId: updateStateDto.reservationStateId },
-      );
+      // Detectar si es operación múltiple
+      const additionalIds = updateStateDto.additionalReservationIds || [];
+      const allReservationIds = [id, ...additionalIds];
+
+      // Validar que no se incluya el ID principal en los adicionales
+      if (additionalIds.includes(id)) {
+        throw new BadRequestException(
+          `El ID principal ${id} no puede incluirse en additionalReservationIds`,
+        );
+      }
+
+      if (allReservationIds.length === 1) {
+        // Operación individual (comportamiento actual)
+        return await this.reservationApplicationService.updateReservationState(
+          id,
+          {
+            stateId: updateStateDto.reservationStateId,
+            comments: updateStateDto.comments,
+          },
+        );
+      } else {
+        // Operación múltiple (nueva funcionalidad)
+        return await this.reservationApplicationService.updateMultipleReservationStates(
+          {
+            reservationIds: allReservationIds,
+            stateId: updateStateDto.reservationStateId,
+            comments: updateStateDto.comments,
+          },
+        );
+      }
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
         throw error;
       }
-      throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
+      throw new NotFoundException(
+        `Error actualizando reserva(s): ${error.message}`,
+      );
     }
   }
 

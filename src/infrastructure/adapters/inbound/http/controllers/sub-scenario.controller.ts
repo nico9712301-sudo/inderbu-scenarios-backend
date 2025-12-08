@@ -141,7 +141,8 @@ export class SubScenarioController {
   async getSubScenarioStats(
     @Query() opts: SubScenarioPageOptionsDto,
   ): Promise<SubScenarioStatsDto> {
-    const count = await this.subScenarioApplicationService.countWithFilters(opts);
+    const count =
+      await this.subScenarioApplicationService.countWithFilters(opts);
     return { count };
   }
 

@@ -16,9 +16,7 @@ import { INeighborhoodApplicationPort } from '../ports/inbound/neighborhood-appl
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
-export class NeighborhoodApplicationService
-  implements INeighborhoodApplicationPort
-{
+export class NeighborhoodApplicationService implements INeighborhoodApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.NEIGHBORHOOD)
     private readonly neighborhoodRepository: INeighborhoodRepositoryPort,

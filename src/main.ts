@@ -49,14 +49,15 @@ async function createApp() {
   app.enableCors({
     origin: [
       'http://localhost:3000',
-      'https://inderbu-scenarios-frontend.vercel.app'
+      'https://inderbu-scenarios-frontend.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
   // Registro de swagger - solo en desarrollo o si se especifica explícitamente
   const nodeEnv = process.env.NODE_ENV || 'development';
-  const enableSwagger = process.env.ENABLE_SWAGGER === 'true' || nodeEnv === 'development';
+  const enableSwagger =
+    process.env.ENABLE_SWAGGER === 'true' || nodeEnv === 'development';
 
   if (enableSwagger) {
     const swaggerConfigDocument = new DocumentBuilder()

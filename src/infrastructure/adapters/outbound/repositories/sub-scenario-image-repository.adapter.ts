@@ -7,9 +7,7 @@ import { SubScenarioImageDomainEntity } from '../../../../core/domain/entities/s
 import { SubScenarioImageEntityMapper } from '../../../mappers/images/image-entity.mapper';
 
 @Injectable()
-export class SubScenarioImageRepositoryAdapter
-  implements ISubScenarioImageRepositoryPort
-{
+export class SubScenarioImageRepositoryAdapter implements ISubScenarioImageRepositoryPort {
   constructor(
     @Inject(SubScenarioImageEntity)
     private readonly repository: Repository<SubScenarioImageEntity>,

@@ -20,9 +20,7 @@ import { IActivityAreaApplicationPort } from '../ports/inbound/activity-area-app
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
-export class ActivityAreaApplicationService
-  implements IActivityAreaApplicationPort
-{
+export class ActivityAreaApplicationService implements IActivityAreaApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.ACTIVITY_AREA)
     private readonly repo: IActivityAreaRepositoryPort,

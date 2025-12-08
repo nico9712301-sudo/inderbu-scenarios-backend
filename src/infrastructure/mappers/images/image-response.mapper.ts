@@ -24,7 +24,9 @@ export class SubScenarioImageResponseMapper {
   }
 
   // Mantener método estático por compatibilidad temporal
-  static toDto(domain: SubScenarioImageDomainEntity): SubScenarioImageResponseDto {
+  static toDto(
+    domain: SubScenarioImageDomainEntity,
+  ): SubScenarioImageResponseDto {
     const dto = new SubScenarioImageResponseDto();
     dto.id = domain.id!;
     dto.path = domain.path;

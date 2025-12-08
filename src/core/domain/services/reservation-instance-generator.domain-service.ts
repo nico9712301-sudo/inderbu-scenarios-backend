@@ -33,7 +33,9 @@ export class ReservationInstanceGeneratorDomainService {
         instances.push({
           reservationId,
           timeslotId,
-          reservationDate: new Date(date.toISOString().split('T')[0] + 'T00:00:00Z'),
+          reservationDate: new Date(
+            date.toISOString().split('T')[0] + 'T00:00:00Z',
+          ),
           subScenarioId,
           userId,
           reservationStateId,
@@ -42,7 +44,6 @@ export class ReservationInstanceGeneratorDomainService {
     }
 
     console.log('🔥 GENERATED INSTANCES:', instances);
-    
 
     return instances;
   }

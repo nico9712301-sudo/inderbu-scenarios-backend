@@ -91,14 +91,18 @@ export class HomeSlideSeeder
       // Usar UUID exacto del dump.sql según displayOrder
       const uuidFilename = DUMP_HOME_SLIDE_UUIDS[seed.displayOrder];
       if (!uuidFilename) {
-        this.logger.error(`UUID no encontrado para home slide displayOrder: ${seed.displayOrder}`);
+        this.logger.error(
+          `UUID no encontrado para home slide displayOrder: ${seed.displayOrder}`,
+        );
         continue;
       }
 
       // Construir URL con el UUID exacto del dump
       const imageUrl = `home/${uuidFilename}`;
 
-      this.logger.log(`Creating home slide: "${seed.title}" with UUID: ${uuidFilename}`);
+      this.logger.log(
+        `Creating home slide: "${seed.title}" with UUID: ${uuidFilename}`,
+      );
 
       entities.push(
         this.repository.create({

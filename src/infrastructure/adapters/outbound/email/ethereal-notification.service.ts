@@ -102,9 +102,12 @@ Si no fuiste tú, ignora este correo.
 
   private formatTimeslots(timeslots: TimeslotInfo[]): string {
     if (timeslots.length === 0) return 'Horarios no especificados';
-    
+
     return timeslots
-      .map((ts) => `${this.formatTime(ts.startTime)} - ${this.formatTime(ts.endTime)}`)
+      .map(
+        (ts) =>
+          `${this.formatTime(ts.startTime)} - ${this.formatTime(ts.endTime)}`,
+      )
       .join(', ');
   }
 

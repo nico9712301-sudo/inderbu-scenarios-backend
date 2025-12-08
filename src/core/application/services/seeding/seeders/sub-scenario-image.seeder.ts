@@ -153,7 +153,9 @@ export class SubScenarioImageSeeder
           // Usar UUID exacto del dump.sql según sub_scenario_id
           const uuid = DUMP_UUIDS[subScenario.id];
           if (!uuid) {
-            this.logger.error(`UUID no encontrado para sub_scenario_id: ${subScenario.id}`);
+            this.logger.error(
+              `UUID no encontrado para sub_scenario_id: ${subScenario.id}`,
+            );
             continue;
           }
           subScenarioImage.path =

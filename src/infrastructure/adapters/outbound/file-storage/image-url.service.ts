@@ -29,7 +29,9 @@ export class ImageUrlService {
     const cleanPath = path.startsWith('/') ? path.substring(1) : path;
 
     // Construir URL completa
-    const baseUrl = this.publicUrl.endsWith('/') ? this.publicUrl.slice(0, -1) : this.publicUrl;
+    const baseUrl = this.publicUrl.endsWith('/')
+      ? this.publicUrl.slice(0, -1)
+      : this.publicUrl;
     return `${baseUrl}/${cleanPath}`;
   }
 

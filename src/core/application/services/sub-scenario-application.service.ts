@@ -26,9 +26,7 @@ import { SubScenarioImageDomainEntity } from '../../domain/entities/sub-scenario
 import { FileStorageService } from '../../../infrastructure/adapters/outbound/file-storage/file-storage.service';
 
 @Injectable()
-export class SubScenarioApplicationService
-  implements ISubScenarioApplicationPort
-{
+export class SubScenarioApplicationService implements ISubScenarioApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
@@ -84,7 +82,14 @@ export class SubScenarioApplicationService
       }
 
       const subImages = imagesBySubScenarioId.get(sub.id) || [];
-      return this.subScenarioMapper.toDto(sub, scen, area, surf, neigh, subImages);
+      return this.subScenarioMapper.toDto(
+        sub,
+        scen,
+        area,
+        surf,
+        neigh,
+        subImages,
+      );
     });
 
     return new PageDto(

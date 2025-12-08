@@ -8,9 +8,7 @@ import { FieldSurfaceTypeEntityMapper } from '../../../mappers/field-surface-typ
 import { PageOptionsDto } from '../../inbound/http/dtos/common/page-options.dto';
 
 @Injectable()
-export class FieldSurfaceTypeRepositoryAdapter
-  implements IFieldSurfaceTypeRepositoryPort
-{
+export class FieldSurfaceTypeRepositoryAdapter implements IFieldSurfaceTypeRepositoryPort {
   constructor(
     @Inject(FieldSurfaceTypeEntity)
     private readonly repository: Repository<FieldSurfaceTypeEntity>,

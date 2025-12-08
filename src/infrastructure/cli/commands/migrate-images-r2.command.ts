@@ -22,7 +22,8 @@ export class MigrateImagesToR2Command {
 
   @Command({
     command: 'migrate:images-r2',
-    describe: 'Migra imágenes locales a Cloudflare R2 y actualiza referencias en BD',
+    describe:
+      'Migra imágenes locales a Cloudflare R2 y actualiza referencias en BD',
   })
   async migrate(): Promise<void> {
     console.log('🚀 Iniciando migración de imágenes a Cloudflare R2...\n');
@@ -36,7 +37,9 @@ export class MigrateImagesToR2Command {
         where: { current: true },
       });
 
-      console.log(`📷 Encontradas ${subScenarioImages.length} imágenes de sub-escenarios a migrar`);
+      console.log(
+        `📷 Encontradas ${subScenarioImages.length} imágenes de sub-escenarios a migrar`,
+      );
 
       for (const imageEntity of subScenarioImages) {
         try {
@@ -47,7 +50,12 @@ export class MigrateImagesToR2Command {
             localPath = this.getLocalFilePath(imageEntity.path);
           } else {
             // Path R2: sub-scenarios/image2.jpeg → buscar en /temp/images/sub-scenarios/image2.jpeg
-            localPath = path.join(process.cwd(), 'temp', 'images', imageEntity.path);
+            localPath = path.join(
+              process.cwd(),
+              'temp',
+              'images',
+              imageEntity.path,
+            );
           }
 
           if (!fs.existsSync(localPath)) {
@@ -76,21 +84,27 @@ export class MigrateImagesToR2Command {
           };
 
           // Subir a R2
-          const r2Key = await this.r2Service.uploadFile(mockFile, 'sub-scenarios');
+          const r2Key = await this.r2Service.uploadFile(
+            mockFile,
+            'sub-scenarios',
+          );
 
           // Solo actualizar BD si cambió el path
           if (imageEntity.path !== r2Key) {
             await this.imageRepository.update(imageEntity.id, { path: r2Key });
           }
 
-          console.log(`✅ Subida imagen ${imageEntity.id}: ${imageEntity.path} → R2 (${r2Key})`);
+          console.log(
+            `✅ Subida imagen ${imageEntity.id}: ${imageEntity.path} → R2 (${r2Key})`,
+          );
           totalMigrated++;
 
           // Opcional: eliminar archivo local tras migración exitosa
           // fs.unlinkSync(localPath);
-
         } catch (error) {
-          console.error(`❌ Error migrando imagen ${imageEntity.id}: ${error.message}`);
+          console.error(
+            `❌ Error migrando imagen ${imageEntity.id}: ${error.message}`,
+          );
           totalErrors++;
         }
       }
@@ -111,7 +125,12 @@ export class MigrateImagesToR2Command {
             localPath = this.getLocalFilePath(slideEntity.imageUrl);
           } else {
             // Path R2: home/slide-1.jpg → buscar en /temp/images/home/slide-1.jpg
-            localPath = path.join(process.cwd(), 'temp', 'images', slideEntity.imageUrl);
+            localPath = path.join(
+              process.cwd(),
+              'temp',
+              'images',
+              slideEntity.imageUrl,
+            );
           }
 
           if (!fs.existsSync(localPath)) {
@@ -144,18 +163,22 @@ export class MigrateImagesToR2Command {
 
           // Solo actualizar BD si cambió el path
           if (slideEntity.imageUrl !== r2Key) {
-            await this.homeSlideRepository.update(slideEntity.id, { imageUrl: r2Key });
+            await this.homeSlideRepository.update(slideEntity.id, {
+              imageUrl: r2Key,
+            });
           }
 
-          console.log(`✅ Subida home slide ${slideEntity.id}: ${slideEntity.imageUrl} → R2 (${r2Key})`);
+          console.log(
+            `✅ Subida home slide ${slideEntity.id}: ${slideEntity.imageUrl} → R2 (${r2Key})`,
+          );
           totalMigrated++;
-
         } catch (error) {
-          console.error(`❌ Error migrando home slide ${slideEntity.id}: ${error.message}`);
+          console.error(
+            `❌ Error migrando home slide ${slideEntity.id}: ${error.message}`,
+          );
           totalErrors++;
         }
       }
-
     } catch (error) {
       console.error(`💥 Error fatal durante migración: ${error.message}`);
       throw error;
@@ -167,9 +190,13 @@ export class MigrateImagesToR2Command {
 
     if (totalErrors === 0) {
       console.log(`\n🎉 ¡Migración completada exitosamente!`);
-      console.log(`💡 Ahora puedes eliminar los archivos locales en temp/images/`);
+      console.log(
+        `💡 Ahora puedes eliminar los archivos locales en temp/images/`,
+      );
     } else {
-      console.log(`\n⚠️  Migración completada con errores. Revisa los logs anteriores.`);
+      console.log(
+        `\n⚠️  Migración completada con errores. Revisa los logs anteriores.`,
+      );
     }
   }
 
@@ -184,11 +211,11 @@ export class MigrateImagesToR2Command {
 
   private getMimeType(extension: string): string {
     const mimeTypes = {
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'png': 'image/png',
-      'gif': 'image/gif',
-      'webp': 'image/webp',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
     };
     return mimeTypes[extension.toLowerCase()] || 'application/octet-stream';
   }

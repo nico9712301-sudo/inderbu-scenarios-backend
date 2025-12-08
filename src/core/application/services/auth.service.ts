@@ -24,7 +24,7 @@ export class AuthApplicationService {
     password: string,
   ): Promise<UserDomainEntity> {
     const user = await this.userApplicationService.findByEmail(email);
-    
+
     // Verificar que el usuario existe y las credenciales son válidas
     if (!user || !(await user.validatePassword(password, bcrypt))) {
       throw new UnauthorizedException('Credenciales inválidas');

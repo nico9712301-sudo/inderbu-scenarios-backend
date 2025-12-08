@@ -8,12 +8,16 @@ import {
 } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 
-import { IReservationApplicationPort } from '../ports/inbound/reservation-application.port';
+import {
+  IReservationApplicationPort,
+  UpdateMultipleReservationStatesDto,
+} from '../ports/inbound/reservation-application.port';
 import { CreateReservationRequestDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/create-reservation-request.dto';
 import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
 } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/reservation.dto';
+import { BulkUpdateReservationStateResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/bulk-update-reservation-state-response.dto';
 import { AvailabilityQueryDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/availability-query.dto';
 import { SimplifiedAvailabilityResponseDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/simplified-availability-response.dto';
 import { ReservationPageOptionsDto } from '../../../infrastructure/adapters/inbound/http/dtos/reservation/reservation-page-options.dto';
@@ -38,7 +42,10 @@ import {
   ReservationConflict,
   ReservationConflictDetectorDomainService,
 } from '../../domain/services/reservation-conflict-detector.domain-service';
-import { ReservationInstanceData, ReservationInstanceGeneratorDomainService } from '../../domain/services/reservation-instance-generator.domain-service';
+import {
+  ReservationInstanceData,
+  ReservationInstanceGeneratorDomainService,
+} from '../../domain/services/reservation-instance-generator.domain-service';
 import { ReservationAvailabilityCheckerDomainService } from '../../domain/services/reservation-availability-checker.domain-service';
 
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
@@ -51,9 +58,7 @@ import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository
 import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
 
 @Injectable()
-export class ReservationApplicationService
-  implements IReservationApplicationPort
-{
+export class ReservationApplicationService implements IReservationApplicationPort {
   private readonly logger = new Logger(ReservationApplicationService.name);
 
   constructor(
@@ -224,14 +229,15 @@ export class ReservationApplicationService
       );
 
       // 5. Generar y guardar instancias
-      const instancesData: ReservationInstanceData[] = this.instanceGenerator.generateInstances(
-        savedReservation.id!,
-        dto.subScenarioId,
-        userId,
-        1, // PENDIENTE
-        dto.timeSlotIds,
-        calculatedDates,
-      );
+      const instancesData: ReservationInstanceData[] =
+        this.instanceGenerator.generateInstances(
+          savedReservation.id!,
+          dto.subScenarioId,
+          userId,
+          1, // PENDIENTE
+          dto.timeSlotIds,
+          calculatedDates,
+        );
 
       // 🛡️ PROTECTION: Validar instancias antes de guardar
       this.validateInstances(instancesData, dto.timeSlotIds, calculatedDates);
@@ -259,9 +265,7 @@ export class ReservationApplicationService
         if (user && subScenario) {
           // Obtener timeslots de la reserva guardada
           const reservationWithDetails =
-            await this.reservationRepo.findWithTimeslots(
-              savedReservation.id!,
-            );
+            await this.reservationRepo.findWithTimeslots(savedReservation.id!);
           const timeslots =
             reservationWithDetails && (reservationWithDetails as any).timeslots
               ? (reservationWithDetails as any).timeslots.map((ts: any) => ({
@@ -646,7 +650,7 @@ export class ReservationApplicationService
     const { data, total } = await this.reservationRepo.findPaged(options);
 
     console.log('data', data[0]);
-    
+
     // Usar el mapper para convertir domain entities a DTOs
     const dtos: ReservationWithDetailsResponseDto[] = data.map((reservation) =>
       ReservationResponseMapper.toDetailsDto(reservation),
@@ -681,9 +685,8 @@ export class ReservationApplicationService
     dto: { stateId: number; comments?: string },
   ): Promise<ReservationWithDetailsResponseDto> {
     // 1. Obtener la reserva actual para conocer el estado anterior
-    const currentReservation = await this.reservationRepo.findWithTimeslots(
-      reservationId,
-    );
+    const currentReservation =
+      await this.reservationRepo.findWithTimeslots(reservationId);
     if (!currentReservation) {
       throw new NotFoundException(
         `Reservation with ID ${reservationId} not found`,
@@ -776,6 +779,42 @@ export class ReservationApplicationService
 
     // 7. Retornar la reserva actualizada
     return this.getReservationById(reservationId);
+  }
+
+  async updateMultipleReservationStates(
+    dto: UpdateMultipleReservationStatesDto,
+  ): Promise<BulkUpdateReservationStateResponseDto> {
+    const { reservationIds, stateId, comments } = dto;
+    const updatedReservations: ReservationWithDetailsResponseDto[] = [];
+    const errors: Array<{ reservationId: number; error: string }> = [];
+
+    // Procesar cada reserva individualmente para manejar errores parciales
+    for (const reservationId of reservationIds) {
+      try {
+        const updatedReservation = await this.updateReservationState(
+          reservationId,
+          { stateId, comments },
+        );
+        updatedReservations.push(updatedReservation);
+      } catch (error) {
+        this.logger.error(
+          `❌ Error actualizando reserva ${reservationId}:`,
+          error.message,
+        );
+        errors.push({
+          reservationId,
+          error: error.message || 'Error desconocido',
+        });
+      }
+    }
+
+    return {
+      updatedCount: updatedReservations.length,
+      totalProcessed: reservationIds.length,
+      updatedReservations,
+      errors: errors.length > 0 ? errors : undefined,
+      allSuccessful: errors.length === 0,
+    };
   }
 
   async cancelReservation(

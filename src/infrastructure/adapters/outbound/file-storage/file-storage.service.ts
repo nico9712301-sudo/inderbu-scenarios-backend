@@ -91,7 +91,10 @@ export class FileStorageService {
       }
       return false;
     } catch (error) {
-      console.error(`Error al eliminar el archivo local ${relativePath}:`, error);
+      console.error(
+        `Error al eliminar el archivo local ${relativePath}:`,
+        error,
+      );
       return false;
     }
   }

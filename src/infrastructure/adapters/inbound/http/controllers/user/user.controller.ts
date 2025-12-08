@@ -132,9 +132,7 @@ export class UserController {
     description: 'Filtrar por estado activo/inactivo',
   })
   @ApiResponse({ status: 200, type: UserStatsDto })
-  async getUserStats(
-    @Query() opts: UserPageOptionsDto,
-  ): Promise<UserStatsDto> {
+  async getUserStats(@Query() opts: UserPageOptionsDto): Promise<UserStatsDto> {
     const count = await this.userApplicationService.countWithFilters(opts);
     return { count };
   }

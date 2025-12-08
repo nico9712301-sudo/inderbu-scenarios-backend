@@ -57,7 +57,6 @@ export class SubScenarioMapper {
     neighMap: Map<number, NeighborhoodDomainEntity>,
     imageDtos: SubScenarioImageResponseDto[],
   ): SubScenarioWithRelationsDto {
-
     // Ordenar imágenes por orden de visualización
     const sortedImages = [...imageDtos].sort(
       (a, b) => a.displayOrder - b.displayOrder,

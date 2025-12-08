@@ -12,10 +12,10 @@ export const databaseProviders = [
       const logger = new Logger('DatabaseProvider');
       logger.log('Desde database providers' + ENV_CONFIG.STORAGE.BUCKET_HOST);
       logger.log('Desde database providers' + ENV_CONFIG.DATABASE.USER);
-      
+
       const nodeEnv = configService.get(ENV_CONFIG.APP.NODE_ENV);
       const synchronizeEnv = configService.get(ENV_CONFIG.DATABASE.SYNCHRONIZE);
-      
+
       // Crear DataSource primero para verificar si hay tablas
       const tempDataSource = new DataSource({
         type: 'mysql',
@@ -32,19 +32,19 @@ export const databaseProviders = [
       });
 
       let shouldSynchronize = false;
-      
+
       try {
         await tempDataSource.initialize();
-        
+
         // Verificar si existe al menos una tabla (ej: migrations)
         const tables = await tempDataSource.query(
           `SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = ?`,
           [configService.get(ENV_CONFIG.DATABASE.NAME)],
         );
-        
+
         const tableCount = parseInt(tables[0]?.count || '0', 10);
         const hasTables = tableCount > 0;
-        
+
         // Lógica de synchronize:
         // - Si DB_SYNCHRONIZE='true' explícitamente → true
         // - Si DB_SYNCHRONIZE='false' pero NO hay tablas → true (crear tablas iniciales)
@@ -64,7 +64,7 @@ export const databaseProviders = [
         } else {
           shouldSynchronize = false;
         }
-        
+
         await tempDataSource.destroy().catch((err) => {
           logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
         });
@@ -76,15 +76,15 @@ export const databaseProviders = [
         shouldSynchronize = synchronizeEnv !== 'false';
         if (tempDataSource.isInitialized) {
           await tempDataSource.destroy().catch((err) => {
-          logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
-        });
+            logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
+          });
         }
       }
-      
+
       logger.log(
         `🔧 Configuración: DB_SYNCHRONIZE=${synchronizeEnv}, synchronize=${shouldSynchronize}`,
       );
-      
+
       // Crear DataSource final con synchronize configurado y pool optimizado
       const dataSource = new DataSource({
         type: 'mysql',

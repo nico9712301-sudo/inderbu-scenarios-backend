@@ -11,9 +11,7 @@ import { UpdateImageDto } from '../../../infrastructure/adapters/inbound/http/dt
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 
 @Injectable()
-export class SubScenarioImageApplicationService
-  implements ISubScenarioImageApplicationPort
-{
+export class SubScenarioImageApplicationService implements ISubScenarioImageApplicationPort {
   constructor(
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_IMAGE)
     private readonly imageRepository: ISubScenarioImageRepositoryPort,

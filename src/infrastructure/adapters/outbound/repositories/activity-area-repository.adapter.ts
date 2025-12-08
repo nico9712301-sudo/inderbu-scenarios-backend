@@ -10,9 +10,7 @@ import { MYSQL_REPOSITORY } from '../../../tokens/repositories';
 import { SearchQueryHelper } from './common/search-query.helper';
 
 @Injectable()
-export class ActivityAreaRepositoryAdapter
-  implements IActivityAreaRepositoryPort
-{
+export class ActivityAreaRepositoryAdapter implements IActivityAreaRepositoryPort {
   constructor(
     @Inject(MYSQL_REPOSITORY.ACTIVITY_AREA)
     private readonly repository: Repository<ActivityAreaEntity>,

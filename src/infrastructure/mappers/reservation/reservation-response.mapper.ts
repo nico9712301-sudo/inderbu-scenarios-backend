@@ -8,7 +8,7 @@ export class ReservationResponseMapper {
     domain: ReservationDomainEntity,
   ): ReservationWithDetailsResponseDto {
     console.log('domain', domain);
-    
+
     // Extraer relaciones del domain entity (añadidas por el mapper de entidad)
     const user = (domain as any).user;
     const subScenario = (domain as any).subScenario;
