@@ -92,6 +92,20 @@ export class ReservationEntity {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({
+    type: 'datetime',
+    name: 'confirmed_at',
+    nullable: true,
+  })
+  confirmedAt: Date | null;
+
+  @Column({
+    type: 'datetime',
+    name: 'canceled_at',
+    nullable: true,
+  })
+  canceledAt: Date | null;
+
   // Relations
   @ManyToOne(() => SubScenarioEntity, { eager: false })
   @JoinColumn({ name: 'sub_scenario_id' })

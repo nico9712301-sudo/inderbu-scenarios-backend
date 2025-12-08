@@ -66,6 +66,6 @@ import { RedisModule } from './redis.module';
     SubScenarioFileExportService,
     RedisExportJobService,
   ],
-  exports: [],
+  exports: [...subScenarioProviders],
 })
 export class SubScenarioModule {}

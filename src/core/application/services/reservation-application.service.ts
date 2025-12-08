@@ -43,8 +43,12 @@ import { ReservationAvailabilityCheckerDomainService } from '../../domain/servic
 
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
 import { DOMAIN_SERVICES } from '../tokens/ports';
+import { APPLICATION_PORTS } from '../tokens/ports';
 import { DATA_SOURCE } from '../../../infrastructure/tokens/data_sources';
 import { ReservationResponseMapper } from '../../../infrastructure/mappers/reservation/reservation-response.mapper';
+import { INotificationService } from '../ports/outbound/notification-service.port';
+import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository.port';
+import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
 
 @Injectable()
 export class ReservationApplicationService
@@ -76,6 +80,15 @@ export class ReservationApplicationService
 
     @Inject(DOMAIN_SERVICES.RESERVATION_AVAILABILITY_CHECKER)
     private readonly availabilityChecker: ReservationAvailabilityCheckerDomainService,
+
+    @Inject(APPLICATION_PORTS.NOTIFICATION_SERVICE)
+    private readonly notificationService: INotificationService,
+
+    @Inject(REPOSITORY_PORTS.USER)
+    private readonly userRepo: IUserRepositoryPort,
+
+    @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
+    private readonly subScenarioRepo: ISubScenarioRepositoryPort,
   ) {}
 
   async createReservation(
@@ -236,7 +249,52 @@ export class ReservationApplicationService
         `🎉 Reservation created successfully: ${savedReservation.id} (${instancesData.length} instances)`,
       );
 
-      // 7. Preparar respuesta
+      // 7. Enviar correo de confirmación de reserva pendiente (después del commit)
+      try {
+        const [user, subScenario] = await Promise.all([
+          this.userRepo.findById(userId),
+          this.subScenarioRepo.findById(dto.subScenarioId),
+        ]);
+
+        if (user && subScenario) {
+          // Obtener timeslots de la reserva guardada
+          const reservationWithDetails =
+            await this.reservationRepo.findWithTimeslots(
+              savedReservation.id!,
+            );
+          const timeslots =
+            reservationWithDetails && (reservationWithDetails as any).timeslots
+              ? (reservationWithDetails as any).timeslots.map((ts: any) => ({
+                  startTime: ts.timeslot?.startTime || '00:00:00',
+                  endTime: ts.timeslot?.endTime || '23:59:59',
+                }))
+              : [];
+
+          await this.notificationService.sendReservationPending(
+            user.email,
+            savedReservation.id!,
+            subScenario.name,
+            initialDate,
+            finalDate,
+            timeslots,
+          );
+          this.logger.log(
+            `📧 Email de reserva pendiente enviado a ${user.email}`,
+          );
+        } else {
+          this.logger.warn(
+            `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado`,
+          );
+        }
+      } catch (emailError) {
+        // No fallar la creación si el correo falla
+        this.logger.error(
+          `❌ Error enviando correo de reserva pendiente:`,
+          emailError,
+        );
+      }
+
+      // 8. Preparar respuesta
       return this.buildCreateReservationResponse(
         savedReservation,
         dto,
@@ -608,7 +666,7 @@ export class ReservationApplicationService
   async getReservationById(
     id: number,
   ): Promise<ReservationWithDetailsResponseDto> {
-    const reservation = await this.reservationRepo.findById(id);
+    const reservation = await this.reservationRepo.findWithTimeslots(id);
 
     if (!reservation) {
       throw new NotFoundException(`Reservation with ID ${id} not found`);
@@ -622,14 +680,101 @@ export class ReservationApplicationService
     reservationId: number,
     dto: { stateId: number; comments?: string },
   ): Promise<ReservationWithDetailsResponseDto> {
-    await this.reservationRepo.updateState(reservationId, dto.stateId);
-
-    // También actualizar las instancias
-    await this.instanceRepo.updateStateByReservationId(
+    // 1. Obtener la reserva actual para conocer el estado anterior
+    const currentReservation = await this.reservationRepo.findWithTimeslots(
       reservationId,
-      dto.stateId,
+    );
+    if (!currentReservation) {
+      throw new NotFoundException(
+        `Reservation with ID ${reservationId} not found`,
+      );
+    }
+
+    const previousStateId = currentReservation.reservationStateId;
+    const newStateId = dto.stateId;
+
+    // 2. Validar que no se revierta a PENDIENTE si ya está en otro estado
+    if (previousStateId !== 1 && newStateId === 1) {
+      throw new BadRequestException(
+        'No se puede revertir una reserva a estado PENDIENTE una vez que ha sido procesada',
+      );
+    }
+
+    // 3. Determinar si se debe guardar confirmedAt o canceledAt
+    const confirmedAt =
+      previousStateId === 1 && newStateId === 2 ? new Date() : undefined;
+    const canceledAt =
+      previousStateId === 1 && newStateId === 3 ? new Date() : undefined;
+
+    // 4. Actualizar el estado de la reserva
+    await this.reservationRepo.updateState(
+      reservationId,
+      newStateId,
+      confirmedAt,
+      canceledAt,
     );
 
+    // 5. También actualizar las instancias
+    await this.instanceRepo.updateStateByReservationId(
+      reservationId,
+      newStateId,
+    );
+
+    // 6. Enviar correos según el cambio de estado
+    try {
+      const user = (currentReservation as any).user;
+      const subScenario = (currentReservation as any).subScenario;
+
+      if (user && subScenario) {
+        // Si pasa de PENDIENTE a CONFIRMADA
+        if (previousStateId === 1 && newStateId === 2) {
+          // Obtener timeslots de la reserva
+          const timeslots =
+            (currentReservation as any).timeslots?.map((ts: any) => ({
+              startTime: ts.timeslot?.startTime || '00:00:00',
+              endTime: ts.timeslot?.endTime || '23:59:59',
+            })) || [];
+
+          await this.notificationService.sendReservationConfirmed(
+            user.email,
+            reservationId,
+            subScenario.name,
+            currentReservation.initialDate,
+            confirmedAt!,
+            currentReservation.finalDate || undefined,
+            timeslots,
+          );
+          this.logger.log(
+            `📧 Email de reserva confirmada enviado a ${user.email}`,
+          );
+        }
+        // Si pasa de PENDIENTE a CANCELADA
+        else if (previousStateId === 1 && newStateId === 3) {
+          await this.notificationService.sendReservationCancelled(
+            user.email,
+            reservationId,
+            subScenario.name,
+            currentReservation.initialDate,
+            currentReservation.finalDate || undefined,
+          );
+          this.logger.log(
+            `📧 Email de reserva cancelada enviado a ${user.email}`,
+          );
+        }
+      } else {
+        this.logger.warn(
+          `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado en la reserva`,
+        );
+      }
+    } catch (emailError) {
+      // No fallar la actualización si el correo falla
+      this.logger.error(
+        `❌ Error enviando correo de cambio de estado:`,
+        emailError,
+      );
+    }
+
+    // 7. Retornar la reserva actualizada
     return this.getReservationById(reservationId);
   }
 

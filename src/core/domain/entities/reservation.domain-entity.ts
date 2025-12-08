@@ -17,6 +17,8 @@ export class ReservationDomainEntity {
   @Expose() readonly reservationStateId: number;
   @Expose() readonly createdAt?: Date;
   @Expose() readonly updatedAt?: Date;
+  @Expose() readonly confirmedAt?: Date;
+  @Expose() readonly canceledAt?: Date;
 
   constructor(builder: ReservationDomainBuilder) {
     this.id = builder.id;
@@ -30,6 +32,8 @@ export class ReservationDomainEntity {
     this.reservationStateId = builder.reservationStateId;
     this.createdAt = builder.createdAt;
     this.updatedAt = builder.updatedAt;
+    this.confirmedAt = builder.confirmedAt;
+    this.canceledAt = builder.canceledAt;
   }
 
   static builder(): ReservationDomainBuilder {
@@ -183,6 +187,8 @@ export class ReservationDomainBuilder {
   reservationStateId: number = 1; // PENDIENTE por defecto
   createdAt?: Date;
   updatedAt?: Date;
+  confirmedAt?: Date;
+  canceledAt?: Date;
 
   withId(id: number): this {
     this.id = id;
@@ -236,6 +242,16 @@ export class ReservationDomainBuilder {
 
   withUpdatedAt(date: Date): this {
     this.updatedAt = date;
+    return this;
+  }
+
+  withConfirmedAt(date?: Date): this {
+    this.confirmedAt = date;
+    return this;
+  }
+
+  withCanceledAt(date?: Date): this {
+    this.canceledAt = date;
     return this;
   }
 

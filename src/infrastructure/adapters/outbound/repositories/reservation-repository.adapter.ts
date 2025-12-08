@@ -155,11 +155,23 @@ export class ReservationRepositoryAdapter
   async updateState(
     id: number,
     stateId: number,
+    confirmedAt?: Date,
+    canceledAt?: Date,
   ): Promise<ReservationDomainEntity> {
-    await this.repository.update(id, {
+    const updateData: any = {
       reservationStateId: stateId,
       updatedAt: new Date(),
-    });
+    };
+
+    if (confirmedAt !== undefined) {
+      updateData.confirmedAt = confirmedAt;
+    }
+
+    if (canceledAt !== undefined) {
+      updateData.canceledAt = canceledAt;
+    }
+
+    await this.repository.update(id, updateData);
 
     const updated = await this.findWithTimeslots(id);
     if (!updated) {

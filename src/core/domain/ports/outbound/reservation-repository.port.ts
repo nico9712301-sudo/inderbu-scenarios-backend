@@ -24,6 +24,8 @@ export interface IReservationRepositoryPort {
 
   findById(id: number): Promise<ReservationDomainEntity | null>;
 
+  findWithTimeslots(id: number): Promise<ReservationDomainEntity | null>;
+
   findByUserId(userId: number): Promise<ReservationDomainEntity[]>;
 
   findBySubScenarioId(
@@ -46,7 +48,12 @@ export interface IReservationRepositoryPort {
     endDate: Date,
   ): Promise<ReservationDomainEntity[]>;
 
-  updateState(id: number, stateId: number): Promise<ReservationDomainEntity>;
+  updateState(
+    id: number,
+    stateId: number,
+    confirmedAt?: Date,
+    canceledAt?: Date,
+  ): Promise<ReservationDomainEntity>;
 
   updateStateByIds(ids: number[], stateId: number): Promise<void>;
 

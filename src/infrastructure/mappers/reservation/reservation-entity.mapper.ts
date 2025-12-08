@@ -25,6 +25,8 @@ export class ReservationEntityMapper {
       .withReservationStateId(entity.reservationStateId)
       .withCreatedAt(entity.createdAt)
       .withUpdatedAt(entity.updatedAt)
+      .withConfirmedAt(entity.confirmedAt || undefined)
+      .withCanceledAt(entity.canceledAt || undefined)
       .build();
 
     // Preservamos las entidades relacionadas para evitar queries adicionales
@@ -62,6 +64,8 @@ export class ReservationEntityMapper {
 
     if (domain.createdAt) entity.createdAt = domain.createdAt;
     if (domain.updatedAt) entity.updatedAt = domain.updatedAt;
+    if (domain.confirmedAt) entity.confirmedAt = domain.confirmedAt;
+    if (domain.canceledAt) entity.canceledAt = domain.canceledAt;
 
     // Crear referencias básicas para las relaciones si están disponibles
     if (domain.subScenarioId) {
