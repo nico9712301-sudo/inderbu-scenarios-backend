@@ -6,7 +6,7 @@ export interface ReservationPageOptionsDto {
   search?: string;
   subScenarioId?: number;
   userId?: number;
-  reservationStateId?: number;
+  reservationStateIds?: number[];
   type?: string;
   dateFrom?: string;
   dateTo?: string;

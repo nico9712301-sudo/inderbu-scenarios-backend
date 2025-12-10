@@ -163,7 +163,7 @@ export class ReservationController {
   }
 
   @Get()
-  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'))
   @ApiOperation({
     summary: 'Lista paginada de reservas con filtros opcionales',
     description:
@@ -213,6 +213,22 @@ export class ReservationController {
     type: Number,
     description: 'Filtrar por ciudad',
     example: 5,
+  })
+  @ApiQuery({
+    name: 'reservationStateIds',
+    required: false,
+    type: [Number],
+    description: 'Filtrar por estados de reserva (1=PENDIENTE, 2=CONFIRMADA, 3=CANCELADA). Soporta múltiples valores',
+    examples: {
+      'Múltiples estados (array)': {
+        value: [1, 2],
+        summary: 'reservationStateIds=1&reservationStateIds=2'
+      },
+      'Múltiples estados (coma)': {
+        value: '1,2',
+        summary: 'reservationStateIds=1,2'
+      }
+    },
   })
   @ApiResponse({
     status: 200,

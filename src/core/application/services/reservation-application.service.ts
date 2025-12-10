@@ -683,6 +683,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
   async updateReservationState(
     reservationId: number,
     dto: { stateId: number; comments?: string },
+    options: { skipEmail?: boolean } = {},
   ): Promise<ReservationWithDetailsResponseDto> {
     // 1. Obtener la reserva actual para conocer el estado anterior
     const currentReservation =
@@ -723,58 +724,60 @@ export class ReservationApplicationService implements IReservationApplicationPor
       newStateId,
     );
 
-    // 6. Enviar correos según el cambio de estado
-    try {
-      const user = (currentReservation as any).user;
-      const subScenario = (currentReservation as any).subScenario;
+    // 6. Enviar correos según el cambio de estado (solo si no está en modo bulk)
+    if (!options.skipEmail) {
+      try {
+        const user = (currentReservation as any).user;
+        const subScenario = (currentReservation as any).subScenario;
 
-      if (user && subScenario) {
-        // Si pasa de PENDIENTE a CONFIRMADA
-        if (previousStateId === 1 && newStateId === 2) {
-          // Obtener timeslots de la reserva
-          const timeslots =
-            (currentReservation as any).timeslots?.map((ts: any) => ({
-              startTime: ts.timeslot?.startTime || '00:00:00',
-              endTime: ts.timeslot?.endTime || '23:59:59',
-            })) || [];
+        if (user && subScenario) {
+          // Si pasa de PENDIENTE a CONFIRMADA
+          if (previousStateId === 1 && newStateId === 2) {
+            // Obtener timeslots de la reserva
+            const timeslots =
+              (currentReservation as any).timeslots?.map((ts: any) => ({
+                startTime: ts.timeslot?.startTime || '00:00:00',
+                endTime: ts.timeslot?.endTime || '23:59:59',
+              })) || [];
 
-          await this.notificationService.sendReservationConfirmed(
-            user.email,
-            reservationId,
-            subScenario.name,
-            currentReservation.initialDate,
-            confirmedAt!,
-            currentReservation.finalDate || undefined,
-            timeslots,
-          );
-          this.logger.log(
-            `📧 Email de reserva confirmada enviado a ${user.email}`,
+            await this.notificationService.sendReservationConfirmed(
+              user.email,
+              reservationId,
+              subScenario.name,
+              currentReservation.initialDate,
+              confirmedAt!,
+              currentReservation.finalDate || undefined,
+              timeslots,
+            );
+            this.logger.log(
+              `📧 Email de reserva confirmada enviado a ${user.email}`,
+            );
+          }
+          // Si pasa de PENDIENTE a CANCELADA
+          else if (previousStateId === 1 && newStateId === 3) {
+            await this.notificationService.sendReservationCancelled(
+              user.email,
+              reservationId,
+              subScenario.name,
+              currentReservation.initialDate,
+              currentReservation.finalDate || undefined,
+            );
+            this.logger.log(
+              `📧 Email de reserva cancelada enviado a ${user.email}`,
+            );
+          }
+        } else {
+          this.logger.warn(
+            `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado en la reserva`,
           );
         }
-        // Si pasa de PENDIENTE a CANCELADA
-        else if (previousStateId === 1 && newStateId === 3) {
-          await this.notificationService.sendReservationCancelled(
-            user.email,
-            reservationId,
-            subScenario.name,
-            currentReservation.initialDate,
-            currentReservation.finalDate || undefined,
-          );
-          this.logger.log(
-            `📧 Email de reserva cancelada enviado a ${user.email}`,
-          );
-        }
-      } else {
-        this.logger.warn(
-          `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado en la reserva`,
+      } catch (emailError) {
+        // No fallar la actualización si el correo falla
+        this.logger.error(
+          `❌ Error enviando correo de cambio de estado:`,
+          emailError,
         );
       }
-    } catch (emailError) {
-      // No fallar la actualización si el correo falla
-      this.logger.error(
-        `❌ Error enviando correo de cambio de estado:`,
-        emailError,
-      );
     }
 
     // 7. Retornar la reserva actualizada
@@ -785,36 +788,147 @@ export class ReservationApplicationService implements IReservationApplicationPor
     dto: UpdateMultipleReservationStatesDto,
   ): Promise<BulkUpdateReservationStateResponseDto> {
     const { reservationIds, stateId, comments } = dto;
+
+    this.logger.log(`🔄 Processing bulk update for ${reservationIds.length} reservations in parallel`);
+
+    // Procesar todas las reservas en paralelo con Promise.allSettled para manejar errores parciales
+    // Saltamos el envío de emails durante el procesamiento masivo para acelerar la operación
+    const results = await Promise.allSettled(
+      reservationIds.map(async (reservationId) => {
+        try {
+          const updatedReservation = await this.updateReservationState(
+            reservationId,
+            { stateId, comments },
+            { skipEmail: true }, // Skip email durante bulk processing
+          );
+          return { success: true, reservationId, data: updatedReservation! };
+        } catch (error) {
+          this.logger.error(
+            `❌ Error actualizando reserva ${reservationId}:`,
+            error.message,
+          );
+          return {
+            success: false,
+            reservationId,
+            error: error.message || 'Error desconocido',
+          };
+        }
+      }),
+    );
+
+    // Separar resultados exitosos y errores
     const updatedReservations: ReservationWithDetailsResponseDto[] = [];
     const errors: Array<{ reservationId: number; error: string }> = [];
 
-    // Procesar cada reserva individualmente para manejar errores parciales
-    for (const reservationId of reservationIds) {
-      try {
-        const updatedReservation = await this.updateReservationState(
-          reservationId,
-          { stateId, comments },
-        );
-        updatedReservations.push(updatedReservation);
-      } catch (error) {
-        this.logger.error(
-          `❌ Error actualizando reserva ${reservationId}:`,
-          error.message,
-        );
+    results.forEach((result) => {
+      if (result.status === 'fulfilled') {
+        if (result.value.success) {
+          updatedReservations.push(result.value.data);
+        } else {
+          errors.push({
+            reservationId: result.value.reservationId,
+            error: result.value.error,
+          });
+        }
+      } else {
+        // Promise rejected
         errors.push({
-          reservationId,
-          error: error.message || 'Error desconocido',
+          reservationId: 0, // Unknown ID
+          error: result.reason?.message || 'Promise rejection',
         });
       }
+    });
+
+    const successCount = updatedReservations.length;
+    this.logger.log(`✅ Bulk update completed: ${successCount}/${reservationIds.length} successful`);
+
+    // Enviar emails de forma asíncrona en segundo plano (no bloquear la respuesta)
+    if (successCount > 0) {
+      this.sendBulkNotificationsAsync(updatedReservations, stateId)
+        .catch(error => {
+          this.logger.error('❌ Error enviando notificaciones masivas:', error);
+        });
     }
 
     return {
-      updatedCount: updatedReservations.length,
+      updatedCount: successCount,
       totalProcessed: reservationIds.length,
       updatedReservations,
       errors: errors.length > 0 ? errors : undefined,
       allSuccessful: errors.length === 0,
     };
+  }
+
+  /**
+   * Envía notificaciones por email de forma asíncrona para operaciones masivas
+   * No bloquea la respuesta del API, ejecuta en segundo plano
+   */
+  private async sendBulkNotificationsAsync(
+    updatedReservations: ReservationWithDetailsResponseDto[],
+    stateId: number,
+  ): Promise<void> {
+    this.logger.log(`📧 Enviando ${updatedReservations.length} notificaciones por email...`);
+
+    // Enviar emails en paralelo (batches de 10 para no sobrecargar el servicio de email)
+    const BATCH_SIZE = 10;
+    const batches: ReservationWithDetailsResponseDto[][] = [];
+
+    for (let i = 0; i < updatedReservations.length; i += BATCH_SIZE) {
+      batches.push(updatedReservations.slice(i, i + BATCH_SIZE));
+    }
+
+    for (const batch of batches) {
+      await Promise.allSettled(
+        batch.map(async (reservation) => {
+          try {
+            const user = (reservation as any).user;
+            const subScenario = (reservation as any).subScenario;
+
+            if (!user || !subScenario) {
+              this.logger.warn(`⚠️  Skipping email for reservation ${reservation.id}: missing user or subScenario`);
+              return;
+            }
+
+            // Solo enviar emails para transiciones específicas (PENDIENTE -> CONFIRMADA/CANCELADA)
+            if (stateId === 2) { // CONFIRMADA
+              const timeslots = (reservation as any).timeslots?.map((ts: any) => ({
+                startTime: ts.timeslot?.startTime || '00:00:00',
+                endTime: ts.timeslot?.endTime || '23:59:59',
+              })) || [];
+
+              await this.notificationService.sendReservationConfirmed(
+                user.email,
+                reservation.id,
+                subScenario.name,
+                new Date(reservation.initialDate),
+                new Date(),
+                reservation.finalDate ? new Date(reservation.finalDate) : undefined,
+                timeslots,
+              );
+              this.logger.log(`✅ Email confirmación enviado a ${user.email} para reserva ${reservation.id}`);
+            } else if (stateId === 3) { // CANCELADA
+              await this.notificationService.sendReservationCancelled(
+                user.email,
+                reservation.id,
+                subScenario.name,
+                new Date(reservation.initialDate),
+                reservation.finalDate ? new Date(reservation.finalDate) : undefined,
+              );
+              this.logger.log(`✅ Email cancelación enviado a ${user.email} para reserva ${reservation.id}`);
+            }
+          } catch (error) {
+            this.logger.error(`❌ Error enviando email para reserva ${reservation.id}:`, error);
+          }
+        })
+      );
+
+      // Pequeña pausa entre batches para no sobrecargar el servicio
+      if (batches.length > 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    this.logger.log(`📧 Proceso de notificaciones masivas completado`);
   }
 
   async cancelReservation(

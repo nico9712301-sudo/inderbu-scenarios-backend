@@ -52,7 +52,7 @@ export class ReservationRepositoryAdapter
       search,
       subScenarioId,
       userId,
-      reservationStateId,
+      reservationStateIds,
       type,
       dateFrom,
       dateTo,
@@ -93,10 +93,10 @@ export class ReservationRepositoryAdapter
       queryBuilder.andWhere('reservation.userId = :userId', { userId });
     }
 
-    if (reservationStateId) {
+    if (reservationStateIds && reservationStateIds.length > 0) {
       queryBuilder.andWhere(
-        'reservation.reservationStateId = :reservationStateId',
-        { reservationStateId },
+        'reservation.reservationStateId IN (:...reservationStateIds)',
+        { reservationStateIds },
       );
     }
 
