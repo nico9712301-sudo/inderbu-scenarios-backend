@@ -168,16 +168,16 @@ export class AppModule
         } catch (error: any) {
           // Si la tabla no existe, asumir que está vacía
           if (error?.code === 'ER_NO_SUCH_TABLE') {
-            console.log(`  ⚠️  [AppModule] Tabla ${table} no existe aún`);
-            this.logger.log(`  ⚠️  Tabla ${table} no existe aún`);
+            console.log(`    [AppModule] Tabla ${table} no existe aún`);
+            this.logger.log(`    Tabla ${table} no existe aún`);
             tableStatus[table] = 0;
             continue;
           }
           console.error(
-            `  ❌ [AppModule] Error verificando tabla ${table}: ${error.message}`,
+            `  [AppModule] Error verificando tabla ${table}: ${error.message}`,
           );
           this.logger.error(
-            `  ❌ Error verificando tabla ${table}: ${error.message}`,
+            `  Error verificando tabla ${table}: ${error.message}`,
           );
           throw error;
         }
@@ -194,9 +194,9 @@ export class AppModule
 
       return shouldRun;
     } catch (error: any) {
-      console.error(`❌ [AppModule] Error verificando datos: ${error.message}`);
+      console.error(`[AppModule] Error verificando datos: ${error.message}`);
       this.logger.error(
-        `❌ Error verificando datos en tablas: ${error.message}. No se ejecutarán seeders automáticamente.`,
+        `Error verificando datos en tablas: ${error.message}. No se ejecutarán seeders automáticamente.`,
       );
       return false;
     }
@@ -212,7 +212,7 @@ export class AppModule
       }
     } catch (error: any) {
       this.logger.error(
-        `❌ [AppModule] Error cerrando DataSource: ${error.message}`,
+        `[AppModule] Error cerrando DataSource: ${error.message}`,
       );
     }
   }

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository, FindOptionsWhere, In, Between, Not } from 'typeorm';
+import { Repository, FindOptionsWhere, In, Between, Not, QueryRunner } from 'typeorm';
 
 import { IReservationInstanceRepositoryPort } from '../../../../core/domain/ports/outbound/reservation-instance-repository.port';
 import { ReservationInstanceEntityMapper } from '../../../mappers/reservation/reservation-instance-entity.mapper';
@@ -402,5 +402,35 @@ export class ReservationInstanceRepositoryAdapter
 
   async delete(id: number): Promise<void> {
     await this.repository.delete(id);
+  }
+
+  /**
+   * Busca instancias con SELECT FOR UPDATE para prevenir race conditions
+   */
+  async findBySubScenarioAndDateRangeWithLock(
+    subScenarioId: number,
+    startDate: Date,
+    endDate: Date,
+    queryRunner: QueryRunner,
+  ): Promise<ReservationInstanceDomainEntity[]> {
+    const entities = await queryRunner.manager
+      .createQueryBuilder(ReservationInstanceEntity, 'instance')
+      .setLock('pessimistic_write')
+      .where('instance.subScenarioId = :subScenarioId', { subScenarioId })
+      .andWhere('instance.reservationDate BETWEEN :startDate AND :endDate', {
+        startDate,
+        endDate,
+      })
+      .andWhere('instance.reservationStateId IN (:...activeStates)', {
+        activeStates: [1, 2], // Solo PENDIENTE y CONFIRMADA
+      })
+      .leftJoinAndSelect('instance.reservation', 'reservation')
+      .leftJoinAndSelect('instance.timeslot', 'timeslot')
+      .leftJoinAndSelect('instance.subScenario', 'subScenario')
+      .leftJoinAndSelect('instance.user', 'user')
+      .leftJoinAndSelect('instance.reservationState', 'reservationState')
+      .getMany();
+
+    return entities.map((entity) => this.toDomain(entity));
   }
 }

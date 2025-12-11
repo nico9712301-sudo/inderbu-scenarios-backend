@@ -100,22 +100,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
     dto: CreateReservationRequestDto,
     userId: number,
   ): Promise<CreateReservationResponseDto> {
-    // 🐛 DEBUG: Console log del payload completo de la nueva reserva
-    console.log('🔥 NEW RESERVATION PAYLOAD:', {
-      dto: JSON.stringify(dto, null, 2),
-      userId,
-      timestamp: new Date().toISOString(),
-      raw_dto: dto,
-    });
-
-    this.logger.log(`Creating reservation for user ${userId}`, {
-      subScenarioId: dto.subScenarioId,
-      timeSlotIds: dto.timeSlotIds,
-      hasRange: !!dto.reservationRange,
-      weekdays: dto.weekdays?.length || 0,
-    });
-
-    // 🛡️ VALIDATION: Validación de entrada robusta
+    // VALIDATION: Validación de entrada robusta
     this.validateCreateReservationDto(dto);
 
     const maxRetries = 3;
@@ -132,7 +117,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
           error.message,
         );
 
-        // 🔄 RETRY LOGIC: Solo reintentar en casos específicos
+        //  RETRY LOGIC: Solo reintentar en casos específicos
         if (this.shouldRetry(error, attempt, maxRetries)) {
           this.logger.log(`Retrying in ${attempt * 100}ms...`);
           await this.sleep(attempt * 100); // Backoff exponencial
@@ -159,7 +144,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
     await queryRunner.startTransaction();
 
     try {
-      this.logger.debug(`🔄 Attempt ${attempt}: Starting transaction`);
+      this.logger.debug(` Attempt ${attempt}: Starting transaction`);
 
       // 1. Determinar tipo de reserva y calcular fechas
       const { type, initialDate, finalDate, weekDays } =
@@ -172,20 +157,21 @@ export class ReservationApplicationService implements IReservationApplicationPor
       );
 
       this.logger.debug(
-        `📅 Calculated ${calculatedDates.length} dates for reservation`,
+        `Calculated ${calculatedDates.length} dates for reservation`,
       );
 
-      // 2. 🛡️ CRITICAL: Verificar conflictos justo antes de crear
+      // 2. CRITICAL: Verificar conflictos con LOCKS para prevenir race conditions
       const conflicts: ReservationConflict[] =
-        await this.conflictDetector.detectConflictsForNewReservation(
+        await this.conflictDetector.detectConflictsForNewReservationWithLock(
           dto.subScenarioId,
           dto.timeSlotIds,
           calculatedDates,
+          queryRunner,
         );
 
       if (conflicts.length > 0) {
         this.logger.warn(
-          `❌ Conflicts detected: ${conflicts.length} conflicts found`,
+          `Conflicts detected: ${conflicts.length} conflicts found`,
         );
         const conflictDetails = conflicts.map((c) => ({
           date: c.date.toISOString().split('T')[0],
@@ -239,7 +225,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
           calculatedDates,
         );
 
-      // 🛡️ PROTECTION: Validar instancias antes de guardar
+      // PROTECTION: Validar instancias antes de guardar
       this.validateInstances(instancesData, dto.timeSlotIds, calculatedDates);
 
       await this.instanceRepo.saveMany(
@@ -252,7 +238,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
       // 6. Commit transaction
       await queryRunner.commitTransaction();
       this.logger.log(
-        `🎉 Reservation created successfully: ${savedReservation.id} (${instancesData.length} instances)`,
+        `Reservation created successfully: ${savedReservation.id} (${instancesData.length} instances)`,
       );
 
       // 7. Enviar correo de confirmación de reserva pendiente (después del commit)
@@ -283,17 +269,17 @@ export class ReservationApplicationService implements IReservationApplicationPor
             timeslots,
           );
           this.logger.log(
-            `📧 Email de reserva pendiente enviado a ${user.email}`,
+            `Email de reserva pendiente enviado a ${user.email}`,
           );
         } else {
           this.logger.warn(
-            `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado`,
+            `  No se pudo enviar correo: usuario o sub-escenario no encontrado`,
           );
         }
       } catch (emailError) {
         // No fallar la creación si el correo falla
         this.logger.error(
-          `❌ Error enviando correo de reserva pendiente:`,
+          `Error enviando correo de reserva pendiente:`,
           emailError,
         );
       }
@@ -309,9 +295,9 @@ export class ReservationApplicationService implements IReservationApplicationPor
         instancesData.length,
       );
     } catch (error) {
-      // 🔄 ROLLBACK: Deshacer cambios en caso de error
+      //  ROLLBACK: Deshacer cambios en caso de error
       await queryRunner.rollbackTransaction();
-      this.logger.error(`❌ Transaction rolled back due to error:`, error);
+      this.logger.error(`Transaction rolled back due to error:`, error);
       throw error;
     } finally {
       await queryRunner.release();
@@ -356,7 +342,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
         throw new BadRequestException('Fecha de inicio es requerida');
       }
 
-      // 🛡️ FIXED: Solo validar finalDate si está presente (para rangos reales)
+      // FIXED: Solo validar finalDate si está presente (para rangos reales)
       if (dto.reservationRange.finalDate) {
         const initialDate = new Date(dto.reservationRange.initialDate);
         const finalDate = new Date(dto.reservationRange.finalDate);
@@ -388,7 +374,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
     let weekDays: number[] | undefined = undefined;
 
     if (dto.reservationRange) {
-      // 🛡️ FIXED: Manejar correctamente cuando finalDate es opcional
+      // FIXED: Manejar correctamente cuando finalDate es opcional
       if (dto.reservationRange.finalDate) {
         // Es un rango real con fecha final
         type = ReservationType.RANGE;
@@ -750,7 +736,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
               timeslots,
             );
             this.logger.log(
-              `📧 Email de reserva confirmada enviado a ${user.email}`,
+              `Email de reserva confirmada enviado a ${user.email}`,
             );
           }
           // Si pasa de PENDIENTE a CANCELADA
@@ -763,18 +749,18 @@ export class ReservationApplicationService implements IReservationApplicationPor
               currentReservation.finalDate || undefined,
             );
             this.logger.log(
-              `📧 Email de reserva cancelada enviado a ${user.email}`,
+              `Email de reserva cancelada enviado a ${user.email}`,
             );
           }
         } else {
           this.logger.warn(
-            `⚠️  No se pudo enviar correo: usuario o sub-escenario no encontrado en la reserva`,
+            `  No se pudo enviar correo: usuario o sub-escenario no encontrado en la reserva`,
           );
         }
       } catch (emailError) {
         // No fallar la actualización si el correo falla
         this.logger.error(
-          `❌ Error enviando correo de cambio de estado:`,
+          `Error enviando correo de cambio de estado:`,
           emailError,
         );
       }
@@ -789,7 +775,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
   ): Promise<BulkUpdateReservationStateResponseDto> {
     const { reservationIds, stateId, comments } = dto;
 
-    this.logger.log(`🔄 Processing bulk update for ${reservationIds.length} reservations in parallel`);
+    this.logger.log(` Processing bulk update for ${reservationIds.length} reservations in parallel`);
 
     // Procesar todas las reservas en paralelo con Promise.allSettled para manejar errores parciales
     // Saltamos el envío de emails durante el procesamiento masivo para acelerar la operación
@@ -804,7 +790,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
           return { success: true, reservationId, data: updatedReservation! };
         } catch (error) {
           this.logger.error(
-            `❌ Error actualizando reserva ${reservationId}:`,
+            `Error actualizando reserva ${reservationId}:`,
             error.message,
           );
           return {
@@ -822,7 +808,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
 
     results.forEach((result) => {
       if (result.status === 'fulfilled') {
-        if (result.value.success) {
+        if (result.value.success && result.value.data) {
           updatedReservations.push(result.value.data);
         } else {
           errors.push({
@@ -846,7 +832,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
     if (successCount > 0) {
       this.sendBulkNotificationsAsync(updatedReservations, stateId)
         .catch(error => {
-          this.logger.error('❌ Error enviando notificaciones masivas:', error);
+          this.logger.error('Error enviando notificaciones masivas:', error);
         });
     }
 
@@ -867,7 +853,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
     updatedReservations: ReservationWithDetailsResponseDto[],
     stateId: number,
   ): Promise<void> {
-    this.logger.log(`📧 Enviando ${updatedReservations.length} notificaciones por email...`);
+    this.logger.log(`Enviando ${updatedReservations.length} notificaciones por email...`);
 
     // Enviar emails en paralelo (batches de 10 para no sobrecargar el servicio de email)
     const BATCH_SIZE = 10;
@@ -885,7 +871,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
             const subScenario = (reservation as any).subScenario;
 
             if (!user || !subScenario) {
-              this.logger.warn(`⚠️  Skipping email for reservation ${reservation.id}: missing user or subScenario`);
+              this.logger.warn(`  Skipping email for reservation ${reservation.id}: missing user or subScenario`);
               return;
             }
 
@@ -917,7 +903,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
               this.logger.log(`✅ Email cancelación enviado a ${user.email} para reserva ${reservation.id}`);
             }
           } catch (error) {
-            this.logger.error(`❌ Error enviando email para reserva ${reservation.id}:`, error);
+            this.logger.error(`Error enviando email para reserva ${reservation.id}:`, error);
           }
         })
       );
@@ -928,7 +914,7 @@ export class ReservationApplicationService implements IReservationApplicationPor
       }
     }
 
-    this.logger.log(`📧 Proceso de notificaciones masivas completado`);
+    this.logger.log(`Proceso de notificaciones masivas completado`);
   }
 
   async cancelReservation(

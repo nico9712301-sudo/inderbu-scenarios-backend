@@ -43,7 +43,7 @@ export class ReservationInstanceGeneratorDomainService {
       }
     }
 
-    console.log('🔥 GENERATED INSTANCES:', instances);
+    console.log('GENERATED INSTANCES:', instances);
 
     return instances;
   }

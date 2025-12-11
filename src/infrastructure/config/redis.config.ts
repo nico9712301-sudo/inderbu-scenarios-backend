@@ -38,7 +38,7 @@ export class RedisConfig {
     });
 
     redis.on('error', (error) => {
-      console.error('❌ Redis connection error:', error);
+      console.error('Redis connection error:', error);
     });
 
     redis.on('close', () => {
@@ -46,7 +46,7 @@ export class RedisConfig {
     });
 
     redis.on('reconnecting', () => {
-      console.log('🔄 Reconnecting to Redis...');
+      console.log(' Reconnecting to Redis...');
     });
 
     return redis;

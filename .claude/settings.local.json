@@ -20,7 +20,12 @@
       "Bash(npm run start:dev:*)",
       "Bash(pkill:*)",
       "Bash(lsof:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(for id in 78 77 76 75 74 73 51 50)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(for id in 84 83 82 81 80 79)"
     ],
     "deny": [],
     "defaultMode": "acceptEdits"

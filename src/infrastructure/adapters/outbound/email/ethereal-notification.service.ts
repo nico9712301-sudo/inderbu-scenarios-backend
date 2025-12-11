@@ -41,7 +41,7 @@ export class EtherealNotificationService implements INotificationService {
     const info = await this.transporter.sendMail({
       from: '"Inderbú ⚽" <no-reply@inderbu.test>',
       to: email,
-      subject: '🎉 Bienvenido a Inderbú – Confirma tu correo',
+      subject: 'Bienvenido a Inderbú – Confirma tu correo',
       text: `
 Hola 👋,
 

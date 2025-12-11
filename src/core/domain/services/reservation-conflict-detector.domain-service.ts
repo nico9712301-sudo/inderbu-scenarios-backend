@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { IReservationInstanceRepositoryPort } from '../ports/outbound/reservation-instance-repository.port';
+import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
+import { QueryRunner } from 'typeorm';
 
 export interface ReservationConflict {
   date: Date;
@@ -21,18 +24,98 @@ export interface ReservationInstanceForConflictCheck {
  */
 @Injectable()
 export class ReservationConflictDetectorDomainService {
+  constructor(
+    @Inject(REPOSITORY_PORTS.RESERVATION_INSTANCE)
+    private readonly instanceRepo: IReservationInstanceRepositoryPort,
+  ) {}
   /**
-   * Método simplificado para detectar conflictos desde Application Service
+   * Método simplificado para detectar conflictos desde Application Service (SIN LOCKS)
    */
-  detectConflictsForNewReservation(
-    _subScenarioId: number,
-    _timeslotIds: number[],
-    _reservationDates: Date[],
+  async detectConflictsForNewReservation(
+    subScenarioId: number,
+    timeslotIds: number[],
+    reservationDates: Date[],
   ): Promise<ReservationConflict[]> {
-    // Por ahora retornamos array vacío
-    // En una implementación completa, aquí consultaríamos el repositorio
-    // para obtener las instancias existentes
-    return Promise.resolve([]);
+    // Calcular el rango de fechas para consultar
+    const startDate = new Date(
+      Math.min(...reservationDates.map((d) => d.getTime())),
+    );
+    const endDate = new Date(
+      Math.max(...reservationDates.map((d) => d.getTime())),
+    );
+
+    // Obtener todas las instancias existentes en el rango de fechas
+    const existingInstances = await this.instanceRepo.findBySubScenarioAndDateRange(
+      subScenarioId,
+      startDate,
+      endDate,
+    );
+
+    // Convertir a formato compatible con detectConflicts
+    const instancesForConflictCheck: ReservationInstanceForConflictCheck[] = existingInstances.map(
+      (instance) => ({
+        reservationId: instance.reservationId,
+        timeslotId: instance.timeslotId,
+        reservationDate: instance.reservationDate,
+        subScenarioId: instance.subScenarioId,
+        userId: instance.userId,
+        reservationStateId: instance.reservationStateId,
+      }),
+    );
+
+    // Delegar a la lógica existente que ya maneja correctamente los estados activos
+    return this.detectConflicts(
+      subScenarioId,
+      timeslotIds,
+      reservationDates,
+      instancesForConflictCheck,
+    );
+  }
+
+  /**
+   * Método CON LOCKS para detectar conflictos desde Application Service (PREVIENE RACE CONDITIONS)
+   */
+  async detectConflictsForNewReservationWithLock(
+    subScenarioId: number,
+    timeslotIds: number[],
+    reservationDates: Date[],
+    queryRunner: QueryRunner,
+  ): Promise<ReservationConflict[]> {
+    // Calcular el rango de fechas para consultar
+    const startDate = new Date(
+      Math.min(...reservationDates.map((d) => d.getTime())),
+    );
+    const endDate = new Date(
+      Math.max(...reservationDates.map((d) => d.getTime())),
+    );
+
+    // 🔒 CRITICAL: Obtener solo instancias ACTIVAS con SELECT FOR UPDATE
+    const existingInstances = await this.instanceRepo.findBySubScenarioAndDateRangeWithLock(
+      subScenarioId,
+      startDate,
+      endDate,
+      queryRunner,
+    );
+
+    // Convertir a formato compatible con detectConflicts
+    const instancesForConflictCheck: ReservationInstanceForConflictCheck[] = existingInstances.map(
+      (instance) => ({
+        reservationId: instance.reservationId,
+        timeslotId: instance.timeslotId,
+        reservationDate: instance.reservationDate,
+        subScenarioId: instance.subScenarioId,
+        userId: instance.userId,
+        reservationStateId: instance.reservationStateId,
+      }),
+    );
+
+    // Delegar a la lógica existente que ya maneja correctamente los estados activos
+    return this.detectConflicts(
+      subScenarioId,
+      timeslotIds,
+      reservationDates,
+      instancesForConflictCheck,
+    );
   }
 
   /**

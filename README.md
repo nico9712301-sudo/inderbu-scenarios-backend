@@ -78,8 +78,8 @@
 
 #### **Tipos de Reservas Soportadas:**
 - **🗓️ Reservas Simples**: Para un día específico
-- **📅 Reservas por Rango**: Con fechas inicial y final
-- **🔄 Reservas Recurrentes**: Con días específicos de la semana
+- **Reservas por Rango**: Con fechas inicial y final
+- ** Reservas Recurrentes**: Con días específicos de la semana
 
 #### **Casos de Uso Reales:**
 ```http
@@ -305,21 +305,21 @@ curl -X POST http://localhost:3001/sub-scenarios \
   }'
 ```
 
-### **📅 Sistema de Reservas Completo**
+### **Sistema de Reservas Completo**
 
 #### **Consultar Disponibilidad (Múltiples Escenarios)**
 
 ```bash
-# 📅 Caso 1: Un solo día
+# Caso 1: Un solo día
 curl "http://localhost:3001/reservations/availability?subScenarioId=16&initialDate=2025-06-15"
 
-# 📅 Caso 2: Rango completo de fechas
+# Caso 2: Rango completo de fechas
 curl "http://localhost:3001/reservations/availability?subScenarioId=16&initialDate=2025-06-10&finalDate=2025-06-20"
 
-# 📅 Caso 3: Solo lunes, miércoles y viernes
+# Caso 3: Solo lunes, miércoles y viernes
 curl "http://localhost:3001/reservations/availability?subScenarioId=16&initialDate=2025-06-10&finalDate=2025-06-20&weekdays=1,3,5"
 
-# 📅 Caso 4: Solo fines de semana
+# Caso 4: Solo fines de semana
 curl "http://localhost:3001/reservations/availability?subScenarioId=16&initialDate=2025-06-10&finalDate=2025-06-20&weekdays=0,6"
 ```
 
@@ -338,7 +338,7 @@ curl -X POST http://localhost:3001/reservations \
     "comments": "Partido de práctica del equipo"
   }'
 
-# 📅 Reserva por rango con días específicos
+# Reserva por rango con días específicos
 curl -X POST http://localhost:3001/reservations \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
@@ -521,7 +521,7 @@ La carpeta `docs/` contiene documentación detallada para la configuración del 
 - **Servicios de dominio** para lógica compleja
 - **Builders pattern** para construcción de entidades
 
-#### **🔄 CQRS Básico**
+#### ** CQRS Básico**
 - **Separación** entre comandos y consultas
 - **DTOs específicos** para entrada y salida
 - **Mappers** para transformación de datos
@@ -533,7 +533,7 @@ La carpeta `docs/` contiene documentación detallada para la configuración del 
 
 ## 🔒 **Seguridad y Mejores Prácticas**
 
-### **🛡️ Características de Seguridad Implementadas**
+### **Características de Seguridad Implementadas**
 - ✅ **Hashing seguro** de contraseñas con bcrypt
 - ✅ **JWT tokens** con expiración configurable
 - ✅ **Refresh tokens** para sesiones extendidas
@@ -545,19 +545,19 @@ La carpeta `docs/` contiene documentación detallada para la configuración del 
 
 ### **🔐 Variables de Entorno Críticas**
 ```bash
-# ⚠️  OBLIGATORIAS para producción
+#   OBLIGATORIAS para producción
 JWT_SECRET=tu_clave_jwt_super_secreta_aqui_min_32_chars
 DB_PASSWORD=contraseña_base_datos_segura
 SEED_USER_PASSWORD=contraseña_usuarios_prueba
 
-# 📧 Configuración de email (opcional para desarrollo)
+# Configuración de email (opcional para desarrollo)
 ETHEREAL_USER=tu_usuario_ethereal@ethereal.email
 ETHEREAL_PASS=tu_contraseña_ethereal
 ```
 
 ## 🐛 **Troubleshooting y Solución de Problemas**
 
-### **❌ Problemas Comunes y Soluciones**
+### **Problemas Comunes y Soluciones**
 
 #### **🔌 Error de Conexión a Base de Datos**
 ```bash
@@ -608,7 +608,7 @@ pnpm --version
 
 ### **📋 Guía de Contribución**
 
-#### **🔄 Flujo de Trabajo**
+#### ** Flujo de Trabajo**
 1. **Fork** del repositorio
 2. **Crear rama** feature (`git checkout -b feature/nueva-funcionalidad`)
 3. **Desarrollar** siguiendo las convenciones del proyecto
@@ -637,7 +637,7 @@ refactor(core): improve domain entity builders
 ## 📞 **Soporte y Contacto**
 
 ### **🆘 Obtener Ayuda**
-- **📧 Issues**: Reporta bugs o solicita features en GitHub Issues
+- **Issues**: Reporta bugs o solicita features en GitHub Issues
 - **📖 Documentación**: Revisa la documentación técnica en `/docs`
 - **🔍 Swagger**: Consulta la API interactiva en `/api-docs`
 

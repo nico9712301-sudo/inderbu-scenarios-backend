@@ -37,7 +37,7 @@ npm run migration:show
 npm run cli -- migration:show
 ```
 
-## 🔄 Flujo de Trabajo
+##  Flujo de Trabajo
 
 ### Desarrollo Local
 
@@ -62,9 +62,9 @@ npm run cli -- migration:show
 2. **Seeders (opcional):**
    - Los seeders NO se ejecutan automáticamente en producción
    - Si necesitas datos iniciales, ejecuta manualmente: `npm run cli -- start:seeds`
-   - ⚠️ **Usa con precaución** - solo si realmente necesitas datos iniciales
+   -  **Usa con precaución** - solo si realmente necesitas datos iniciales
 
-## ⚠️ Importante
+##  Importante
 
 - **Nunca edites migraciones ya ejecutadas en producción**
 - **Siempre revisa las migraciones generadas antes de ejecutarlas**
@@ -77,8 +77,8 @@ Usa nombres descriptivos para las migraciones:
 - ✅ `AddUserEmailIndex`
 - ✅ `CreateReservationTable`
 - ✅ `UpdateScenarioAddAddressField`
-- ❌ `Migration1`
-- ❌ `Fix`
+- `Migration1`
+- `Fix`
 
 ## 🔍 Verificación
 

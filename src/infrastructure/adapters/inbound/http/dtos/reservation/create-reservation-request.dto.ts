@@ -32,9 +32,9 @@ export class ReservationRangeDto {
       'Fecha final del rango (YYYY-MM-DD). Opcional para reservas de un solo día.',
     required: false,
   })
-  @IsOptional() // 🛡️ FIXED: Hacer finalDate opcional para reservas de un solo día
+  @IsOptional() // FIXED: Hacer finalDate opcional para reservas de un solo día
   @IsDateString()
-  readonly finalDate?: string; // 🛡️ FIXED: Cambiar a opcional con ?
+  readonly finalDate?: string; // FIXED: Cambiar a opcional con ?
 }
 
 export class CreateReservationRequestDto {

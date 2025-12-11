@@ -1,4 +1,5 @@
 import { ReservationInstanceDomainEntity } from '../../entities/reservation-instance.domain-entity';
+import { QueryRunner } from 'typeorm';
 
 export interface IReservationInstanceRepositoryPort {
   save(
@@ -96,5 +97,15 @@ export interface IReservationInstanceRepositoryPort {
     userId: number,
     startDate: Date,
     endDate: Date,
+  ): Promise<ReservationInstanceDomainEntity[]>;
+
+  /**
+   * Busca instancias con SELECT FOR UPDATE para prevenir race conditions
+   */
+  findBySubScenarioAndDateRangeWithLock(
+    subScenarioId: number,
+    startDate: Date,
+    endDate: Date,
+    queryRunner: QueryRunner,
   ): Promise<ReservationInstanceDomainEntity[]>;
 }

@@ -67,7 +67,7 @@ export class FulltextIndexProvider implements OnModuleInit {
       /* Si la tabla no existe, esperar a que se cree con synchronize o migraciones */
       if (e?.code === 'ER_NO_SUCH_TABLE') {
         console.warn(
-          `⚠️  Tabla ${table} no existe aún. El índice se creará cuando la tabla exista.`,
+          `  Tabla ${table} no existe aún. El índice se creará cuando la tabla exista.`,
         );
         return;
       }

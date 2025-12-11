@@ -24,7 +24,7 @@ export class HybridExportJobService implements OnModuleInit {
       console.log('✅ Redis disponible - Usando persistencia Redis');
     } catch {
       this.isRedisAvailable = false;
-      console.log('⚠️ Redis no disponible - Usando fallback en memoria');
+      console.log(' Redis no disponible - Usando fallback en memoria');
     }
 
     // Monitor Redis connection
@@ -35,7 +35,7 @@ export class HybridExportJobService implements OnModuleInit {
 
     this.redis.on('error', () => {
       this.isRedisAvailable = false;
-      console.log('⚠️ Redis desconectado - Usando fallback en memoria');
+      console.log(' Redis desconectado - Usando fallback en memoria');
     });
   }
 

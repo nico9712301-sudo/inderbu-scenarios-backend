@@ -59,7 +59,7 @@ export class MigrateImagesToR2Command {
           }
 
           if (!fs.existsSync(localPath)) {
-            console.log(`⚠️  Archivo no encontrado: ${localPath}`);
+            console.log(`  Archivo no encontrado: ${localPath}`);
             totalErrors++;
             continue;
           }
@@ -103,7 +103,7 @@ export class MigrateImagesToR2Command {
           // fs.unlinkSync(localPath);
         } catch (error) {
           console.error(
-            `❌ Error migrando imagen ${imageEntity.id}: ${error.message}`,
+            `Error migrando imagen ${imageEntity.id}: ${error.message}`,
           );
           totalErrors++;
         }
@@ -134,7 +134,7 @@ export class MigrateImagesToR2Command {
           }
 
           if (!fs.existsSync(localPath)) {
-            console.log(`⚠️  Archivo no encontrado: ${localPath}`);
+            console.log(`  Archivo no encontrado: ${localPath}`);
             totalErrors++;
             continue;
           }
@@ -174,7 +174,7 @@ export class MigrateImagesToR2Command {
           totalMigrated++;
         } catch (error) {
           console.error(
-            `❌ Error migrando home slide ${slideEntity.id}: ${error.message}`,
+            `Error migrando home slide ${slideEntity.id}: ${error.message}`,
           );
           totalErrors++;
         }
@@ -186,16 +186,16 @@ export class MigrateImagesToR2Command {
 
     console.log(`\n📊 Resumen de migración:`);
     console.log(`✅ Archivos migrados exitosamente: ${totalMigrated}`);
-    console.log(`❌ Errores encontrados: ${totalErrors}`);
+    console.log(`Errores encontrados: ${totalErrors}`);
 
     if (totalErrors === 0) {
-      console.log(`\n🎉 ¡Migración completada exitosamente!`);
+      console.log(`\n¡Migración completada exitosamente!`);
       console.log(
         `💡 Ahora puedes eliminar los archivos locales en temp/images/`,
       );
     } else {
       console.log(
-        `\n⚠️  Migración completada con errores. Revisa los logs anteriores.`,
+        `\n  Migración completada con errores. Revisa los logs anteriores.`,
       );
     }
   }

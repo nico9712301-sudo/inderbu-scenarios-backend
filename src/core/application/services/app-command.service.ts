@@ -22,14 +22,14 @@ export class AppCommandService {
     try {
       this.logger.log('🌱 Iniciando proceso de seeding manual...');
       this.logger.warn(
-        '⚠️  Este comando ejecutará seeders incluso en producción. Úsalo con precaución.',
+        '  Este comando ejecutará seeders incluso en producción. Úsalo con precaución.',
       );
 
       await this.seedingService.seed();
 
       this.logger.log('✅ Seeders ejecutados exitosamente.');
     } catch (error) {
-      this.logger.error('❌ Error ejecutando seeders:', error);
+      this.logger.error('Error ejecutando seeders:', error);
       throw error;
     }
   }
@@ -54,7 +54,7 @@ export class AppCommandService {
         });
       }
     } catch (error) {
-      this.logger.error('❌ Error ejecutando migraciones:', error);
+      this.logger.error('Error ejecutando migraciones:', error);
       throw error;
     }
   }
@@ -69,7 +69,7 @@ export class AppCommandService {
       await this.datasource.undoLastMigration();
       this.logger.log('✅ Última migración revertida exitosamente.');
     } catch (error) {
-      this.logger.error('❌ Error revirtiendo migración:', error);
+      this.logger.error('Error revirtiendo migración:', error);
       throw error;
     }
   }
@@ -84,7 +84,7 @@ export class AppCommandService {
       this.logger.log('Estado de migraciones:');
       this.logger.log(`  Migraciones ejecutadas: ${migrations}`);
     } catch (error) {
-      this.logger.error('❌ Error mostrando estado de migraciones:', error);
+      this.logger.error('Error mostrando estado de migraciones:', error);
       throw error;
     }
   }

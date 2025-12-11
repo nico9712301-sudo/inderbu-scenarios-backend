@@ -56,7 +56,7 @@ export const databaseProviders = [
           // Forzar synchronize si no hay tablas, incluso si DB_SYNCHRONIZE=false
           shouldSynchronize = true;
           logger.warn(
-            '⚠️  DB_SYNCHRONIZE=false pero no hay tablas. Activando synchronize temporalmente para crear tablas iniciales.',
+            '  DB_SYNCHRONIZE=false pero no hay tablas. Activando synchronize temporalmente para crear tablas iniciales.',
           );
         } else if (synchronizeEnv !== 'false' && !hasTables) {
           // Si no está configurado y no hay tablas, activar por defecto
@@ -66,17 +66,17 @@ export const databaseProviders = [
         }
 
         await tempDataSource.destroy().catch((err) => {
-          logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
+          logger.warn(` Error cerrando tempDataSource: ${err.message}`);
         });
       } catch (error: any) {
         // Si falla la conexión o la consulta, asumir que no hay tablas
         logger.warn(
-          `⚠️  Error verificando tablas: ${error.message}. Activando synchronize por defecto.`,
+          `  Error verificando tablas: ${error.message}. Activando synchronize por defecto.`,
         );
         shouldSynchronize = synchronizeEnv !== 'false';
         if (tempDataSource.isInitialized) {
           await tempDataSource.destroy().catch((err) => {
-            logger.warn(`⚠️ Error cerrando tempDataSource: ${err.message}`);
+            logger.warn(` Error cerrando tempDataSource: ${err.message}`);
           });
         }
       }
