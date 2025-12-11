@@ -5,7 +5,6 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
   Index,
 } from 'typeorm';
 import { ReservationStateEntity } from './reservation-state.entity';
@@ -15,7 +14,9 @@ import { TimeSlotEntity } from './time-slot.entity';
 import { UserEntity } from './user.entity';
 
 @Entity('reservation_instances')
-@Unique(['subScenarioId', 'reservationDate', 'timeslotId'])
+// Note: Unique constraint for active reservations is handled via migration
+// using a generated virtual column (active_reservation_key)
+// This allows multiple canceled instances but only one active instance per (subScenarioId, reservationDate, timeslotId)
 @Index(['reservationId'])
 @Index(['subScenarioId', 'reservationDate', 'reservationStateId'])
 @Index(['reservationDate', 'subScenarioId'])
