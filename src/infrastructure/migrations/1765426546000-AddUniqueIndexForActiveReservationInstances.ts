@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddUniqueIndexForActiveReservationInstances1765426541932 implements MigrationInterface {
+export class AddUniqueIndexForActiveReservationInstances1765426546000 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         // Paso 1: Eliminar el constraint único existente que aplica a todas las instancias

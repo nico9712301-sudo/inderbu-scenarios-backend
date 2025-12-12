@@ -1,0 +1,1 @@
+export { UploadPaymentProofDto } from './upload-payment-proof.dto';

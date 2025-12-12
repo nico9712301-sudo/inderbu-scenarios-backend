@@ -51,8 +51,8 @@ export class SubScenarioPriceSeeder
         continue;
       }
       const subScenarioPrice = this.repository.create({
-        subScenario,
-        price: seed.price,
+        fkSubScenarioId: subScenario.id,
+        hourlyPrice: seed.price,
       });
       entities.push(subScenarioPrice);
     }

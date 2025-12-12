@@ -15,4 +15,9 @@ export const REPOSITORY_PORTS = {
   ROLE: 'IRoleRepositoryPort',
   SUB_SCENARIO_IMAGE: 'ISubScenarioImageRepositoryPort',
   HOME_SLIDE: 'IHomeSlideRepositoryPort',
+  TEMPLATE: 'ITemplateRepositoryPort',
+  SUB_SCENARIO_PRICE: 'ISubScenarioPriceRepositoryPort',
+  RECEIPT: 'IReceiptRepositoryPort',
+  PAYMENT_PROOF: 'IPaymentProofRepositoryPort',
+  NOTIFICATION: 'INotificationRepositoryPort',
 } as const;

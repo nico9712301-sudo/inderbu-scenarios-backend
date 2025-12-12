@@ -19,6 +19,11 @@ import { UserEntity } from '../../persistence/user.entity';
 import { SubScenarioImageEntity } from '../../persistence/image.entity';
 import { HomeSlideEntity as PersistenceHomeSlideEntity } from '../../persistence/home-slide.entity';
 import { EntityEntity } from '../../persistence/entity.entity';
+// Billing entities
+import { TemplateEntity } from '../../persistence/template.entity';
+import { ReceiptEntity } from '../../persistence/receipt.entity';
+import { PaymentProofEntity } from '../../persistence/payment-proof.entity';
+import { NotificationEntity } from '../../persistence/notification.entity';
 
 export const persistenceEntities = [
   UserEntity,
@@ -42,4 +47,9 @@ export const persistenceEntities = [
   SubScenarioImageEntity,
   PersistenceHomeSlideEntity,
   EntityEntity,
+  // Billing entities
+  TemplateEntity,
+  ReceiptEntity,
+  PaymentProofEntity,
+  NotificationEntity,
 ];
