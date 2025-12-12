@@ -89,12 +89,11 @@ export class ReservationConflictDetectorDomainService {
       Math.max(...reservationDates.map((d) => d.getTime())),
     );
 
-    // 🔒 CRITICAL: Obtener solo instancias ACTIVAS con SELECT FOR UPDATE
-    const existingInstances = await this.instanceRepo.findBySubScenarioAndDateRangeWithLock(
+    // ✅ Obtener solo instancias ACTIVAS (sin locks - protección vía índice único virtual)
+    const existingInstances = await this.instanceRepo.findBySubScenarioAndDateRange(
       subScenarioId,
       startDate,
       endDate,
-      queryRunner,
     );
 
     // Convertir a formato compatible con detectConflicts

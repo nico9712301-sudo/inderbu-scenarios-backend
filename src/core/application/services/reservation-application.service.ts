@@ -160,13 +160,12 @@ export class ReservationApplicationService implements IReservationApplicationPor
         `Calculated ${calculatedDates.length} dates for reservation`,
       );
 
-      // 2. CRITICAL: Verificar conflictos con LOCKS para prevenir race conditions
+      // 2. ✅ Verificar conflictos (protección vía índice único virtual)
       const conflicts: ReservationConflict[] =
-        await this.conflictDetector.detectConflictsForNewReservationWithLock(
+        await this.conflictDetector.detectConflictsForNewReservation(
           dto.subScenarioId,
           dto.timeSlotIds,
           calculatedDates,
-          queryRunner,
         );
 
       if (conflicts.length > 0) {
