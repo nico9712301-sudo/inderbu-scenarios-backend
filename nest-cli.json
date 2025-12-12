@@ -7,7 +7,9 @@
     "assets": [
       {
         "include": "**/*.json",
-        "watchAssets": true
+        "exclude": "**/*.spec.json",
+        "watchAssets": true,
+        "outDir": "dist"
       }
     ]
   }
