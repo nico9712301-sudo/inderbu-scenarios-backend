@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, Logger } from '@nestjs/common';
 
 import {
   SubScenarioMapper,
@@ -24,9 +24,13 @@ import { CreateSubScenarioDto } from '../../../infrastructure/adapters/inbound/h
 import { UpdateSubScenarioDto } from '../../../infrastructure/adapters/inbound/http/dtos/sub-scenarios/update-sub-scenario.dto';
 import { SubScenarioImageDomainEntity } from '../../domain/entities/sub-scenario-image.domain-entity';
 import { FileStorageService } from '../../../infrastructure/adapters/outbound/file-storage/file-storage.service';
+import { APPLICATION_PORTS } from '../../../infrastructure/providers/billing/application-ports';
+import { SubScenarioPricingApplicationPort } from '../ports/inbound/sub-scenario-pricing-application.port';
 
 @Injectable()
 export class SubScenarioApplicationService implements ISubScenarioApplicationPort {
+  private readonly logger = new Logger(SubScenarioApplicationService.name);
+
   constructor(
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
@@ -40,6 +44,8 @@ export class SubScenarioApplicationService implements ISubScenarioApplicationPor
     private readonly neighborhoodRepository: INeighborhoodRepositoryPort,
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_IMAGE)
     private readonly subScenarioImageRepository: ISubScenarioImageRepositoryPort,
+    @Inject(APPLICATION_PORTS.SUB_SCENARIO_PRICING)
+    private readonly subScenarioPricingService: SubScenarioPricingApplicationPort,
     private readonly fileStorageService: FileStorageService,
     private readonly subScenarioMapper: SubScenarioMapper,
   ) {}
@@ -278,6 +284,22 @@ export class SubScenarioApplicationService implements ISubScenarioApplicationPor
       .build();
 
     await this.subScenarioRepository.save(subScenarioDomain);
+
+    // Si hasCost cambió de true a false, eliminar el precio automáticamente
+    if (existingSubScenario.hasCost === true && updateDto.hasCost === false) {
+      try {
+        await this.subScenarioPricingService.removeSubScenarioPrice(id);
+        this.logger.log(
+          `Precio eliminado automáticamente al desactivar costo para sub-scenario ${id}`,
+        );
+      } catch (error) {
+        // Si no existe precio, no es un error crítico
+        // Solo loguear el warning
+        this.logger.warn(
+          `No se pudo eliminar el precio al desactivar costo para sub-scenario ${id}: ${error.message}`,
+        );
+      }
+    }
 
     // Obtener el sub-escenario actualizado con sus relaciones
     return this.getByIdWithRelations(id);

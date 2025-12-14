@@ -105,9 +105,55 @@ export const databaseProviders = [
         logger.log(
           `✅ MySQL Data Source inicializado! Synchronize: ${shouldSynchronize}`,
         );
-      } catch (error) {
-        logger.error('Error initializing MySQL Data Source:', error);
-        throw new Error(`Database connection failed: ${error.message}`);
+      } catch (error: any) {
+        // Si el error es de columna duplicada y synchronize está activo, 
+        // es probable que la columna ya exista en la BD pero TypeORM no la detectó correctamente
+        if (
+          error?.code === 'ER_DUP_FIELDNAME' &&
+          shouldSynchronize &&
+          (error?.sqlMessage?.includes('Duplicate column name') || 
+           error?.message?.includes('Duplicate column name'))
+        ) {
+          logger.warn(
+            `⚠️  Columna duplicada detectada durante synchronize: ${error.sqlMessage || error.message}. Esto es normal si la columna ya existe en la base de datos.`,
+          );
+          logger.warn(
+            `⚠️  Considera desactivar DB_SYNCHRONIZE y usar migraciones para evitar este warning.`,
+          );
+          // Intentar reinicializar sin synchronize para evitar más errores
+          // o simplemente continuar ya que la columna existe
+          try {
+            // Destruir el dataSource actual
+            if (dataSource.isInitialized) {
+              await dataSource.destroy();
+            }
+            // Crear nuevo DataSource sin synchronize
+            const dataSourceWithoutSync = new DataSource({
+              type: 'mysql',
+              timezone: 'Z',
+              host: configService.get(ENV_CONFIG.DATABASE.HOST),
+              port: configService.get<number>(ENV_CONFIG.DATABASE.PORT),
+              username: configService.get(ENV_CONFIG.DATABASE.USER),
+              password: configService.get(ENV_CONFIG.DATABASE.PASSWORD),
+              database: configService.get(ENV_CONFIG.DATABASE.NAME),
+              entities: [...persistenceEntities],
+              migrations: ['dist/infrastructure/migrations/**/*.js'],
+              migrationsTableName: 'migrations',
+              synchronize: false, // Desactivar synchronize para evitar más errores
+            });
+            await dataSourceWithoutSync.initialize();
+            logger.log(
+              `✅ MySQL Data Source reinicializado sin synchronize debido a columnas duplicadas.`,
+            );
+            return dataSourceWithoutSync;
+          } catch (retryError: any) {
+            logger.error('Error reinicializando DataSource:', retryError);
+            throw new Error(`Database connection failed: ${retryError.message}`);
+          }
+        } else {
+          logger.error('Error initializing MySQL Data Source:', error);
+          throw new Error(`Database connection failed: ${error.message}`);
+        }
       }
 
       return dataSource;

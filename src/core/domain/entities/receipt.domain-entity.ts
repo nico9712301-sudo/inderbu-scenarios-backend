@@ -11,7 +11,10 @@ export class ReceiptDomainEntity {
   public readonly fkTemplateId: number;
 
   @Expose()
-  public readonly pdfUrl: string;
+  public readonly variablesValues: {
+    hourlyPrice: number;
+    totalCost: number;
+  };
 
   @Expose()
   public readonly generatedAt: Date;
@@ -32,7 +35,7 @@ export class ReceiptDomainEntity {
     this.id = builder.id;
     this.fkReservationId = builder.fkReservationId;
     this.fkTemplateId = builder.fkTemplateId;
-    this.pdfUrl = builder.pdfUrl;
+    this.variablesValues = builder.variablesValues;
     this.generatedAt = builder.generatedAt;
     this.sentAt = builder.sentAt;
     this.sentToEmail = builder.sentToEmail;
@@ -62,29 +65,18 @@ export class ReceiptDomainEntity {
     return (
       this.fkReservationId > 0 &&
       this.fkTemplateId > 0 &&
-      this.pdfUrl.length > 0 &&
+      this.variablesValues &&
+      typeof this.variablesValues.hourlyPrice === 'number' &&
+      typeof this.variablesValues.totalCost === 'number' &&
       this.generatedAt instanceof Date
     );
-  }
-
-  /**
-   * Gets the filename from the PDF URL
-   */
-  getFilename(): string {
-    try {
-      const url = new URL(this.pdfUrl);
-      const pathname = url.pathname;
-      return pathname.split('/').pop() || `receipt_${this.id}.pdf`;
-    } catch {
-      return `receipt_${this.id}.pdf`;
-    }
   }
 
   /**
    * Checks if the receipt is ready to be sent
    */
   isReadyToSend(): boolean {
-    return this.isValid() && this.pdfUrl.length > 0;
+    return this.isValid();
   }
 
   /**
@@ -95,7 +87,7 @@ export class ReceiptDomainEntity {
       .withId(this.id)
       .withFkReservationId(this.fkReservationId)
       .withFkTemplateId(this.fkTemplateId)
-      .withPdfUrl(this.pdfUrl)
+      .withVariablesValues(this.variablesValues)
       .withGeneratedAt(this.generatedAt)
       .withSentAt(new Date())
       .withSentToEmail(email)
@@ -109,7 +101,7 @@ export class ReceiptDomainBuilder {
   id: number | null = null;
   fkReservationId: number = 0;
   fkTemplateId: number = 0;
-  pdfUrl: string = '';
+  variablesValues: { hourlyPrice: number; totalCost: number } = { hourlyPrice: 0, totalCost: 0 };
   generatedAt: Date = new Date();
   sentAt: Date | null = null;
   sentToEmail: string | null = null;
@@ -131,8 +123,8 @@ export class ReceiptDomainBuilder {
     return this;
   }
 
-  withPdfUrl(pdfUrl: string): ReceiptDomainBuilder {
-    this.pdfUrl = pdfUrl;
+  withVariablesValues(variablesValues: { hourlyPrice: number; totalCost: number }): ReceiptDomainBuilder {
+    this.variablesValues = variablesValues;
     return this;
   }
 

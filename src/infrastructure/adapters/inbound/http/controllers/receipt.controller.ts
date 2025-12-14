@@ -12,6 +12,8 @@ import {
   UseGuards,
   NotFoundException,
   BadRequestException,
+  Inject,
+  Res,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -27,6 +29,9 @@ import {
   SendReceiptDto,
   ReceiptResponseDto,
 } from '../dtos/receipts';
+import { APPLICATION_PORTS } from '../../../../providers/billing/application-ports';
+import { ITemplateRepositoryPort } from '../../../../../core/domain/ports/outbound/template-repository.port';
+import { REPOSITORY_PORTS } from '../../../../tokens/ports';
 // Guards not available yet
 // import { JwtAuthGuard } from '../../../../../shared/guards/jwt-auth.guard';
 // import { RolesGuard } from '../../../../../shared/guards/roles.guard';
@@ -38,7 +43,10 @@ import {
 @Controller('api/receipts')
 export class ReceiptController {
   constructor(
+    @Inject(APPLICATION_PORTS.RECEIPT_MANAGEMENT)
     private readonly receiptService: ReceiptManagementApplicationPort,
+    @Inject(REPOSITORY_PORTS.TEMPLATE)
+    private readonly templateRepository: ITemplateRepositoryPort,
   ) {}
 
   @Post('generate')
@@ -59,9 +67,11 @@ export class ReceiptController {
         reservationId: generateDto.reservationId,
         templateId: generateDto.templateId,
         customerEmail: generateDto.customerEmail,
+        hourlyPrice: generateDto.hourlyPrice,
+        totalCost: generateDto.totalCost,
       });
 
-      return this.mapToResponseDto(result);
+      return await this.mapToResponseDto(result);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -84,7 +94,7 @@ export class ReceiptController {
         email: sendDto.email,
       });
 
-      return this.mapToResponseDto(result);
+      return await this.mapToResponseDto(result);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -108,8 +118,9 @@ export class ReceiptController {
       throw new NotFoundException('Recibo no encontrado');
     }
 
-    return this.mapToResponseDto(result);
+    return await this.mapToResponseDto(result);
   }
+
 
   @Get('reservation/:reservationId')
   @ApiOperation({ summary: 'Obtener todos los recibos de una reservación' })
@@ -123,7 +134,7 @@ export class ReceiptController {
     @Param('reservationId', ParseIntPipe) reservationId: number,
   ): Promise<ReceiptResponseDto[]> {
     const results = await this.receiptService.getReceiptsByReservation(reservationId);
-    return results.map(receipt => this.mapToResponseDto(receipt));
+    return Promise.all(results.map(receipt => this.mapToResponseDto(receipt)));
   }
 
   @Get()
@@ -138,7 +149,7 @@ export class ReceiptController {
     const result = await this.receiptService.getAllReceipts(page, limit);
 
     return {
-      data: result.data.map(receipt => this.mapToResponseDto(receipt)),
+      data: await Promise.all(result.data.map(receipt => this.mapToResponseDto(receipt))),
       total: result.total,
       page,
       limit,
@@ -155,7 +166,7 @@ export class ReceiptController {
   })
   async getUnsentReceipts(): Promise<ReceiptResponseDto[]> {
     const results = await this.receiptService.getUnsentReceipts();
-    return results.map(receipt => this.mapToResponseDto(receipt));
+    return Promise.all(results.map(receipt => this.mapToResponseDto(receipt)));
   }
 
   @Get('status/pending')
@@ -168,7 +179,7 @@ export class ReceiptController {
   })
   async getReceiptsPendingForSending(): Promise<ReceiptResponseDto[]> {
     const results = await this.receiptService.getReceiptsPendingForSending();
-    return results.map(receipt => this.mapToResponseDto(receipt));
+    return Promise.all(results.map(receipt => this.mapToResponseDto(receipt)));
   }
 
   @Delete(':id')
@@ -195,16 +206,34 @@ export class ReceiptController {
     return await this.receiptService.getReceiptStatistics();
   }
 
-  private mapToResponseDto(entity: any): ReceiptResponseDto {
+  private async mapToResponseDto(entity: any): Promise<ReceiptResponseDto> {
+    // Get template name and content if templateId exists
+    const templateId = entity.fkTemplateId || entity.templateId;
+    let templateName: string | undefined;
+    let templateContent: string | undefined;
+    if (templateId) {
+      try {
+        const template = await this.templateRepository.findById(templateId);
+        templateName = template?.name;
+        templateContent = template?.content;
+      } catch (error) {
+        // If template not found, templateName will remain undefined
+        templateName = undefined;
+        templateContent = undefined;
+      }
+    }
+
     return {
       id: entity.id,
-      reservationId: entity.reservationId,
-      templateId: entity.templateId,
-      pdfUrl: entity.pdfUrl,
+      reservationId: entity.fkReservationId || entity.reservationId,
+      templateId: templateId,
+      templateName,
+      templateContent,
+      variablesValues: entity.variablesValues,
       generatedAt: entity.generatedAt,
       sentAt: entity.sentAt,
       sentToEmail: entity.sentToEmail,
-      isGenerated: entity.isGenerated,
+      isGenerated: entity.isGenerated !== undefined ? entity.isGenerated : true,
       isSent: entity.sentAt !== null,
     };
   }

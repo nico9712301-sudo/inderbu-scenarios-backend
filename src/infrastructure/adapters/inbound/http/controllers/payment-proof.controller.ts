@@ -12,6 +12,9 @@ import {
   UseGuards,
   NotFoundException,
   BadRequestException,
+  Inject,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -20,9 +23,14 @@ import {
   ApiParam,
   ApiQuery,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
 import { PaymentProofApplicationPort } from '../../../../../core/application/ports/inbound/payment-proof-application.port';
 import { UploadPaymentProofDto } from '../dtos/payment-proofs/upload-payment-proof.dto';
+import { APPLICATION_PORTS } from '../../../../providers/billing/application-ports';
 // Guards not available yet
 // import { JwtAuthGuard } from '../../../../../shared/guards/jwt-auth.guard';
 // import { RolesGuard } from '../../../../../shared/guards/roles.guard';
@@ -34,33 +42,110 @@ import { UploadPaymentProofDto } from '../dtos/payment-proofs/upload-payment-pro
 @Controller('api/payment-proofs')
 export class PaymentProofController {
   constructor(
+    @Inject(APPLICATION_PORTS.PAYMENT_PROOF)
     private readonly paymentProofService: PaymentProofApplicationPort,
   ) {}
 
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Subir comprobante de pago para una reservación' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo del comprobante de pago (PDF, JPG, JPEG, PNG)',
+        },
+        reservationId: {
+          type: 'number',
+          description: 'ID de la reservación',
+        },
+        uploadedByUserId: {
+          type: 'number',
+          description: 'ID del usuario que sube el comprobante',
+        },
+      },
+      required: ['file', 'reservationId', 'uploadedByUserId'],
+    },
+  })
   @ApiResponse({
     status: 201,
     description: 'Comprobante subido exitosamente',
   })
   @ApiResponse({ status: 400, description: 'Error al subir el comprobante' })
+  @UseInterceptors(FileInterceptor('file'))
   async uploadPaymentProof(
-    @Body() uploadDto: UploadPaymentProofDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { reservationId: string; uploadedByUserId: string },
   ) {
     try {
-      const result = await this.paymentProofService.uploadPaymentProof({
-        reservationId: uploadDto.reservationId,
-        fileUrl: uploadDto.fileUrl,
-        originalFileName: uploadDto.originalFileName,
-        mimeType: uploadDto.mimeType,
-        fileSize: uploadDto.fileSize,
-        uploadedByUserId: uploadDto.uploadedByUserId,
+      if (!file) {
+        throw new BadRequestException('No se proporcionó un archivo');
+      }
+
+      // Validate file type
+      const allowedMimeTypes = [
+        'application/pdf',
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+      ];
+      if (!allowedMimeTypes.includes(file.mimetype)) {
+        throw new BadRequestException(
+          'Tipo de archivo no permitido. Solo se permiten PDF, JPG, JPEG y PNG',
+        );
+      }
+
+      // Validate file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        throw new BadRequestException(
+          'El archivo es demasiado grande. Tamaño máximo: 10MB',
+        );
+      }
+
+      // Read file buffer if not already present
+      let fileBuffer: Buffer;
+      if (file.buffer) {
+        fileBuffer = file.buffer;
+      } else if (file.path) {
+        fileBuffer = fs.readFileSync(file.path);
+      } else {
+        throw new BadRequestException('No se pudo leer el archivo');
+      }
+
+      // Create file object with buffer
+      const fileWithBuffer: Express.Multer.File = {
+        ...file,
+        buffer: fileBuffer,
+      };
+
+      const reservationId = parseInt(body.reservationId, 10);
+      const uploadedByUserId = parseInt(body.uploadedByUserId, 10);
+
+      if (isNaN(reservationId) || isNaN(uploadedByUserId)) {
+        throw new BadRequestException(
+          'reservationId y uploadedByUserId deben ser números válidos',
+        );
+      }
+
+      const result = await this.paymentProofService.uploadPaymentProofWithFile({
+        reservationId,
+        uploadedByUserId,
+        file: fileWithBuffer,
       });
 
       return this.mapToResponseDto(result);
     } catch (error) {
-      throw new BadRequestException(error.message);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al subir el comprobante',
+      );
     }
   }
 

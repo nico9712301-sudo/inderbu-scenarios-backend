@@ -13,6 +13,7 @@ import {
   UseGuards,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -31,6 +32,7 @@ import {
   CalculateCostDto,
   CalculateCostResponseDto,
 } from '../dtos/sub-scenario-pricing';
+import { APPLICATION_PORTS } from '../../../../providers/billing/application-ports';
 // Guards not available yet
 // import { JwtAuthGuard } from '../../../../../shared/guards/jwt-auth.guard';
 // import { RolesGuard } from '../../../../../shared/guards/roles.guard';
@@ -42,6 +44,7 @@ import {
 @Controller('api/sub-scenario-pricing')
 export class SubScenarioPricingController {
   constructor(
+    @Inject(APPLICATION_PORTS.SUB_SCENARIO_PRICING)
     private readonly subScenarioPricingService: SubScenarioPricingApplicationPort,
     private readonly pricingDomainService: PricingDomainService,
   ) {}

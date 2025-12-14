@@ -6,6 +6,10 @@ import { UserEntityMapper } from '../user/user-entity.mapper';
 export class ReservationResponseMapper {
   static toDetailsDto(
     domain: ReservationDomainEntity,
+    additionalInfo?: {
+      hasCost?: boolean;
+      hasPaymentProofs?: boolean;
+    },
   ): ReservationWithDetailsResponseDto {
     console.log('domain', domain);
 
@@ -119,6 +123,12 @@ export class ReservationResponseMapper {
         totalInstances: (domain as any).instances?.length || 0,
         createdAt: domain.createdAt?.toISOString() || new Date().toISOString(),
         updatedAt: domain.updatedAt?.toISOString() || new Date().toISOString(),
+        // Información adicional de billing
+        hasCost:
+          additionalInfo?.hasCost !== undefined
+            ? additionalInfo.hasCost
+            : subScenario?.hasCost || false,
+        hasPaymentProofs: additionalInfo?.hasPaymentProofs || false,
       },
       { excludeExtraneousValues: true },
     );

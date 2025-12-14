@@ -84,4 +84,16 @@ export class TemplateRepositoryAdapter implements ITemplateRepositoryPort {
 
     return count > 0;
   }
+
+  async searchActiveReceiptTemplatesByName(searchTerm: string): Promise<TemplateDomainEntity[]> {
+    const entities = await this.templateRepository
+      .createQueryBuilder('template')
+      .where('template.type = :type', { type: 'receipt' })
+      .andWhere('template.isActive = :isActive', { isActive: true })
+      .andWhere('template.name LIKE :searchTerm', { searchTerm: `%${searchTerm}%` })
+      .orderBy('template.createdAt', 'DESC')
+      .getMany();
+
+    return TemplateEntityMapper.toDomainArray(entities);
+  }
 }

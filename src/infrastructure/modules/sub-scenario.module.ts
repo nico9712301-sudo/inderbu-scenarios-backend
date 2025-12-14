@@ -1,7 +1,7 @@
 import { diskStorage } from 'multer';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { MulterModule } from '@nestjs/platform-express';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { join } from 'path';
 
 import { SubScenarioImageController } from '../adapters/inbound/http/controllers/sub-scenario-image.controller';
@@ -18,11 +18,13 @@ import { SubScenarioExportApplicationService } from '../../core/application/serv
 import { SubScenarioFileExportService } from '../../core/application/services/export/sub-scenario-file-export.service';
 import { RedisExportJobService } from '../../core/application/services/export/redis-export-job.service';
 import { RedisModule } from './redis.module';
+import { BillingModule } from './billing/billing.module';
 
 @Module({
   imports: [
     DatabaseModule,
     RedisModule,
+    forwardRef(() => BillingModule), // Para acceder a SubScenarioPricingApplicationPort
     MulterModule.register({
       dest: './temp', // Archivos temporales en carpeta separada
       storage: diskStorage({

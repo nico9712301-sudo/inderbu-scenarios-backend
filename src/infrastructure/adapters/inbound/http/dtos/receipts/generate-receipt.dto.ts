@@ -25,4 +25,24 @@ export class GenerateReceiptDto {
   @IsOptional()
   @IsEmail({}, { message: 'Debe proporcionar un email válido' })
   customerEmail?: string;
+
+  @ApiPropertyOptional({
+    description: 'Precio por hora (mínimo 1000 pesos)',
+    example: 5000,
+    minimum: 1000,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'El precio por hora debe ser un número' })
+  @Min(1000, { message: 'El precio por hora debe ser al menos 1000 pesos' })
+  hourlyPrice?: number;
+
+  @ApiPropertyOptional({
+    description: 'Costo total del recibo',
+    example: 10000,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: 'El costo total debe ser un número' })
+  @Min(0, { message: 'El costo total no puede ser negativo' })
+  totalCost?: number;
 }

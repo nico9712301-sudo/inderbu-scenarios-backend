@@ -18,3 +18,5 @@ export { PlaygrounController } from './test.controller';
 export { PaymentProofController } from './payment-proof.controller';
 export { ReceiptController } from './receipt.controller';
 export { SubScenarioPricingController } from './sub-scenario-pricing.controller';
+export { TemplateController } from './template.controller';
+export { NotificationController } from './notification.controller';

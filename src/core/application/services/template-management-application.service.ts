@@ -170,4 +170,11 @@ export class TemplateManagementApplicationService implements TemplateManagementA
       mostUsedTemplate: null, // Would require usage tracking
     };
   }
+
+  async searchActiveReceiptTemplatesByName(searchTerm: string): Promise<TemplateDomainEntity[]> {
+    if (!searchTerm || searchTerm.trim().length === 0) {
+      return await this.getActiveReceiptTemplates();
+    }
+    return await this.templateRepository.searchActiveReceiptTemplatesByName(searchTerm.trim());
+  }
 }

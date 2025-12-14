@@ -72,10 +72,26 @@ export interface IReservationApplicationPort {
 
   /**
    * Confirma una reserva
+   * @param reservationId - ID de la reserva
+   * @param justification - Justificación requerida si es reserva pagada sin comprobante
    */
   confirmReservation(
     reservationId: number,
+    justification?: string,
   ): Promise<ReservationWithDetailsResponseDto>;
+
+  /**
+   * Obtiene el estado de confirmación de una reserva
+   * @param reservationId - ID de la reserva
+   * @returns Información sobre si puede ser confirmada, si requiere justificación, etc.
+   */
+  getConfirmationStatus(reservationId: number): Promise<{
+    canConfirm: boolean;
+    requiresJustification: boolean;
+    hasPaymentProofs: boolean;
+    hasCost: boolean;
+    message?: string | null;
+  }>;
 
   /**
    * Obtiene estadísticas de reservas

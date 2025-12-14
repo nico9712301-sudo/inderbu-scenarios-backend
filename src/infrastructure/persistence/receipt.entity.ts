@@ -15,12 +15,14 @@ export class ReceiptEntity {
   fkTemplateId: number;
 
   @Column({
-    name: 'pdf_url',
-    type: 'varchar',
-    length: 500,
-    comment: 'URL to the generated PDF receipt in Cloudflare R2'
+    name: 'variables_values',
+    type: 'json',
+    comment: 'JSON object containing hourlyPrice and totalCost'
   })
-  pdfUrl: string;
+  variablesValues: {
+    hourlyPrice: number;
+    totalCost: number;
+  };
 
   @Column({
     name: 'generated_at',

@@ -4,6 +4,8 @@ export interface GenerateReceiptCommand {
   reservationId: number;
   templateId: number;
   customerEmail?: string;
+  hourlyPrice?: number;
+  totalCost?: number;
 }
 
 export interface SendReceiptCommand {
@@ -76,4 +78,5 @@ export interface ReceiptManagementApplicationPort {
     totalUnsent: number;
     avgGenerationTime: number;
   }>;
+
 }

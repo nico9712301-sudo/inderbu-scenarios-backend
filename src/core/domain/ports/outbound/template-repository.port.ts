@@ -40,4 +40,9 @@ export interface ITemplateRepositoryPort {
    * Validates if a template exists and is active
    */
   existsAndIsActive(id: number): Promise<boolean>;
+
+  /**
+   * Searches active receipt templates by name
+   */
+  searchActiveReceiptTemplatesByName(searchTerm: string): Promise<TemplateDomainEntity[]>;
 }

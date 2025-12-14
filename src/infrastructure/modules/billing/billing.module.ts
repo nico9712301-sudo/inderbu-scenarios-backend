@@ -1,53 +1,55 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-// Entities
-import {
-  TemplateEntity,
-  SubScenarioPriceEntity,
-  ReceiptEntity,
-  PaymentProofEntity,
-  NotificationEntity,
-} from '../../persistence';
+import { Module, forwardRef } from '@nestjs/common';
 
 // Controllers
 import {
   SubScenarioPricingController,
   ReceiptController,
   PaymentProofController,
+  TemplateController,
+  NotificationController,
 } from '../../adapters/inbound/http/controllers';
 
 // Providers
 import { billingProviders } from '../../providers/billing';
 
+// Services
+import { PdfGenerationService } from '../../adapters/outbound/pdf-generation/pdf-generation.service';
+import { ReceiptEmailService } from '../../adapters/outbound/email/receipt-email.service';
+import { CloudflareR2Service } from '../../adapters/outbound/file-storage/cloudflare-r2.service';
+
 // External dependencies that might be needed
+import { DatabaseModule } from '../database/database.module';
 import { ReservationModule } from '../reservation.module';
 import { SubScenarioModule } from '../sub-scenario.module';
+import { UserModule } from '../user.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      TemplateEntity,
-      SubScenarioPriceEntity,
-      ReceiptEntity,
-      PaymentProofEntity,
-      NotificationEntity,
-    ]),
+    DatabaseModule, // Provides DATA_SOURCE.MYSQL
     // Import related modules for cross-domain dependencies
-    ReservationModule,
-    SubScenarioModule,
+    forwardRef(() => ReservationModule),
+    forwardRef(() => SubScenarioModule), // Usar forwardRef para evitar dependencia circular
+    UserModule, // Provides IUserRepositoryPort
   ],
   controllers: [
     SubScenarioPricingController,
     ReceiptController,
     PaymentProofController,
+    TemplateController,
+    NotificationController,
   ],
   providers: [
     ...billingProviders,
+    PdfGenerationService,
+    ReceiptEmailService,
+    CloudflareR2Service,
   ],
   exports: [
     // Export application services for use in other modules
     ...billingProviders,
+    PdfGenerationService,
+    ReceiptEmailService,
+    CloudflareR2Service,
   ],
 })
 export class BillingModule {}

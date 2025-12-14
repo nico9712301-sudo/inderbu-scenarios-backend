@@ -8,9 +8,14 @@ import { IReceiptRepositoryPort } from '../../domain/ports/outbound/receipt-repo
 import { ITemplateRepositoryPort } from '../../domain/ports/outbound/template-repository.port';
 import { IReservationRepositoryPort } from '../../domain/ports/outbound/reservation-repository.port';
 import { ISubScenarioPriceRepositoryPort } from '../../domain/ports/outbound/sub-scenario-price-repository.port';
+import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository.port';
+import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
 import { ReceiptDomainEntity } from '../../domain/entities/receipt.domain-entity';
+import { SubScenarioPriceDomainEntity } from '../../domain/entities/sub-scenario-price.domain-entity';
 import { ReceiptGenerationDomainService, ReceiptData } from '../../domain/services/receipt-generation.domain-service';
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
+// import { PdfGenerationService } from '../../../infrastructure/adapters/outbound/pdf-generation/pdf-generation.service';
+import { ReceiptEmailService } from '../../../infrastructure/adapters/outbound/email/receipt-email.service';
 
 @Injectable()
 export class ReceiptManagementApplicationService implements ReceiptManagementApplicationPort {
@@ -23,8 +28,14 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
     private readonly reservationRepository: IReservationRepositoryPort,
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO_PRICE)
     private readonly subScenarioPriceRepository: ISubScenarioPriceRepositoryPort,
+    @Inject(REPOSITORY_PORTS.USER)
+    private readonly userRepository: IUserRepositoryPort,
+    @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
+    private readonly subScenarioRepository: ISubScenarioRepositoryPort,
     private readonly receiptGenerationDomainService: ReceiptGenerationDomainService,
-  ) {}
+    // private readonly pdfGenerationService: PdfGenerationService,
+    private readonly receiptEmailService: ReceiptEmailService,
+  ) { }
 
   async generateReceipt(command: GenerateReceiptCommand): Promise<ReceiptDomainEntity> {
     // Validate reservation exists
@@ -39,7 +50,18 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
       throw new Error('Plantilla no encontrada');
     }
 
-    // Get pricing information
+    // Get sub-scenario first to check if it has cost
+    const subScenario = await this.subScenarioRepository.findByIdWithRelations(reservation.subScenarioId);
+    if (!subScenario) {
+      throw new Error('Sub-escenario no encontrado');
+    }
+
+    // Early validation: Check if sub-scenario has cost
+    if (!subScenario.hasCost) {
+      throw new Error('No se puede generar recibo para sub-escenarios gratuitos');
+    }
+
+    // Get pricing information (may be null or have price 0, both are allowed)
     const pricing = await this.subScenarioPriceRepository.findBySubScenarioId(reservation.subScenarioId);
 
     // Validate receipt generation is possible
@@ -53,38 +75,58 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
       throw new Error(validation.reason);
     }
 
-    // Prepare receipt data (would need to get additional customer/scenario data)
+    // Get user data
+    const user = await this.userRepository.findById(reservation.userId);
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    // Extract scenario name from subScenario (already fetched above)
+    const scenarioName = (subScenario as any).scenario?.name || 'Escenario';
+
+    // Prepare receipt data with real customer/scenario data
+    // pricing can be null or have price 0, both are handled in prepareReceiptData
     const receiptData: ReceiptData = this.receiptGenerationDomainService.prepareReceiptData(
       reservation,
-      pricing!,
+      pricing,
       {
-        customerEmail: command.customerEmail || 'customer@example.com',
-        customerName: 'Cliente',
-        subScenarioName: 'Sub-escenario',
-        scenarioName: 'Escenario',
+        customerEmail: command.customerEmail || user.email,
+        customerName: `${user.firstName} ${user.lastName}`,
+        subScenarioName: subScenario.name,
+        scenarioName: scenarioName,
       },
     );
 
-    // Process template to generate HTML
-    const templateProcessing = this.receiptGenerationDomainService.processReceiptTemplate(template, receiptData);
-    if (!templateProcessing.isValid) {
-      throw new Error(templateProcessing.error);
+    // Use hourlyPrice and totalCost from command if provided, otherwise use calculated values
+    // Validate hourlyPrice minimum if provided
+    let finalHourlyPrice = receiptData.pricing.hourlyPrice;
+    let finalTotalCost = receiptData.totalCost;
+
+    if (command.hourlyPrice !== undefined) {
+      if (command.hourlyPrice < 1000) {
+        throw new Error('El precio por hora debe ser al menos 1000 pesos');
+      }
+      finalHourlyPrice = command.hourlyPrice;
     }
 
-    // Generate filename and create PDF URL (this would involve PDF generation service)
-    const fileName = this.receiptGenerationDomainService.generateReceiptFilename(
-      command.reservationId,
-      receiptData.customerName,
-    );
+    if (command.totalCost !== undefined) {
+      finalTotalCost = command.totalCost;
+    } else {
+      // Recalculate totalCost if hourlyPrice was provided but totalCost wasn't
+      if (command.hourlyPrice !== undefined) {
+        finalTotalCost = receiptData.totalHours * command.hourlyPrice;
+      }
+    }
 
-    // For now, use placeholder PDF URL - this would be replaced by actual PDF generation
-    const pdfUrl = `https://receipts.example.com/${fileName}`;
-
-    // Create receipt domain entity
+    // Create receipt domain entity with variables values
+    // "Generar" recibo = solo guardar datos, no generar PDF
     const receipt = this.receiptGenerationDomainService.createReceipt(
       command.reservationId,
       command.templateId,
-      pdfUrl,
+      {
+        hourlyPrice: finalHourlyPrice,
+        totalCost: finalTotalCost,
+      },
     );
 
     // Save and return
@@ -92,7 +134,7 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
   }
 
   async sendReceipt(command: SendReceiptCommand): Promise<ReceiptDomainEntity> {
-    // Get receipt
+    // Get receipt with relations
     const receipt = await this.receiptRepository.findById(command.receiptId);
     if (!receipt) {
       throw new Error('Recibo no encontrado');
@@ -104,12 +146,33 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
       throw new Error(validation.reason);
     }
 
-    // Mark receipt as sent (actual email sending would happen here)
-    const updatedReceipt = this.receiptGenerationDomainService.markReceiptAsSent(receipt, command.email);
-
+    // TODO: PDF generation moved to frontend using @react-pdf/renderer
+    // For now, email sending is disabled until PDF generation is implemented in frontend
+    // or an alternative backend solution is implemented
+    throw new Error('El envío de recibos por email está temporalmente deshabilitado. Use la descarga de PDF desde el frontend.');
+    
+    // Code below is unreachable but kept for reference when re-implementing email sending
+    // Render receipt HTML/PDF when sending
+    // const htmlContent = await this.renderReceipt(receipt);
+    // Generate PDF from HTML
+    // const fileName: string = this.receiptGenerationDomainService.generateReceiptFilename(
+    //   receipt.fkReservationId,
+    //   'cliente', // Will be replaced with actual customer name in email service
+    // );
+    // Generate PDF
+    // const pdfBuffer = await this.pdfGenerationService.generatePdfFromHtml(
+    //   htmlContent,
+    //   fileName.replace('.pdf', ''),
+    // );
+    // Send email with PDF attachment
+    // await this.receiptEmailService.sendReceiptEmailWithPdf(command.email, receipt, pdfBuffer);
+    // Mark receipt as sent
+    // const updatedReceipt = this.receiptGenerationDomainService.markReceiptAsSent(receipt, command.email);
     // Save and return
-    return await this.receiptRepository.save(updatedReceipt);
+    // return await this.receiptRepository.save(updatedReceipt);
   }
+
+  // Removed renderReceipt - PDF generation is now handled in the frontend using @react-pdf/renderer
 
   async getReceiptById(id: number): Promise<ReceiptDomainEntity | null> {
     return await this.receiptRepository.findById(id);
@@ -151,7 +214,18 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
       return { isValid: false, reason: 'Plantilla no encontrada' };
     }
 
-    // Get pricing
+    // Get sub-scenario first to check if it has cost
+    const subScenario = await this.subScenarioRepository.findByIdWithRelations(reservation.subScenarioId);
+    if (!subScenario) {
+      return { isValid: false, reason: 'Sub-escenario no encontrado' };
+    }
+
+    // Early validation: Check if sub-scenario has cost
+    if (!subScenario.hasCost) {
+      return { isValid: false, reason: 'No se puede generar recibo para sub-escenarios gratuitos' };
+    }
+
+    // Get pricing (only if hasCost is true)
     const pricing = await this.subScenarioPriceRepository.findBySubScenarioId(reservation.subScenarioId);
 
     // Use domain service validation

@@ -56,6 +56,7 @@ import { ReservationResponseMapper } from '../../../infrastructure/mappers/reser
 import { INotificationService } from '../ports/outbound/notification-service.port';
 import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository.port';
 import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
+import { IPaymentProofRepositoryPort } from '../../domain/ports/outbound/payment-proof-repository.port';
 
 @Injectable()
 export class ReservationApplicationService implements IReservationApplicationPort {
@@ -94,6 +95,9 @@ export class ReservationApplicationService implements IReservationApplicationPor
 
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepo: ISubScenarioRepositoryPort,
+
+    @Inject(REPOSITORY_PORTS.PAYMENT_PROOF)
+    private readonly paymentProofRepo: IPaymentProofRepositoryPort,
   ) {}
 
   async createReservation(
@@ -636,9 +640,24 @@ export class ReservationApplicationService implements IReservationApplicationPor
 
     console.log('data', data[0]);
 
-    // Usar el mapper para convertir domain entities a DTOs
-    const dtos: ReservationWithDetailsResponseDto[] = data.map((reservation) =>
-      ReservationResponseMapper.toDetailsDto(reservation),
+    // Obtener información adicional de billing para cada reserva
+    const dtos: ReservationWithDetailsResponseDto[] = await Promise.all(
+      data.map(async (reservation) => {
+        // Obtener sub-scenario para hasCost
+        const subScenario = await this.subScenarioRepo.findById(
+          reservation.subScenarioId,
+        );
+        const hasCost = subScenario?.hasCost || false;
+
+        // Obtener información de payment proofs
+        const hasPaymentProofs =
+          await this.paymentProofRepo.hasPaymentProofs(reservation.id!);
+
+        return ReservationResponseMapper.toDetailsDto(reservation, {
+          hasCost,
+          hasPaymentProofs,
+        });
+      }),
     );
 
     console.log('dtos', dtos);
@@ -661,8 +680,18 @@ export class ReservationApplicationService implements IReservationApplicationPor
       throw new NotFoundException(`Reservation with ID ${id} not found`);
     }
 
+    // Obtener información adicional de billing
+    const subScenario = await this.subScenarioRepo.findById(
+      reservation.subScenarioId,
+    );
+    const hasCost = subScenario?.hasCost || false;
+    const hasPaymentProofs = await this.paymentProofRepo.hasPaymentProofs(id);
+
     // Usar el mapper para convertir domain entity a DTO
-    return ReservationResponseMapper.toDetailsDto(reservation);
+    return ReservationResponseMapper.toDetailsDto(reservation, {
+      hasCost,
+      hasPaymentProofs,
+    });
   }
 
   async updateReservationState(
@@ -922,10 +951,116 @@ export class ReservationApplicationService implements IReservationApplicationPor
     return this.updateReservationState(reservationId, { stateId: 3 }); // CANCELADA
   }
 
+  async getConfirmationStatus(reservationId: number): Promise<{
+    canConfirm: boolean;
+    requiresJustification: boolean;
+    hasPaymentProofs: boolean;
+    hasCost: boolean;
+    message?: string | null;
+  }> {
+    // Get reservation
+    const reservation = await this.reservationRepo.findWithTimeslots(reservationId);
+    if (!reservation) {
+      throw new NotFoundException(`Reservation with ID ${reservationId} not found`);
+    }
+
+    // Get sub-scenario to check if it has cost
+    const subScenario = await this.subScenarioRepo.findById(reservation.subScenarioId);
+    if (!subScenario) {
+      throw new NotFoundException(`Sub-scenario not found for reservation ${reservationId}`);
+    }
+
+    const hasCost = subScenario.hasCost || false;
+    const hasPaymentProofs = await this.paymentProofRepo.hasPaymentProofs(reservationId);
+
+    // Check if reservation is already confirmed or cancelled
+    const isConfirmed = reservation.reservationStateId === 2; // CONFIRMADA
+    const isCancelled = reservation.reservationStateId === 3; // CANCELADA
+
+    if (isConfirmed) {
+      return {
+        canConfirm: false,
+        requiresJustification: false,
+        hasPaymentProofs,
+        hasCost,
+        message: 'Esta reserva ya está confirmada',
+      };
+    }
+
+    if (isCancelled) {
+      return {
+        canConfirm: false,
+        requiresJustification: false,
+        hasPaymentProofs,
+        hasCost,
+        message: 'No se puede confirmar una reserva cancelada',
+      };
+    }
+
+    // If reservation is for a paid sub-scenario without payment proof, requires justification
+    if (hasCost && !hasPaymentProofs) {
+      return {
+        canConfirm: true,
+        requiresJustification: true,
+        hasPaymentProofs: false,
+        hasCost: true,
+        message:
+          'Esta reserva requiere un comprobante de pago o una justificación para ser confirmada',
+      };
+    }
+
+    // Can confirm (free reservation or paid with proof)
+    return {
+      canConfirm: true,
+      requiresJustification: false,
+      hasPaymentProofs,
+      hasCost,
+      message: null,
+    };
+  }
+
   async confirmReservation(
     reservationId: number,
+    justification?: string,
   ): Promise<ReservationWithDetailsResponseDto> {
-    return this.updateReservationState(reservationId, { stateId: 2 }); // CONFIRMADA
+    // Get reservation with sub-scenario to check if it has cost
+    const reservation = await this.reservationRepo.findWithTimeslots(reservationId);
+    if (!reservation) {
+      throw new NotFoundException(`Reservation with ID ${reservationId} not found`);
+    }
+
+    // Get sub-scenario to check if it has cost
+    const subScenario = await this.subScenarioRepo.findById(reservation.subScenarioId);
+    if (!subScenario) {
+      throw new NotFoundException(`Sub-scenario not found for reservation ${reservationId}`);
+    }
+
+    // If reservation is for a paid sub-scenario, check for payment proof
+    if (subScenario.hasCost) {
+      // Check if reservation has payment proofs
+      const hasPaymentProofs = await this.paymentProofRepo.hasPaymentProofs(reservationId);
+
+      if (!hasPaymentProofs) {
+        // No payment proof - require justification
+        if (!justification || justification.trim().length === 0) {
+          throw new BadRequestException(
+            'Esta reserva requiere un comprobante de pago o una justificación para ser confirmada sin comprobante',
+          );
+        }
+
+        // Update with justification in comments field (or we could add confirmation_justification field)
+        return this.updateReservationState(reservationId, {
+          stateId: 2, // CONFIRMADA
+          comments: justification,
+        });
+      } else {
+        // Has payment proof - confirm directly without justification
+        return this.updateReservationState(reservationId, { stateId: 2 }); // CONFIRMADA
+      }
+    } else {
+      // Free reservation - confirm directly
+      return this.updateReservationState(reservationId, { stateId: 2 }); // CONFIRMADA
+    }
   }
 
   async getReservationStats(): Promise<{

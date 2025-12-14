@@ -43,10 +43,6 @@ export class ReceiptGenerationDomainService {
       return { isValid: false, reason: 'La reservación no existe' };
     }
 
-    if (!pricing || pricing.hourlyPrice <= 0) {
-      return { isValid: false, reason: 'No se puede generar recibo para sub-escenarios gratuitos' };
-    }
-
     if (!template) {
       return { isValid: false, reason: 'No se ha seleccionado una plantilla válida' };
     }
@@ -72,7 +68,7 @@ export class ReceiptGenerationDomainService {
    */
   prepareReceiptData(
     reservation: ReservationDomainEntity,
-    pricing: SubScenarioPriceDomainEntity,
+    pricing: SubScenarioPriceDomainEntity | null,
     additionalData: {
       customerEmail: string;
       customerName: string;
@@ -80,21 +76,67 @@ export class ReceiptGenerationDomainService {
       scenarioName: string;
     },
   ): ReceiptData {
-    // Note: startDateTime and endDateTime are not available in current entity
-    // const startDate = new Date(reservation.startDateTime);
-    // const endDate = new Date(reservation.endDateTime);
-    const startDate = new Date(); // placeholder
-    const endDate = new Date(Date.now() + 3600000); // placeholder +1 hour
-    const totalHours = this.calculateHours(startDate, endDate);
-    const totalCost = totalHours * pricing.hourlyPrice;
+    // Calculate total hours from timeslots if available
+    let totalHours = 0;
+
+    // Check if reservation has timeslots attached (from repository with relations)
+    const reservationWithTimeslots = reservation as any;
+    if (reservationWithTimeslots.timeslots && Array.isArray(reservationWithTimeslots.timeslots)) {
+      reservationWithTimeslots.timeslots.forEach((reservationTimeslot: any) => {
+        if (reservationTimeslot.timeslot) {
+          const timeslot = reservationTimeslot.timeslot;
+          if (timeslot.startTime && timeslot.endTime) {
+            // Parse time strings (format: "HH:mm")
+            const [startHour, startMin] = timeslot.startTime.split(':').map(Number);
+            const [endHour, endMin] = timeslot.endTime.split(':').map(Number);
+
+            const startMinutes = startHour * 60 + startMin;
+            const endMinutes = endHour * 60 + endMin;
+
+            const hours = (endMinutes - startMinutes) / 60;
+            totalHours += hours;
+          }
+        }
+      });
+
+      // If it's a RANGE reservation, check for instances or multiply by totalInstances
+      if (reservation.type === 'RANGE' && reservationWithTimeslots.instances) {
+        const instanceCount = reservationWithTimeslots.instances.length || 1;
+        totalHours *= instanceCount;
+      } else if (reservation.type === 'RANGE' && reservationWithTimeslots.totalInstances) {
+        totalHours *= reservationWithTimeslots.totalInstances;
+      }
+
+      // Round up to nearest hour
+      totalHours = Math.ceil(totalHours);
+    } else {
+      // Fallback: use placeholder calculation if timeslots not available
+      const startDate = new Date();
+      const endDate = new Date(Date.now() + 3600000); // +1 hour
+      totalHours = this.calculateHours(startDate, endDate);
+    }
+
+    // If pricing is null or hourlyPrice is 0, set totalCost to 0
+    const hourlyPrice = pricing?.hourlyPrice || 0;
+    const totalCost = totalHours * hourlyPrice;
 
     return {
       reservation,
-      pricing,
+      pricing: pricing || this.createDefaultPricing(reservation.subScenarioId),
       totalCost,
       totalHours,
       ...additionalData,
     };
+  }
+
+  /**
+   * Creates a default pricing entity when pricing is not configured
+   */
+  private createDefaultPricing(subScenarioId: number): SubScenarioPriceDomainEntity {
+    return SubScenarioPriceDomainEntity.builder()
+      .withFkSubScenarioId(subScenarioId)
+      .withHourlyPrice(0)
+      .build();
   }
 
   /**
@@ -104,6 +146,9 @@ export class ReceiptGenerationDomainService {
     template: TemplateDomainEntity,
     receiptData: ReceiptData,
   ): { isValid: boolean; htmlContent?: string; error?: string } {
+    console.log({template});
+    console.log({receiptData});
+    
     try {
       const templateContent = JSON.parse(template.content);
 
@@ -126,13 +171,13 @@ export class ReceiptGenerationDomainService {
   createReceipt(
     reservationId: number,
     templateId: number,
-    pdfUrl: string,
+    variablesValues: { hourlyPrice: number; totalCost: number },
     generatedAt: Date = new Date(),
   ): ReceiptDomainEntity {
     return ReceiptDomainEntity.builder()
       .withFkReservationId(reservationId)
       .withFkTemplateId(templateId)
-      .withPdfUrl(pdfUrl)
+      .withVariablesValues(variablesValues)
       .withGeneratedAt(generatedAt)
       .build();
   }
@@ -148,8 +193,8 @@ export class ReceiptGenerationDomainService {
       return { isValid: false, reason: 'El recibo no ha sido generado' };
     }
 
-    if (!receipt.pdfUrl || receipt.pdfUrl.trim() === '') {
-      return { isValid: false, reason: 'El recibo no tiene un archivo PDF válido' };
+    if (!receipt.variablesValues) {
+      return { isValid: false, reason: 'El recibo no tiene valores de variables válidos' };
     }
 
     if (!this.isValidEmail(email)) {
@@ -175,7 +220,7 @@ export class ReceiptGenerationDomainService {
       .withId(receipt.id)
       .withFkReservationId(receipt.fkReservationId)
       .withFkTemplateId(receipt.fkTemplateId)
-      .withPdfUrl(receipt.pdfUrl)
+      .withVariablesValues(receipt.variablesValues)
       .withGeneratedAt(receipt.generatedAt)
       .withSentAt(sentAt)
       .withSentToEmail(email)
@@ -256,7 +301,9 @@ export class ReceiptGenerationDomainService {
     html += '.content { margin-bottom: 20px; }';
     html += '.footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }';
     html += '</style></head><body>';
-
+    console.log({variables});
+    console.log({components: templateContent.components});
+    
     for (const component of templateContent.components) {
       html += this.renderComponent(component, variables);
     }
@@ -268,6 +315,9 @@ export class ReceiptGenerationDomainService {
       html = html.replace(new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g'), value);
     }
 
+    console.log({finalhtml: html});
+    
+
     return html;
   }
 
@@ -277,10 +327,54 @@ export class ReceiptGenerationDomainService {
         return `<div class="header"><h1>${component.text || ''}</h1></div>`;
       case 'text':
         return `<div class="content"><p>${component.text || ''}</p></div>`;
+      case 'title':
+        const titleText = component.props?.text || component.text || '';
+        let titleHtml = titleText;
+        // Replace variables in title
+        for (const [variable, value] of Object.entries(variables)) {
+          titleHtml = titleHtml.replace(new RegExp(variable.replace(/[{}]/g, '\\$&'), 'g'), value);
+        }
+        return `<div class="header"><h1>${titleHtml}</h1></div>`;
+      case 'logo':
+        const logoSrc = component.props?.src || component.src || '';
+        return `<div class="header"><img src="${logoSrc}" alt="Logo" style="max-height: 100px;"></div>`;
+      case 'client-data':
+        return `<div class="content">
+          <h3>Datos del Cliente</h3>
+          <p><strong>Nombre:</strong> ${variables['{{customer_name}}'] || 'N/A'}</p>
+          <p><strong>Email:</strong> ${variables['{{customer_email}}'] || 'N/A'}</p>
+        </div>`;
+      case 'concepts-table':
+        return `<div class="content">
+          <h3>Conceptos</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr style="background-color: #f2f2f2;">
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Descripción</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Cantidad</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Precio</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">${variables['{{sub_scenario_name}}'] || 'Reservación'}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${variables['{{total_hours}}'] || '0'} horas</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${variables['{{hourly_price}}'] || '$0.00'}</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${variables['{{total_cost}}'] || '$0.00'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>`;
+      case 'hourly-cost':
+        return `<div class="content">
+          <h3>Información de Costo</h3>
+          <p><strong>Precio por hora:</strong> ${variables['{{hourly_price}}'] || '$0.00'}</p>
+          <p><strong>Total de horas:</strong> ${variables['{{total_hours}}'] || '0'}</p>
+          <p><strong>Costo total:</strong> ${variables['{{total_cost}}'] || '$0.00'}</p>
+        </div>`;
       case 'table':
         return this.renderTable(component.data || []);
-      case 'logo':
-        return `<div class="header"><img src="${component.src || ''}" alt="Logo" style="max-height: 100px;"></div>`;
       default:
         return `<div class="content">${component.text || ''}</div>`;
     }

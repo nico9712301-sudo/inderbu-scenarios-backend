@@ -19,11 +19,20 @@ export class ReceiptResponseDto {
   })
   templateId: number;
 
-  @ApiProperty({
-    description: 'URL del archivo PDF',
-    example: 'https://receipts.example.com/receipt_5_cliente_2025-12-12.pdf',
+  @ApiPropertyOptional({
+    description: 'Nombre de la plantilla usada',
+    example: 'Plantilla de Recibo Estándar',
   })
-  pdfUrl: string;
+  templateName?: string;
+
+  @ApiProperty({
+    description: 'Valores de variables del recibo (precio por hora y costo total)',
+    example: { hourlyPrice: 5000, totalCost: 10000 },
+  })
+  variablesValues: {
+    hourlyPrice: number;
+    totalCost: number;
+  };
 
   @ApiProperty({
     description: 'Fecha de generación',
@@ -54,4 +63,10 @@ export class ReceiptResponseDto {
     example: false,
   })
   isSent: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Contenido de la plantilla (JSON string)',
+    example: '{"components": [...]}',
+  })
+  templateContent?: string;
 }

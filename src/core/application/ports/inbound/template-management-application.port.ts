@@ -90,4 +90,9 @@ export interface TemplateManagementApplicationPort {
     totalByType: Record<TemplateTypeDomain, number>;
     mostUsedTemplate: { id: number; name: string; usageCount: number } | null;
   }>;
+
+  /**
+   * Searches active receipt templates by name
+   */
+  searchActiveReceiptTemplatesByName(searchTerm: string): Promise<TemplateDomainEntity[]>;
 }

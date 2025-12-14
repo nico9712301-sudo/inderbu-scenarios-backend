@@ -6,31 +6,33 @@ import {
   PaymentProofEntity,
   NotificationEntity,
 } from '../../persistence';
+import { MYSQL_REPOSITORY } from '../../tokens/repositories';
+import { DATA_SOURCE } from '../../tokens/data_sources';
 
 export const billingRepositoryEntityProviders = [
   {
-    provide: 'TemplateRepository',
+    provide: MYSQL_REPOSITORY.TEMPLATE,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(TemplateEntity),
-    inject: ['DATABASE_CONNECTION'],
+    inject: [DATA_SOURCE.MYSQL],
   },
   {
-    provide: 'SubScenarioPriceRepository',
+    provide: MYSQL_REPOSITORY.SUB_SCENARIO_PRICE,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(SubScenarioPriceEntity),
-    inject: ['DATABASE_CONNECTION'],
+    inject: [DATA_SOURCE.MYSQL],
   },
   {
-    provide: 'ReceiptRepository',
+    provide: MYSQL_REPOSITORY.RECEIPT,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(ReceiptEntity),
-    inject: ['DATABASE_CONNECTION'],
+    inject: [DATA_SOURCE.MYSQL],
   },
   {
-    provide: 'PaymentProofRepository',
+    provide: MYSQL_REPOSITORY.PAYMENT_PROOF,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(PaymentProofEntity),
-    inject: ['DATABASE_CONNECTION'],
+    inject: [DATA_SOURCE.MYSQL],
   },
   {
-    provide: 'NotificationRepository',
+    provide: MYSQL_REPOSITORY.NOTIFICATION,
     useFactory: (dataSource: DataSource) => dataSource.getRepository(NotificationEntity),
-    inject: ['DATABASE_CONNECTION'],
+    inject: [DATA_SOURCE.MYSQL],
   },
 ];

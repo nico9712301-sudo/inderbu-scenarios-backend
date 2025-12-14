@@ -109,6 +109,22 @@ export class PaymentValidationDomainService {
       };
     }
 
+    // Check if more than 24 hours have passed since reservation creation
+    // This is a warning according to Gherkin: "Si no subes el comprobante de pago en las próximas 24 horas, tu reserva podría ser cancelada"
+    if (reservation.createdAt) {
+      const now = new Date();
+      const hoursSinceCreation =
+        (now.getTime() - reservation.createdAt.getTime()) / (1000 * 60 * 60);
+
+      if (hoursSinceCreation > 24) {
+        return {
+          isValid: false,
+          reason:
+            'Han pasado más de 24 horas desde la creación de la reserva. La reserva podría ser cancelada. Por favor, contacta al administrador.',
+        };
+      }
+    }
+
     // Check if there are too many existing proofs (max 5 per reservation)
     if (existingProofs.length >= 5) {
       return {

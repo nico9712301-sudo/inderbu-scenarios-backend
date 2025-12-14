@@ -10,7 +10,7 @@ export class ReceiptEntityMapper {
       .withId(entity.id)
       .withFkReservationId(entity.fkReservationId)
       .withFkTemplateId(entity.fkTemplateId)
-      .withPdfUrl(entity.pdfUrl)
+      .withVariablesValues(entity.variablesValues)
       .withGeneratedAt(entity.generatedAt)
       .withSentAt(entity.sentAt)
       .withSentToEmail(entity.sentToEmail)
@@ -29,7 +29,7 @@ export class ReceiptEntityMapper {
     }
     entity.fkReservationId = domain.fkReservationId;
     entity.fkTemplateId = domain.fkTemplateId;
-    entity.pdfUrl = domain.pdfUrl;
+    entity.variablesValues = domain.variablesValues;
     entity.generatedAt = domain.generatedAt;
     entity.sentAt = domain.sentAt;
     entity.sentToEmail = domain.sentToEmail;

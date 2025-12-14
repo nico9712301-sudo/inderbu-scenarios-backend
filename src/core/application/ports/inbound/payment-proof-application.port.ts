@@ -9,11 +9,22 @@ export interface UploadPaymentProofCommand {
   uploadedByUserId: number;
 }
 
+export interface UploadPaymentProofWithFileCommand {
+  reservationId: number;
+  uploadedByUserId: number;
+  file: Express.Multer.File;
+}
+
 export interface PaymentProofApplicationPort {
   /**
    * Uploads a new payment proof
    */
   uploadPaymentProof(command: UploadPaymentProofCommand): Promise<PaymentProofDomainEntity>;
+
+  /**
+   * Uploads a new payment proof with file (uploads to R2 and creates notification)
+   */
+  uploadPaymentProofWithFile(command: UploadPaymentProofWithFileCommand): Promise<PaymentProofDomainEntity>;
 
   /**
    * Gets payment proof by ID

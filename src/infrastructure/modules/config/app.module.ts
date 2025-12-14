@@ -25,6 +25,7 @@ import { AuthModule } from '../auth.module';
 import { UserModule } from '../user.module';
 import { RoleModule } from '../role.module';
 import { FieldSurfaceTypeModule } from '../field-surface-type.module';
+import { BillingModule } from '../billing/billing.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { FieldSurfaceTypeModule } from '../field-surface-type.module';
     EmailModule,
     RoleModule,
     FieldSurfaceTypeModule,
+    BillingModule,
     AppCommandModule,
     ConfigModule.forRoot({
       isGlobal: true, // Disponible en toda la aplicación

@@ -4,7 +4,9 @@ import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
+import { Readable } from 'stream';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -121,5 +123,64 @@ export class CloudflareR2Service {
 
   getBucketName(): string {
     return this.bucketName;
+  }
+
+  /**
+   * Downloads a file from R2 by key
+   */
+  async downloadFile(key: string): Promise<Buffer> {
+    if (!key) {
+      throw new Error('Key is required to download file');
+    }
+
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
+
+      const response = await this.client.send(command);
+
+      if (!response.Body) {
+        throw new Error('No se pudo descargar el archivo desde R2');
+      }
+
+      // Convert stream to buffer
+      const chunks: Uint8Array[] = [];
+      const stream = response.Body as Readable;
+
+      for await (const chunk of stream) {
+        chunks.push(chunk);
+      }
+
+      return Buffer.concat(chunks);
+    } catch (error) {
+      throw new Error(
+        `Error al descargar archivo desde R2: ${error instanceof Error ? error.message : 'Error desconocido'}`,
+      );
+    }
+  }
+
+  /**
+   * Extracts the R2 key from a full URL or returns the key if it's already a key
+   */
+  extractKeyFromUrl(url: string): string {
+    // If URL contains bucket name, extract the key after it
+    if (url.includes(this.bucketName + '/')) {
+      return url.split(this.bucketName + '/').pop() || url;
+    }
+    // If it's already a key (no http/https), return as is
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      return url;
+    }
+    // Otherwise, try to extract from URL path
+    try {
+      const urlObj = new URL(url);
+      // Remove leading slash from pathname
+      return urlObj.pathname.substring(1);
+    } catch {
+      // If URL parsing fails, return the original string
+      return url;
+    }
   }
 }

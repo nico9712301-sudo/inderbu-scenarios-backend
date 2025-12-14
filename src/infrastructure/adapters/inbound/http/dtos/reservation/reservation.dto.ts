@@ -268,6 +268,20 @@ export class ReservationWithDetailsResponseDto {
   @ApiProperty({ example: 36 })
   @Expose()
   readonly totalInstances: number;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Indica si el sub-escenario asociado tiene costo',
+  })
+  @Expose()
+  readonly hasCost?: boolean;
+
+  @ApiPropertyOptional({
+    example: true,
+    description: 'Indica si la reserva tiene comprobantes de pago subidos',
+  })
+  @Expose()
+  readonly hasPaymentProofs?: boolean;
 }
 
 /**

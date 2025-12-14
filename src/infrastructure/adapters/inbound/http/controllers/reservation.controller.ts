@@ -5,6 +5,7 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import {
   BadRequestException,
@@ -20,7 +21,10 @@ import {
   Query,
   Request,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   CreateReservationResponseDto,
   ReservationWithDetailsResponseDto,
@@ -39,6 +43,10 @@ import { SimplifiedAvailabilityResponseDto } from '../dtos/reservation/simplifie
 import { ReservationStateDto } from '../dtos/reservation/base-reservation.dto';
 import { IReservationStateRepositoryPort } from '../../../../../core/domain/ports/outbound/reservation-state-repository.port';
 import { ReservationStateResponseMapper } from '../../../../mappers/reservation-state/reservation-state-response.mapper';
+import { ConfirmReservationDto } from '../dtos/reservation/confirm-reservation.dto';
+import { ConfirmationStatusDto } from '../dtos/reservation/confirmation-status.dto';
+import { APPLICATION_PORTS as BILLING_APPLICATION_PORTS } from '../../../../providers/billing/application-ports';
+import { PaymentProofApplicationPort } from '../../../../../core/application/ports/inbound/payment-proof-application.port';
 
 @ApiTags('Reservations')
 @Controller('reservations')
@@ -49,6 +57,9 @@ export class ReservationController {
 
     @Inject(REPOSITORY_PORTS.RESERVATION_STATE)
     private readonly reservationStateRepository: IReservationStateRepositoryPort,
+
+    @Inject(BILLING_APPLICATION_PORTS.PAYMENT_PROOF)
+    private readonly paymentProofService: PaymentProofApplicationPort,
   ) {}
 
   @Post()
@@ -420,5 +431,152 @@ export class ReservationController {
   ): Promise<PageDto<ReservationWithDetailsResponseDto>> {
     const options = { ...pageOptionsDto, userId };
     return await this.reservationApplicationService.listReservations(options);
+  }
+
+  @Get(':id/confirmation-status')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({
+    summary: 'Obtener estado de confirmación de una reserva',
+    description:
+      'Devuelve información sobre si la reserva puede ser confirmada, si requiere justificación, y si tiene comprobantes de pago',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID de la reserva',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    type: ConfirmationStatusDto,
+    description: 'Estado de confirmación obtenido exitosamente',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Reserva no encontrada',
+  })
+  async getConfirmationStatus(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ConfirmationStatusDto> {
+    try {
+      return await this.reservationApplicationService.getConfirmationStatus(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(`Reserva con ID ${id} no encontrada`);
+    }
+  }
+
+  @Post(':id/confirm')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FileInterceptor('paymentProofFile'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Confirmar una reserva',
+    description:
+      'Confirma una reserva. Para reservas pagadas sin comprobante, se requiere justificación o se puede subir un comprobante manualmente. ' +
+      'Si la reserva tiene comprobantes de pago, se confirma automáticamente sin justificación.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'ID de la reserva',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    type: ReservationWithDetailsResponseDto,
+    description: 'Reserva confirmada exitosamente',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'La reserva requiere un comprobante de pago o una justificación para ser confirmada',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Reserva no encontrada',
+  })
+  @ApiBody({
+    description: 'Justificación opcional y/o comprobante de pago para confirmar reserva pagada sin comprobante',
+    schema: {
+      type: 'object',
+      properties: {
+        justification: {
+          type: 'string',
+          description: 'Justificación requerida si la reserva es pagada y no tiene comprobante de pago. Máximo 500 caracteres.',
+          maxLength: 500,
+        },
+        paymentProofFile: {
+          type: 'string',
+          format: 'binary',
+          description: 'Archivo de comprobante de pago (PDF, JPG, JPEG, PNG) - Opcional. Si se proporciona, se subirá antes de confirmar.',
+        },
+      },
+    },
+  })
+  async confirmReservation(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() confirmDto: ConfirmReservationDto,
+    @UploadedFile() paymentProofFile?: Express.Multer.File,
+    @Request() req?: any,
+  ): Promise<ReservationWithDetailsResponseDto> {
+    try {
+      // Si se subió un archivo, procesarlo primero
+      if (paymentProofFile) {
+        // Validar tipo de archivo
+        const allowedMimeTypes = [
+          'application/pdf',
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+        ];
+        if (!allowedMimeTypes.includes(paymentProofFile.mimetype)) {
+          throw new BadRequestException(
+            'Tipo de archivo no permitido. Solo se permiten PDF, JPG, JPEG y PNG',
+          );
+        }
+
+        // Validar tamaño (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (paymentProofFile.size > maxSize) {
+          throw new BadRequestException(
+            'El archivo es demasiado grande. Tamaño máximo: 10MB',
+          );
+        }
+
+        // Obtener userId del request (asumiendo que viene del JWT guard)
+        const userId = req?.user?.userId;
+        if (!userId) {
+          throw new BadRequestException(
+            'Usuario no encontrado en la sesión. Se requiere autenticación para subir comprobantes.',
+          );
+        }
+
+        // Subir el comprobante
+        await this.paymentProofService.uploadPaymentProofWithFile({
+          reservationId: id,
+          file: paymentProofFile,
+          uploadedByUserId: userId,
+        });
+      }
+
+      // Confirmar la reserva (con justificación si es necesaria)
+      return await this.reservationApplicationService.confirmReservation(
+        id,
+        confirmDto.justification,
+      );
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+      throw new BadRequestException(
+        error instanceof Error ? error.message : 'Error al confirmar la reserva',
+      );
+    }
   }
 }
