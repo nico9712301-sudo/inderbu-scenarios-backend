@@ -13,9 +13,9 @@ import {
 import { billingProviders } from '../../providers/billing';
 
 // Services
-import { PdfGenerationService } from '../../adapters/outbound/pdf-generation/pdf-generation.service';
 import { ReceiptEmailService } from '../../adapters/outbound/email/receipt-email.service';
 import { CloudflareR2Service } from '../../adapters/outbound/file-storage/cloudflare-r2.service';
+import { ReceiptHtmlRendererDomainService } from '../../../core/domain/services/receipt-html-renderer.domain-service';
 
 // External dependencies that might be needed
 import { DatabaseModule } from '../database/database.module';
@@ -40,15 +40,15 @@ import { UserModule } from '../user.module';
   ],
   providers: [
     ...billingProviders,
-    PdfGenerationService,
     ReceiptEmailService,
+    ReceiptHtmlRendererDomainService,
     CloudflareR2Service,
   ],
   exports: [
     // Export application services for use in other modules
     ...billingProviders,
-    PdfGenerationService,
     ReceiptEmailService,
+    ReceiptHtmlRendererDomainService,
     CloudflareR2Service,
   ],
 })

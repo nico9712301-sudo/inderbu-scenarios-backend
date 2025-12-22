@@ -13,8 +13,8 @@ import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scen
 import { ReceiptDomainEntity } from '../../domain/entities/receipt.domain-entity';
 import { SubScenarioPriceDomainEntity } from '../../domain/entities/sub-scenario-price.domain-entity';
 import { ReceiptGenerationDomainService, ReceiptData } from '../../domain/services/receipt-generation.domain-service';
+import { ReceiptHtmlRendererDomainService } from '../../domain/services/receipt-html-renderer.domain-service';
 import { REPOSITORY_PORTS } from '../../../infrastructure/tokens/ports';
-// import { PdfGenerationService } from '../../../infrastructure/adapters/outbound/pdf-generation/pdf-generation.service';
 import { ReceiptEmailService } from '../../../infrastructure/adapters/outbound/email/receipt-email.service';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
     @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
     private readonly subScenarioRepository: ISubScenarioRepositoryPort,
     private readonly receiptGenerationDomainService: ReceiptGenerationDomainService,
-    // private readonly pdfGenerationService: PdfGenerationService,
+    private readonly receiptHtmlRendererDomainService: ReceiptHtmlRendererDomainService,
     private readonly receiptEmailService: ReceiptEmailService,
   ) { }
 
@@ -146,30 +146,84 @@ export class ReceiptManagementApplicationService implements ReceiptManagementApp
       throw new Error(validation.reason);
     }
 
-    // TODO: PDF generation moved to frontend using @react-pdf/renderer
-    // For now, email sending is disabled until PDF generation is implemented in frontend
-    // or an alternative backend solution is implemented
-    throw new Error('El envío de recibos por email está temporalmente deshabilitado. Use la descarga de PDF desde el frontend.');
-    
-    // Code below is unreachable but kept for reference when re-implementing email sending
-    // Render receipt HTML/PDF when sending
-    // const htmlContent = await this.renderReceipt(receipt);
-    // Generate PDF from HTML
-    // const fileName: string = this.receiptGenerationDomainService.generateReceiptFilename(
-    //   receipt.fkReservationId,
-    //   'cliente', // Will be replaced with actual customer name in email service
-    // );
-    // Generate PDF
-    // const pdfBuffer = await this.pdfGenerationService.generatePdfFromHtml(
-    //   htmlContent,
-    //   fileName.replace('.pdf', ''),
-    // );
-    // Send email with PDF attachment
-    // await this.receiptEmailService.sendReceiptEmailWithPdf(command.email, receipt, pdfBuffer);
+    // Get reservation data
+    const reservation = await this.reservationRepository.findById(receipt.fkReservationId);
+    if (!reservation) {
+      throw new Error('Reservación no encontrada');
+    }
+
+    // Get user data
+    const user = await this.userRepository.findById(reservation.userId);
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    // Get sub-scenario data
+    const subScenario = await this.subScenarioRepository.findByIdWithRelations(reservation.subScenarioId);
+    if (!subScenario) {
+      throw new Error('Sub-escenario no encontrado');
+    }
+
+    // Get template data
+    const template = await this.templateRepository.findById(receipt.fkTemplateId);
+    if (!template) {
+      throw new Error('Plantilla no encontrada');
+    }
+
+    // Parse template content
+    let templateContent;
+    try {
+      templateContent = JSON.parse(template.content);
+    } catch (error) {
+      throw new Error('Error al parsear el contenido de la plantilla');
+    }
+
+    // Calculate total hours from receipt data
+    const totalHours = receipt.variablesValues.hourlyPrice > 0
+      ? Math.round(receipt.variablesValues.totalCost / receipt.variablesValues.hourlyPrice)
+      : 0;
+
+    // Format dates
+    const reservationDate = reservation.initialDate
+      ? new Date(reservation.initialDate).toLocaleDateString('es-ES', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : new Date().toLocaleDateString('es-ES');
+
+    const currentDate = new Date().toLocaleDateString('es-ES');
+    const currentTime = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    // Get scenario name from subScenario
+    const scenarioName = (subScenario as any).scenario?.name || 'Escenario';
+
+    // Generate HTML from receipt
+    const receiptHtml = this.receiptHtmlRendererDomainService.generateReceiptHtml({
+      receipt,
+      reservation,
+      templateContent,
+      clientName: `${user.firstName} ${user.lastName}`,
+      clientEmail: user.email,
+      clientPhone: user.phone || undefined,
+      scenarioName,
+      subScenarioName: subScenario.name,
+      hourlyPrice: receipt.variablesValues.hourlyPrice,
+      totalCost: receipt.variablesValues.totalCost,
+      totalHours,
+      reservationDate,
+      currentDate,
+      currentTime,
+    });
+
+    // Send email with HTML content
+    await this.receiptEmailService.sendReceiptEmailWithHtml(command.email, receipt, receiptHtml);
+
     // Mark receipt as sent
-    // const updatedReceipt = this.receiptGenerationDomainService.markReceiptAsSent(receipt, command.email);
+    const updatedReceipt = this.receiptGenerationDomainService.markReceiptAsSent(receipt, command.email);
+
     // Save and return
-    // return await this.receiptRepository.save(updatedReceipt);
+    return await this.receiptRepository.save(updatedReceipt);
   }
 
   // Removed renderReceipt - PDF generation is now handled in the frontend using @react-pdf/renderer

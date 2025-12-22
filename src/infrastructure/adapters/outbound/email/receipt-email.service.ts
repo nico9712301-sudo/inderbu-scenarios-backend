@@ -3,19 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { SentMessageInfo } from 'nodemailer';
 import { ReceiptDomainEntity } from '../../../../core/domain/entities/receipt.domain-entity';
-import { CloudflareR2Service } from '../file-storage/cloudflare-r2.service';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
-import { Readable } from 'stream';
 
 @Injectable()
 export class ReceiptEmailService {
   private transporter: nodemailer.Transporter<SentMessageInfo>;
-  private r2Client: S3Client;
-  private bucketName: string;
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly r2Service: CloudflareR2Service,
   ) {
     // Initialize email transporter
     const host = this.configService.get<string>('ETHEREAL_HOST');
@@ -31,92 +25,78 @@ export class ReceiptEmailService {
       auth: { user, pass },
       tls: { rejectUnauthorized: false },
     });
-
-    // Initialize R2 client for downloading PDFs
-    const endpoint = this.configService.get<string>('R2_ENDPOINT');
-    const accessKeyId = this.configService.get<string>('R2_ACCESS_KEY_ID');
-    const secretAccessKey = this.configService.get<string>('R2_SECRET_ACCESS_KEY');
-    this.bucketName = this.configService.get<string>('R2_BUCKET_NAME') || '';
-
-    if (!endpoint || !accessKeyId || !secretAccessKey) {
-      throw new Error('R2 configuration is missing');
-    }
-
-    this.r2Client = new S3Client({
-      endpoint,
-      region: 'auto',
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      },
-    });
   }
 
   /**
-   * Downloads a PDF from R2 by key
+   * Sends a receipt via email with HTML content embedded
    */
-  private async downloadPdfFromR2(key: string): Promise<Buffer> {
-    try {
-      const command = new GetObjectCommand({
-        Bucket: this.bucketName,
-        Key: key,
-      });
-
-      const response = await this.r2Client.send(command);
-      
-      if (!response.Body) {
-        throw new Error('No se pudo descargar el PDF desde R2');
-      }
-
-      // Convert stream to buffer
-      const chunks: Uint8Array[] = [];
-      const stream = response.Body as Readable;
-
-      for await (const chunk of stream) {
-        chunks.push(chunk);
-      }
-
-      return Buffer.concat(chunks);
-    } catch (error) {
-      throw new Error(
-        `Error al descargar PDF desde R2: ${error instanceof Error ? error.message : 'Error desconocido'}`,
-      );
-    }
-  }
-
-  /**
-   * Extracts the R2 key from a full URL or returns the key if it's already a key
-   */
-  private extractR2Key(pdfUrl: string): string {
-    // If it's already a key (no http/https), return as is
-    if (!pdfUrl.startsWith('http://') && !pdfUrl.startsWith('https://')) {
-      return pdfUrl;
-    }
-
-    // Extract key from URL
-    try {
-      const url = new URL(pdfUrl);
-      // Remove leading slash
-      return url.pathname.substring(1);
-    } catch {
-      // If URL parsing fails, assume it's already a key
-      return pdfUrl;
-    }
-  }
-
-  /**
-   * Sends a receipt via email with PDF attachment (using provided PDF buffer)
-   */
-  async sendReceiptEmailWithPdf(
+  async sendReceiptEmailWithHtml(
     email: string,
     receipt: ReceiptDomainEntity,
-    pdfBuffer: Buffer,
+    receiptHtml: string,
   ): Promise<void> {
     try {
-      // Generate filename from receipt
-      const fileName = `recibo_${receipt.fkReservationId}_${receipt.generatedAt.toISOString().split('T')[0]}.pdf`;
+      // Generate email wrapper HTML
+      const emailHtml = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recibo de Pago - Reserva #${receipt.fkReservationId}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background: #00529B; padding: 30px 20px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: bold;">Recibo de Pago</h1>
+            </td>
+          </tr>
+          <!-- Email Body -->
+          <tr>
+            <td style="padding: 30px 20px;">
+              <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">Hola,</p>
+              <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+                Adjuntamos el recibo de pago correspondiente a tu <strong>reserva #${receipt.fkReservationId}</strong>.
+              </p>
+              <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+                Este recibo fue generado el <strong>${receipt.generatedAt.toLocaleDateString('es-CO', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })}</strong>.
+              </p>
+            </td>
+          </tr>
+          <!-- Receipt HTML Content -->
+          <tr>
+            <td style="padding: 0 20px 30px 20px;">
+              ${receiptHtml}
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 20px; background-color: #f9f9f9; border-top: 1px solid #eee;">
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0 0 10px 0;">
+                Si tienes alguna pregunta, no dudes en contactarnos.
+              </p>
+              <p style="color: #999; font-size: 12px; margin: 0;">
+                © ${new Date().getFullYear()} Inderbú. Todos los derechos reservados.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 
-      // Send email with PDF attachment
+      // Send email with HTML content
       const info = await this.transporter.sendMail({
         from: '"Inderbú ⚽" <no-reply@inderbu.test>',
         to: email,
@@ -132,38 +112,7 @@ Si tienes alguna pregunta, no dudes en contactarnos.
 
 ¡Gracias por elegir Inderbú!
         `,
-        html: `
-<table width="100%" style="max-width:600px;margin:auto;font-family:sans-serif;color:#333;">
-  <tr>
-    <td style="background:#00529B;padding:20px;text-align:center;color:white;">
-      <h1>Recibo de Pago</h1>
-    </td>
-  </tr>
-  <tr>
-    <td style="padding:30px;">
-      <p>Hola,</p>
-      <p>Adjuntamos el recibo de pago correspondiente a tu <strong>reserva #${receipt.fkReservationId}</strong>.</p>
-      <p>Este recibo fue generado el <strong>${receipt.generatedAt.toLocaleDateString('es-CO', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })}</strong>.</p>
-      <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
-      <hr style="border:none;border-top:1px solid #eee;margin:20px 0;" />
-      <p style="font-size:12px;color:#777;">
-        © ${new Date().getFullYear()} Inderbú. Todos los derechos reservados.
-      </p>
-    </td>
-  </tr>
-</table>
-        `,
-        attachments: [
-          {
-            filename: fileName,
-            content: pdfBuffer,
-            contentType: 'application/pdf',
-          },
-        ],
+        html: emailHtml,
       });
 
       console.log(`✉️  Recibo enviado por email: ${info.messageId}`);
@@ -174,15 +123,6 @@ Si tienes alguna pregunta, no dudes en contactarnos.
         `No se pudo enviar el recibo por email: ${error instanceof Error ? error.message : 'Error desconocido'}`,
       );
     }
-  }
-
-  /**
-   * Sends a receipt via email with PDF attachment (legacy method for backward compatibility)
-   */
-  async sendReceiptEmail(email: string, receipt: ReceiptDomainEntity): Promise<void> {
-    // This method is kept for backward compatibility but should not be used
-    // Use sendReceiptEmailWithPdf instead
-    throw new Error('Este método está deprecado. Use sendReceiptEmailWithPdf en su lugar.');
   }
 }
 
