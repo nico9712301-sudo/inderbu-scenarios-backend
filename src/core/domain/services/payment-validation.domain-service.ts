@@ -133,20 +133,7 @@ export class PaymentValidationDomainService {
       };
     }
 
-    // Check if there's a recent upload (within 5 minutes)
-    const fiveMinutesAgo = new Date();
-    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
-
-    const recentUpload = existingProofs.find(
-      proof => proof.createdAt > fiveMinutesAgo,
-    );
-
-    if (recentUpload) {
-      return {
-        isValid: false,
-        reason: 'Debe esperar al menos 5 minutos entre subidas de comprobantes',
-      };
-    }
+    // Removed 5-minute validation - users can upload immediately
 
     return { isValid: true };
   }

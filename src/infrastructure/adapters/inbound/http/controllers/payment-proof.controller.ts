@@ -174,7 +174,7 @@ export class PaymentProofController {
     @Param('reservationId', ParseIntPipe) reservationId: number,
   ) {
     const results = await this.paymentProofService.getPaymentProofsByReservation(reservationId);
-    return results.map(proof => this.mapToResponseDto(proof));
+    return results.map(proof => this.mapToResponseDtoWithUser(proof));
   }
 
   @Get()
@@ -236,5 +236,38 @@ export class PaymentProofController {
       uploadedBy: entity.uploadedBy,
       createdAt: entity.createdAt,
     };
+  }
+
+  private mapToResponseDtoWithUser(domain: any) {
+    const baseDto = {
+      id: domain.id,
+      reservationId: domain.fkReservationId,
+      fileUrl: domain.fileUrl,
+      originalFileName: domain.originalFilename,
+      mimeType: domain.mimeType,
+      fileSize: domain.fileSize,
+      uploadedBy: domain.uploadedByUserId,
+      createdAt: domain.createdAt,
+    };
+
+    // Include user information if available
+    if ((domain as any).uploadedByUser) {
+      const user = (domain as any).uploadedByUser;
+      return {
+        ...baseDto,
+        uploadedByUser: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          role: user.role ? {
+            id: user.role.id,
+            name: user.role.name,
+          } : null,
+        },
+      };
+    }
+
+    return baseDto;
   }
 }

@@ -6,7 +6,7 @@ export class PaymentProofEntityMapper {
    * Convierte de la entidad de persistencia a la entidad de dominio usando el builder
    */
   static toDomain(entity: PaymentProofEntity): PaymentProofDomainEntity {
-    return PaymentProofDomainEntity.builder()
+    const domain = PaymentProofDomainEntity.builder()
       .withId(entity.id)
       .withFkReservationId(entity.fkReservationId)
       .withFileUrl(entity.fileUrl)
@@ -18,6 +18,13 @@ export class PaymentProofEntityMapper {
       .withCreatedAt(entity.createdAt)
       .withUpdatedAt(entity.updatedAt)
       .build();
+    
+    // Preserve user relation if available
+    if (entity.uploadedByUser) {
+      (domain as any).uploadedByUser = entity.uploadedByUser;
+    }
+    
+    return domain;
   }
 
   /**

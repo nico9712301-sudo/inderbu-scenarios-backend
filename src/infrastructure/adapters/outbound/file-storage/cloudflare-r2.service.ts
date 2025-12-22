@@ -50,6 +50,7 @@ export class CloudflareR2Service {
   async uploadFile(
     file: Express.Multer.File,
     folderPath?: string,
+    bucketName?: string,
   ): Promise<string> {
     if (!file) {
       throw new Error('Archivo inválido: no se proporcionó archivo');
@@ -88,8 +89,10 @@ export class CloudflareR2Service {
       throw new Error('Archivo inválido: datos vacíos');
     }
 
+    const targetBucket = bucketName || this.bucketName;
+
     const command = new PutObjectCommand({
-      Bucket: this.bucketName,
+      Bucket: targetBucket,
       Key: key,
       Body: fileData,
       ContentType: file.mimetype || 'application/octet-stream',
@@ -104,12 +107,13 @@ export class CloudflareR2Service {
     }
   }
 
-  async deleteFile(key: string): Promise<boolean> {
+  async deleteFile(key: string, bucketName?: string): Promise<boolean> {
     if (!key) return false;
 
     try {
+      const targetBucket = bucketName || this.bucketName;
       const command = new DeleteObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: targetBucket,
         Key: key,
       });
 
@@ -128,14 +132,15 @@ export class CloudflareR2Service {
   /**
    * Downloads a file from R2 by key
    */
-  async downloadFile(key: string): Promise<Buffer> {
+  async downloadFile(key: string, bucketName?: string): Promise<Buffer> {
     if (!key) {
       throw new Error('Key is required to download file');
     }
 
     try {
+      const targetBucket = bucketName || this.bucketName;
       const command = new GetObjectCommand({
-        Bucket: this.bucketName,
+        Bucket: targetBucket,
         Key: key,
       });
 

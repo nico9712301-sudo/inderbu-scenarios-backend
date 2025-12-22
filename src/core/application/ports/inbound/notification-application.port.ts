@@ -72,7 +72,13 @@ export interface NotificationApplicationPort {
   /**
    * Creates payment proof notification
    */
-  createPaymentProofNotification(reservationId: number, paymentProofId: number): Promise<NotificationDomainEntity>;
+  createPaymentProofNotification(
+    reservationId: number, 
+    paymentProofId: number,
+    userName: string,
+    subScenarioName: string,
+    isUpdate: boolean
+  ): Promise<NotificationDomainEntity>;
 
   /**
    * Creates receipt generated notification

@@ -6,6 +6,8 @@ import {
 } from '../ports/inbound/payment-proof-application.port';
 import { IPaymentProofRepositoryPort } from '../../domain/ports/outbound/payment-proof-repository.port';
 import { IReservationRepositoryPort } from '../../domain/ports/outbound/reservation-repository.port';
+import { IUserRepositoryPort } from '../../domain/ports/outbound/user-repository.port';
+import { ISubScenarioRepositoryPort } from '../../domain/ports/outbound/sub-scenario-repository.port';
 import { NotificationApplicationPort } from '../ports/inbound/notification-application.port';
 import { PaymentProofDomainEntity } from '../../domain/entities/payment-proof.domain-entity';
 import { PaymentValidationDomainService } from '../../domain/services/payment-validation.domain-service';
@@ -21,6 +23,10 @@ export class PaymentProofApplicationService implements PaymentProofApplicationPo
     private readonly paymentProofRepository: IPaymentProofRepositoryPort,
     @Inject(REPOSITORY_PORTS.RESERVATION)
     private readonly reservationRepository: IReservationRepositoryPort,
+    @Inject(REPOSITORY_PORTS.USER)
+    private readonly userRepository: IUserRepositoryPort,
+    @Inject(REPOSITORY_PORTS.SUB_SCENARIO)
+    private readonly subScenarioRepository: ISubScenarioRepositoryPort,
     @Inject(APPLICATION_PORTS.NOTIFICATION)
     private readonly notificationService: NotificationApplicationPort,
     private readonly paymentValidationDomainService: PaymentValidationDomainService,
@@ -107,12 +113,21 @@ export class PaymentProofApplicationService implements PaymentProofApplicationPo
       throw new Error(businessValidation.reason);
     }
 
-    // Upload file to R2 in payment-receipts folder
-    const r2Key = await this.r2Service.uploadFile(command.file, 'payment-receipts');
+    // Get payment proof bucket configuration
+    const paymentProofBucketName = this.configService.get<string>('R2_BUCKET_PAYMENT_PROOF_NAME');
+    const paymentProofPublicUrl = this.configService.get<string>('R2_BUCKET_PAYMENT_PROOF_NAME_PUBLIC_URL');
 
-    // Get public URL
-    const bucketHost = this.configService.get<string>('R2_BUCKET_HOST');
-    const fileUrl = bucketHost ? `${bucketHost}/${r2Key}` : r2Key;
+    // Upload file to R2 in payment-receipts folder using payment-proof bucket
+    const r2Key = await this.r2Service.uploadFile(
+      command.file,
+      'payment-receipts',
+      paymentProofBucketName,
+    );
+
+    // Get public URL using payment proof bucket public URL
+    const fileUrl = paymentProofPublicUrl
+      ? `${paymentProofPublicUrl}/${r2Key}`
+      : r2Key;
 
     // Create payment proof entity
     const paymentProof = PaymentProofDomainEntity.builder()
@@ -129,9 +144,23 @@ export class PaymentProofApplicationService implements PaymentProofApplicationPo
 
     // Create notification for administrators
     try {
+      // Determine if it's a new upload or an update
+      const isUpdate = existingProofs.length > 0;
+      
+      // Get user information
+      const user = await this.userRepository.findById(command.uploadedByUserId);
+      const userName = user ? `${user.firstName} ${user.lastName}` : 'Usuario desconocido';
+      
+      // Get subscenario information
+      const subScenario = await this.subScenarioRepository.findById(reservation.subScenarioId);
+      const subScenarioName = subScenario?.name || 'Sub-escenario desconocido';
+      
       await this.notificationService.createPaymentProofNotification(
         command.reservationId,
         savedProof.id!,
+        userName,
+        subScenarioName,
+        isUpdate,
       );
     } catch (error) {
       // Log error but don't fail the upload

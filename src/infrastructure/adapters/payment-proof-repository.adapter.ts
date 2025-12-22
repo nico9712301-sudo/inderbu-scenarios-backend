@@ -17,6 +17,7 @@ export class PaymentProofRepositoryAdapter implements IPaymentProofRepositoryPor
   async findByReservationId(reservationId: number): Promise<PaymentProofDomainEntity[]> {
     const entities = await this.paymentProofRepository.find({
       where: { fkReservationId: reservationId },
+      relations: ['uploadedByUser', 'uploadedByUser.role'],
       order: {
         createdAt: 'DESC',
       },

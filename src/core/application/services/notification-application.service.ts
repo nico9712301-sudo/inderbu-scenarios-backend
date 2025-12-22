@@ -70,8 +70,20 @@ export class NotificationApplicationService implements NotificationApplicationPo
     return await this.notificationRepository.deleteOldReadNotifications(days);
   }
 
-  async createPaymentProofNotification(reservationId: number, paymentProofId: number): Promise<NotificationDomainEntity> {
-    return await this.notificationRepository.createPaymentProofNotification(reservationId, paymentProofId);
+  async createPaymentProofNotification(
+    reservationId: number, 
+    paymentProofId: number,
+    userName: string,
+    subScenarioName: string,
+    isUpdate: boolean
+  ): Promise<NotificationDomainEntity> {
+    return await this.notificationRepository.createPaymentProofNotification(
+      reservationId, 
+      paymentProofId,
+      userName,
+      subScenarioName,
+      isUpdate
+    );
   }
 
   async createReceiptGeneratedNotification(reservationId: number, receiptId: number): Promise<NotificationDomainEntity> {

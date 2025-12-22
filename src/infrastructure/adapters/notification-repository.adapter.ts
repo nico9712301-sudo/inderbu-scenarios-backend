@@ -151,11 +151,18 @@ export class NotificationRepositoryAdapter implements INotificationRepositoryPor
     return result.affected || 0;
   }
 
-  async createPaymentProofNotification(reservationId: number, paymentProofId: number): Promise<NotificationDomainEntity> {
+  async createPaymentProofNotification(
+    reservationId: number, 
+    paymentProofId: number,
+    userName: string,
+    subScenarioName: string,
+    isUpdate: boolean
+  ): Promise<NotificationDomainEntity> {
+    const action = isUpdate ? 'actualizado' : 'subido';
     const notification = NotificationDomainEntity.builder()
       .withType(NotificationTypeDomain.PAYMENT_PROOF_UPLOADED)
       .withTitle('Nuevo comprobante de pago')
-      .withMessage(`Se ha subido un nuevo comprobante de pago para la reservación #${reservationId}`)
+      .withMessage(`${userName} ha ${action} un comprobante de pago para la reserva en ${subScenarioName}`)
       .withFkReservationId(reservationId)
       .withFkPaymentProofId(paymentProofId)
       .withIsRead(false)
